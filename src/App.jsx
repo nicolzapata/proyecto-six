@@ -33,7 +33,7 @@ export default function App() {
           element={
             <PrivateRoute>
               <Dashboard />
-              <Usuarios />
+              <Users />
               <Escritores />
               <Libros />
               <Prestamos />
