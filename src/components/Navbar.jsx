@@ -37,10 +37,10 @@ export default function Navbar() {
             Perfil
           </Link>
           <Link
-            to="/libros"
-            className={location.pathname === "/libros" ? "active" : ""}
+            to="/users"
+            className={location.pathname === "/users" ? "active" : ""}
           >
-            Libros
+            Usuarios
           </Link>
           <Link
             to="/escritores"
@@ -48,18 +48,20 @@ export default function Navbar() {
           >
             Escritores
           </Link>
+
+          <Link
+            to="/libros"
+            className={location.pathname === "/libros" ? "active" : ""}
+          >
+            Libros
+          </Link>
           <Link
             to="/prestamos"
             className={location.pathname === "/prestamos" ? "active" : ""}
           >
             Prestamos
           </Link>
-          <Link
-            to="/users"
-            className={location.pathname === "/users" ? "active" : ""}
-          >
-            Usuarios
-          </Link>
+
 
           <span>{user.name}</span>
           <button onClick={logout}>Cerrar sesión</button>
