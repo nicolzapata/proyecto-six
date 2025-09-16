@@ -34,8 +34,8 @@ export default function App() {
             <PrivateRoute>
               <Dashboard />
               <Usuarios />
-              <Libros />
               <Escritores />
+              <Libros />
               <Prestamos />
             </PrivateRoute>
           }
