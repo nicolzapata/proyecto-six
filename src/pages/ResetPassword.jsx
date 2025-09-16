@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import LoadingSpinner from "../components/Common/LoadingSpinner";
 import MessageAlert from "../components/Common/MessageAlert";
 import { validateEmail, validatePassword, validatePasswordMatch, validateResetCode } from "../utils/validators";
-import "./ResetPassword.css"; // Asegúrate de crear este archivo CSS
+
 
 const ResetPassword = () => {
   const [formData, setFormData] = useState({

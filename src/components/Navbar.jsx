@@ -2,7 +2,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import ThemeToggle from "./ThemeToggle";
-import "./Navbar.css"; // Importa el archivo CSS
+
 
 export default function Navbar() {
   const { user, logout } = useAuth();

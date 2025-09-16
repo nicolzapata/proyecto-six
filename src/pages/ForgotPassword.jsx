@@ -7,7 +7,7 @@ import MessageAlert from "../components/Common/MessageAlert";
 import { validateEmail } from "../utils/validators";
 import { emailExists } from "../utils/userHelpers";
 import EmailJSConfig from "../components/EmailJSConfig";
-import "./ForgotPassword.css"; // 👈 Import del CSS
+
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
