@@ -12,9 +12,7 @@ const ThemeToggle = ({ className = '' }) => {
       title={isDark ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
       aria-label={`Cambiar a tema ${isDark ? 'claro' : 'oscuro'}`}
     >
-      <span className="sr-only">
-        {isDark ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
-      </span>
+
       <span style={{ 
         position: 'absolute', 
         left: isDark ? '8px' : '32px',
