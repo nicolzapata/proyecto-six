@@ -9,6 +9,11 @@ import Register from "./pages/Register";
 import Navbar from "./components/Navbar";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import Libros from "./pages/Libros";
+import Escritores from "./pages/Escritores";
+import Prestamos from "./pages/Prestamos";
+import Users from "./pages/Users";
+
 export default function App() {
   return (
     <>
@@ -19,6 +24,10 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/resetpassword" element={<ResetPassword />} />
+        <Route path="/libros" element={<Libros />} />
+        <Route path="/escritores" element={<Escritores />} /> 
+        <Route path="/prestamos" element={<Prestamos />} />
+        <Route path="/users" element={<Users />} />
         <Route
           path="/dashboard"
           element={
