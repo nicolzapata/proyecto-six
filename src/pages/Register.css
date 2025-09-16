@@ -1,0 +1,39 @@
+/* Register CSS - Forzado con !important pero limitado al registro */
+
+/* Contenedor principal del registro */
+.register-container {
+  min-height: 100vh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 2rem !important;
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 50%, #f7fee7 100%) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.register-card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(12px) !important;
+  border-radius: 20px !important;
+  padding: 3rem 2.5rem !important;
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.08) !important;
+  border: 1px solid rgba(34, 197, 94, 0.1) !important;
+  max-width: 480px !important;
+  width: 100% !important;
+  position: relative !important;
+  z-index: 2 !important;
+  animation: slideInUp 0.7s ease-out !important;
+}
+
+/* Ejemplo para inputs */
+.register-form input {
+  width: 100% !important;
+  padding: 1rem 1.2rem !important;
+  border: 2px solid #d1fae5 !important;
+  border-radius: 12px !important;
+  font-size: 1rem !important;
+  background: #ffffff !important;
+  transition: all 0.3s ease !important;
+  box-sizing: border-box !important;
+}
