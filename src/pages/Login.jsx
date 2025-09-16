@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
-import "./Login.css"; // Importa el archivo CSS
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -40,57 +39,90 @@ const Login = () => {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <h1 className="login-title">Bienvenido</h1>
-        <p className="login-subtitle">Inicia sesión en tu cuenta</p>
-        
-        {error && <div className="error-message">{error}</div>}
-        
-        <form className="login-form" onSubmit={handleLogin}>
-          <div className="input-group">
-            <label htmlFor="username">Nombre de usuario</label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Ingresa tu usuario"
-            />
+    <div className="bg-gradient-page">
+      <div className="container flex items-center justify-center min-h-screen py-8">
+        <div className="card animate-slide-up" style={{ maxWidth: '420px', width: '100%' }}>
+          <div className="card-body">
+            <div className="text-center mb-6">
+              <h1 className="text-2xl font-bold mb-2">
+                📚 Bienvenido a la Biblioteca
+              </h1>
+              <p className="text-muted">Inicia sesión para continuar</p>
+            </div>
+            
+            {error && (
+              <div className="alert alert-error animate-slide-down">
+                {error}
+              </div>
+            )}
+            
+            <form onSubmit={handleLogin} className="flex flex-col gap-4">
+              <div className="form-group">
+                <label htmlFor="username" className="form-label">
+                  Nombre de usuario
+                </label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Ingresa tu usuario"
+                  className="form-input"
+                  disabled={isLoading}
+                />
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="password" className="form-label">
+                  Contraseña
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Ingresa tu contraseña"
+                  className="form-input"
+                  disabled={isLoading}
+                />
+              </div>
+              
+              <button 
+                type="submit" 
+                className="btn btn-primary"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <div className="loading-spinner"></div>
+                    Iniciando sesión...
+                  </>
+                ) : (
+                  "Iniciar sesión"
+                )}
+              </button>
+            </form>
+            
+            <div className="mt-6 text-center">
+              <p className="text-sm text-muted mb-2">
+                ¿No tienes cuenta?{" "}
+                <Link to="/register" className="text-accent font-medium hover:underline">
+                  Regístrate aquí
+                </Link>
+              </p>
+              <p className="text-sm text-muted">
+                ¿Olvidaste tu contraseña?{" "}
+                <Link to="/forgotpassword" className="text-accent font-medium hover:underline">
+                  Recupérala aquí
+                </Link>
+              </p>
+            </div>
           </div>
-          
-          <div className="input-group">
-            <label htmlFor="password">Contraseña</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Ingresa tu contraseña"
-            />
-          </div>
-          
-          <button 
-            type="submit" 
-            className="login-button"
-            disabled={isLoading}
-          >
-            {isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
-          </button>
-          
-          <div className="additional-links">
-            <p>
-              ¿No tienes cuenta? <Link to="/register">Regístrate aquí</Link>
-            </p>
-            <p>
-              ¿Olvidaste tu contraseña? <Link to="/Forgotpassword">Recupera tu contraseña</Link>
-            </p>
-          </div>
-        </form>
+        </div>
       </div>
     </div>
   );

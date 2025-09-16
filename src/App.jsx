@@ -13,7 +13,7 @@ import Libros from "./pages/Libros";
 import Escritores from "./pages/Escritores";
 import Prestamos from "./pages/Prestamos";
 import Users from "./pages/Users";
-
+import Footer from "./components/Footer";
 export default function App() {
   return (
     <>
@@ -49,6 +49,7 @@ export default function App() {
           }
         />
       </Routes>
+      <Footer />
     </>
   );
 }
