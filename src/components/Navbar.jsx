@@ -18,14 +18,14 @@ export default function Navbar() {
 
       <Link 
         to="/" 
-        className={location.pathname === "/" ? "active" : ""}
+        className={`nav-link ${location.pathname === "/" ? "active" : ""}`}
       >
         Inicio
       </Link>
       {!user ? (
         <Link 
           to="/login"
-          className={location.pathname === "/login" ? "active" : ""}
+          className={`nav-link ${location.pathname === "/login" ? "active" : ""}`}
         >
           Iniciar sesión
         </Link>
@@ -33,38 +33,38 @@ export default function Navbar() {
         <>
           <Link 
             to="/dashboard"
-            className={location.pathname === "/dashboard" ? "active" : ""}
+            className={`nav-link ${location.pathname === "/dashboard" ? "active" : ""}`}
           >
             Dashboard
           </Link>
           <Link 
             to="/profile"
-            className={location.pathname === "/profile" ? "active" : ""}
+            className={`nav-link ${location.pathname === "/profile" ? "active" : ""}`}
           >
             Perfil
           </Link>
           <Link
             to="/users"
-            className={location.pathname === "/users" ? "active" : ""}
+            className={`nav-link ${location.pathname === "/users" ? "active" : ""}`}
           >
             Usuarios
           </Link>
           <Link
             to="/escritores"
-            className={location.pathname === "/escritores" ? "active" : ""}
+            className={`nav-link ${location.pathname === "/escritores" ? "active" : ""}`}
           >
             Escritores
           </Link>
 
           <Link
             to="/libros"
-            className={location.pathname === "/libros" ? "active" : ""}
+            className={`nav-link ${location.pathname === "/libros" ? "active" : ""}`}
           >
             Libros
           </Link>
           <Link
             to="/prestamos"
-            className={location.pathname === "/prestamos" ? "active" : ""}
+            className={`nav-link ${location.pathname === "/prestamos" ? "active" : ""}`}
           >
             Prestamos
           </Link>
