@@ -2,30 +2,30 @@
 export default function Home() {
   return (
     <div className="bg-gradient-page">
-      <div className="container flex items-center justify-center py-20">
-        <div className="card animate-slide-up" style={{ maxWidth: '700px', width: '100%' }}>
-          <div className="card-body text-center p-8">
-            <div className="text-5xl mb-6">📚</div>
-            <h1 className="text-3xl font-bold mb-6">Bienvenido a la Biblioteca Digital</h1>
-            <p className="text-xl text-muted mb-8 leading-relaxed">
+      <div className="container">
+        <div className="card animate-slide-up" style={{ maxWidth: '800px', width: '100%', margin: '0 auto' }}>
+          <div className="card-body text-center">
+            <div className="text-6xl mb-8">📚</div>
+            <h1 className="text-4xl font-bold mb-8">Bienvenido a la Biblioteca Digital</h1>
+            <p className="text-xl text-muted mb-10 leading-relaxed max-w-2xl mx-auto">
               Gestiona libros, autores, usuarios y préstamos de manera eficiente y moderna.
             </p>
-            <div className="grid grid-cols-2 gap-6 text-sm">
-              <div className="p-6 bg-accent rounded-lg shadow-md">
-                <div className="font-semibold text-accent text-lg mb-2">📖 Catálogo</div>
-                <div className="text-muted">Organiza tu colección</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm max-w-4xl mx-auto">
+              <div className="p-8 bg-accent rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <div className="font-semibold text-accent text-xl mb-3">📖 Catálogo</div>
+                <div className="text-muted text-base">Organiza tu colección</div>
               </div>
-              <div className="p-6 bg-accent rounded-lg shadow-md">
-                <div className="font-semibold text-accent text-lg mb-2">👥 Usuarios</div>
-                <div className="text-muted">Gestión completa</div>
+              <div className="p-8 bg-accent rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <div className="font-semibold text-accent text-xl mb-3">👥 Usuarios</div>
+                <div className="text-muted text-base">Gestión completa</div>
               </div>
-              <div className="p-6 bg-accent rounded-lg shadow-md">
-                <div className="font-semibold text-accent text-lg mb-2">📋 Préstamos</div>
-                <div className="text-muted">Control de inventario</div>
+              <div className="p-8 bg-accent rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <div className="font-semibold text-accent text-xl mb-3">📋 Préstamos</div>
+                <div className="text-muted text-base">Control de inventario</div>
               </div>
-              <div className="p-6 bg-accent rounded-lg shadow-md">
-                <div className="font-semibold text-accent text-lg mb-2">✍️ Autores</div>
-                <div className="text-muted">Base de datos completa</div>
+              <div className="p-8 bg-accent rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <div className="font-semibold text-accent text-xl mb-3">✍️ Autores</div>
+                <div className="text-muted text-base">Base de datos completa</div>
               </div>
             </div>
           </div>
