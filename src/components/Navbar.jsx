@@ -9,12 +9,9 @@ export default function Navbar() {
   
   return (
     <nav className="navbar">
-      <Link 
-        to="/" 
-        className={`nav-link ${location.pathname === "/" ? "active" : ""}`}
-      >
-        📚 Biblioteca
-      </Link>
+
+
+      <h3>📚 Biblioteca</h3>  
 
       <Link 
         to="/" 
@@ -71,12 +68,12 @@ export default function Navbar() {
           
           <div className="flex items-center gap-4 ml-auto">
             <span className="text-sm font-medium">
-              Hola, <span className="text-accent font-semibold">{user.username}</span>
+              Hola, <span className="text-accent font-bold">{user.username}</span>
             </span>
             <button 
               onClick={logout}
               className="btn btn-secondary"
-              style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}
+              style={{ padding: '0.4rem 1rem', fontSize: '0.80rem' }}
             >
               Cerrar sesión
             </button>
