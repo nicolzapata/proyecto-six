@@ -32,7 +32,6 @@ export default function Profile() {
             <div className="card-body">
               <div className="flex items-center gap-6 mb-8">
                 <div className="w-20 h-20 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-bold text-2xl">
-                  {user?.username?.charAt(0)?.toUpperCase()}
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold mb-2">👤 Mi Perfil</h1>

@@ -32,7 +32,7 @@ export default function Navbar() {
             to="/dashboard"
             className={`nav-link ${location.pathname === "/dashboard" ? "active" : ""}`}
           >
-            Dashboard
+            Panel
           </Link>
           <Link 
             to="/profile"
