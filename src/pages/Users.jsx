@@ -199,15 +199,15 @@ const Users = () => {
       <div className="container py-8">
         <div className="animate-fade-in">
           {/* Header */}
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h1 className="text-2xl font-bold mb-2">👥 Gestión de Usuarios</h1>
-              <p className="text-muted">Administra los usuarios del sistema</p>
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4">
+            <div className="flex-1">
+              <h1 className="text-xl sm:text-2xl font-bold mb-2 text-center">👥 Gestión de Usuarios</h1>
+              <p className="text-muted text-center">Administra los usuarios del sistema</p>
             </div>
-            <div className="card p-4">
+            <div className="card p-3 sm:p-4 w-full lg:w-auto">
               <div className="text-center">
-                <div className="text-xl font-bold text-accent">{users.length}</div>
-                <div className="text-sm text-muted">Usuarios totales</div>
+                <div className="text-2xl sm:text-3xl font-bold">{users.length}</div>
+                <div className="text-xs sm:text-sm text-muted">Usuarios totales</div>
               </div>
             </div>
           </div>
@@ -215,7 +215,7 @@ const Users = () => {
           {/* Buscador */}
           <div className="card mb-6">
             <div className="card-body">
-              <div className="flex gap-4">
+              <div className="flex flex-col lg:flex-row gap-4">
                 <div className="flex-1">
                   <label htmlFor="search" className="form-label">
                     🔍 Buscar usuarios
@@ -229,9 +229,9 @@ const Users = () => {
                     className="form-input"
                   />
                 </div>
-                <div className="flex items-end">
-                  <button onClick={openRegisterModal} className="btn btn-primary">
-                    ➕ Registrar Usuario
+                <div className="flex items-end w-full lg:w-auto">
+                  <button onClick={openRegisterModal} className="btn btn-primary w-full lg:w-auto">
+                    Registrar Usuario
                   </button>
                 </div>
               </div>
@@ -251,72 +251,74 @@ const Users = () => {
                 </div>
               </div>
             ) : (
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Usuario</th>
-                    <th>Email</th>
-                    <th>Fecha de registro</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredUsers.map((user) => (
-                    <tr key={user.id}>
-                      <td>
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                            {(user.nombre && user.apellido) ? `${user.nombre.charAt(0)}${user.apellido.charAt(0)}` : user.username.charAt(0).toUpperCase()}
-                          </div>
-                          <div>
-                            <div className="font-medium">
-                              {user.nombre && user.apellido ? `${user.nombre} ${user.apellido}` : user.username}
+              <div className="overflow-x-auto">
+                <table className="table min-w-full">
+                  <thead>
+                    <tr>
+                      <th className="min-w-48">Usuario</th>
+                      <th className="min-w-48">Email</th>
+                      <th className="min-w-32">Fecha de registro</th>
+                      <th className="min-w-20">Estado</th>
+                      <th className="min-w-40">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredUsers.map((user) => (
+                      <tr key={user.id}>
+                        <td>
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                              {(user.nombre && user.apellido) ? `${user.nombre.charAt(0)}${user.apellido.charAt(0)}` : user.username.charAt(0).toUpperCase()}
                             </div>
-                            <div className="text-sm text-muted">{user.username}</div>
-                            {user.id === currentUser?.id && (
-                              <div className="text-xs text-accent">Tú</div>
+                            <div className="min-w-0">
+                              <div className="font-medium truncate">
+                                {user.nombre && user.apellido ? `${user.nombre} ${user.apellido}` : user.username}
+                              </div>
+                              <div className="text-sm text-muted truncate">{user.username}</div>
+                              {user.id === currentUser?.id && (
+                                <div className="text-xs text-accent">Tú</div>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="truncate max-w-48">{user.email}</td>
+                        <td className="whitespace-nowrap">
+                          {new Date(user.createdAt).toLocaleDateString('es-ES', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          })}
+                        </td>
+                        <td>
+                          <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-success-50 text-success-600">
+                            Activo
+                          </span>
+                        </td>
+                        <td>
+                          <div className="flex gap-1 sm:gap-2">
+                            <button
+                              onClick={() => handleViewUser(user)}
+                              className="btn btn-secondary text-xs"
+                              style={{ padding: '0.4rem 0.6rem' }}
+                            >
+                              Ver
+                            </button>
+                            {user.id !== currentUser?.id && (
+                              <button
+                                onClick={() => handleDeleteUser(user)}
+                                className="btn btn-danger text-xs"
+                                style={{ padding: '0.4rem 0.6rem' }}
+                              >
+                                Eliminar
+                              </button>
                             )}
                           </div>
-                        </div>
-                      </td>
-                      <td>{user.email}</td>
-                      <td>
-                        {new Date(user.createdAt).toLocaleDateString('es-ES', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric'
-                        })}
-                      </td>
-                      <td>
-                        <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-success-50 text-success-600">
-                          Activo
-                        </span>
-                      </td>
-                      <td>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleViewUser(user)}
-                            className="btn btn-secondary"
-                            style={{ padding: '0.5rem', fontSize: '0.8rem' }}
-                          >
-                            Ver
-                          </button>
-                          {user.id !== currentUser?.id && (
-                            <button
-                              onClick={() => handleDeleteUser(user)}
-                              className="btn btn-danger"
-                              style={{ padding: '0.5rem', fontSize: '0.8rem' }}
-                            >
-                              Eliminar
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         </div>

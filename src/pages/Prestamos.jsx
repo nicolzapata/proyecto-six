@@ -158,28 +158,28 @@ const Prestamos = () => {
       <div className="container py-8">
         <div className="animate-fade-in">
           {/* Header */}
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4">
             <div>
-              <h1 className="text-2xl font-bold mb-2">📋 Gestión de Préstamos</h1>
+              <h1 className="text-xl sm:text-2xl font-bold mb-2">📋 Gestión de Préstamos</h1>
               <p className="text-muted">Administra los préstamos de libros</p>
             </div>
-            <div className="flex gap-4">
-              <div className="card p-4">
+            <div className="flex flex-wrap gap-2 sm:gap-4 w-full lg:w-auto justify-center lg:justify-end">
+              <div className="card p-3 sm:p-4 flex-1 sm:flex-none min-w-0">
                 <div className="text-center">
-                  <div className="text-xl font-bold text-warning-600">{prestamosActivos}</div>
-                  <div className="text-sm text-muted">Activos</div>
+                  <div className="text-lg sm:text-xl font-bold text-warning-600">{prestamosActivos}</div>
+                  <div className="text-xs sm:text-sm text-muted">Activos</div>
                 </div>
               </div>
-              <div className="card p-4">
+              <div className="card p-3 sm:p-4 flex-1 sm:flex-none min-w-0">
                 <div className="text-center">
-                  <div className="text-xl font-bold text-error-600">{prestamosVencidos}</div>
-                  <div className="text-sm text-muted">Vencidos</div>
+                  <div className="text-lg sm:text-xl font-bold text-error-600">{prestamosVencidos}</div>
+                  <div className="text-xs sm:text-sm text-muted">Vencidos</div>
                 </div>
               </div>
-              <div className="card p-4">
+              <div className="card p-3 sm:p-4 flex-1 sm:flex-none min-w-0">
                 <div className="text-center">
-                  <div className="text-xl font-bold text-accent">{prestamos.length}</div>
-                  <div className="text-sm text-muted">Total</div>
+                  <div className="text-lg sm:text-xl font-bold text-accent">{prestamos.length}</div>
+                  <div className="text-xs sm:text-sm text-muted">Total</div>
                 </div>
               </div>
             </div>
@@ -188,7 +188,7 @@ const Prestamos = () => {
           {/* Filtros */}
           <div className="card mb-6">
             <div className="card-body">
-              <div className="flex gap-4">
+              <div className="flex flex-col lg:flex-row gap-4">
                 <div className="flex-1">
                   <label htmlFor="search" className="form-label">
                     🔍 Buscar préstamos
@@ -202,7 +202,7 @@ const Prestamos = () => {
                     className="form-input"
                   />
                 </div>
-                <div className="w-48">
+                <div className="w-full lg:w-48">
                   <label htmlFor="status" className="form-label">
                     Filtrar por estado
                   </label>
@@ -220,8 +220,8 @@ const Prestamos = () => {
                     ))}
                   </select>
                 </div>
-                <div className="flex items-end">
-                  <button onClick={openModal} className="btn btn-primary">
+                <div className="flex items-end w-full lg:w-auto">
+                  <button onClick={openModal} className="btn btn-primary w-full lg:w-auto">
                     + Nuevo Préstamo
                   </button>
                 </div>
@@ -247,96 +247,98 @@ const Prestamos = () => {
                 </div>
               </div>
             ) : (
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Usuario</th>
-                    <th>Libro</th>
-                    <th>Fecha Préstamo</th>
-                    <th>Días Restantes</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredPrestamos.map((prestamo) => {
-                    const usuario = usuarios.find(u => u.id === prestamo.usuarioId);
-                    const libro = libros.find(l => l.id === prestamo.libroId);
-                    const diasVencidos = calcularDiasVencidos(prestamo.fechaPrestamo, prestamo.estado);
-                    const estado = estadosPrestamo.find(e => e.value === prestamo.estado);
-                    
-                    return (
-                      <tr key={prestamo.id}>
-                        <td>
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                              {usuario?.username?.charAt(0)?.toUpperCase()}
+              <div className="overflow-x-auto">
+                <table className="table min-w-full">
+                  <thead>
+                    <tr>
+                      <th className="min-w-48">Usuario</th>
+                      <th className="min-w-48">Libro</th>
+                      <th className="min-w-32">Fecha Préstamo</th>
+                      <th className="min-w-32">Días Restantes</th>
+                      <th className="min-w-24">Estado</th>
+                      <th className="min-w-64">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredPrestamos.map((prestamo) => {
+                      const usuario = usuarios.find(u => u.id === prestamo.usuarioId);
+                      const libro = libros.find(l => l.id === prestamo.libroId);
+                      const diasVencidos = calcularDiasVencidos(prestamo.fechaPrestamo, prestamo.estado);
+                      const estado = estadosPrestamo.find(e => e.value === prestamo.estado);
+
+                      return (
+                        <tr key={prestamo.id}>
+                          <td>
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                                {usuario?.username?.charAt(0)?.toUpperCase()}
+                              </div>
+                              <div className="min-w-0">
+                                <div className="font-medium truncate">{usuario?.username || 'Usuario eliminado'}</div>
+                                <div className="text-xs text-muted truncate">{usuario?.email}</div>
+                              </div>
                             </div>
-                            <div>
-                              <div className="font-medium">{usuario?.username || 'Usuario eliminado'}</div>
-                              <div className="text-xs text-muted">{usuario?.email}</div>
+                          </td>
+                          <td>
+                            <div className="min-w-0">
+                              <div className="font-medium truncate">{libro?.titulo || 'Libro eliminado'}</div>
+                              <div className="text-xs text-muted truncate">{libro?.autor}</div>
                             </div>
-                          </div>
-                        </td>
-                        <td>
-                          <div>
-                            <div className="font-medium">{libro?.titulo || 'Libro eliminado'}</div>
-                            <div className="text-xs text-muted">{libro?.autor}</div>
-                          </div>
-                        </td>
-                        <td>
-                          {new Date(prestamo.fechaPrestamo).toLocaleDateString('es-ES')}
-                        </td>
-                        <td>
-                          {prestamo.estado === "devuelto" ? (
-                            <span className="text-success-600">Devuelto</span>
-                          ) : diasVencidos > 0 ? (
-                            <span className="text-error-600 font-semibold">
-                              {diasVencidos} días vencido
-                            </span>
-                          ) : (
-                            <span className="text-muted">
-                              {15 - Math.ceil((new Date() - new Date(prestamo.fechaPrestamo)) / (1000 * 60 * 60 * 24))} días
-                            </span>
-                          )}
-                        </td>
-                        <td>
-                          <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium alert-${estado?.color}`}>
-                            {estado?.label}
-                          </span>
-                        </td>
-                        <td>
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => handleEdit(prestamo)}
-                              className="btn btn-secondary"
-                              style={{ padding: '0.5rem', fontSize: '0.8rem' }}
-                            >
-                              Editar
-                            </button>
-                            {prestamo.estado === "activo" && (
-                              <button
-                                onClick={() => handleReturn(prestamo.id)}
-                                className="btn btn-success"
-                                style={{ padding: '0.5rem', fontSize: '0.8rem' }}
-                              >
-                                Devolver
-                              </button>
+                          </td>
+                          <td className="whitespace-nowrap">
+                            {new Date(prestamo.fechaPrestamo).toLocaleDateString('es-ES')}
+                          </td>
+                          <td>
+                            {prestamo.estado === "devuelto" ? (
+                              <span className="text-success-600">Devuelto</span>
+                            ) : diasVencidos > 0 ? (
+                              <span className="text-error-600 font-semibold">
+                                {diasVencidos} días vencido
+                              </span>
+                            ) : (
+                              <span className="text-muted">
+                                {15 - Math.ceil((new Date() - new Date(prestamo.fechaPrestamo)) / (1000 * 60 * 60 * 24))} días
+                              </span>
                             )}
-                            <button
-                              onClick={() => handleDelete(prestamo.id)}
-                              className="btn btn-danger"
-                              style={{ padding: '0.5rem', fontSize: '0.8rem' }}
-                            >
-                              Eliminar
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                          </td>
+                          <td>
+                            <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium alert-${estado?.color}`}>
+                              {estado?.label}
+                            </span>
+                          </td>
+                          <td>
+                            <div className="flex flex-wrap gap-1 sm:gap-2">
+                              <button
+                                onClick={() => handleEdit(prestamo)}
+                                className="btn btn-secondary text-xs"
+                                style={{ padding: '0.4rem 0.6rem' }}
+                              >
+                                Editar
+                              </button>
+                              {prestamo.estado === "activo" && (
+                                <button
+                                  onClick={() => handleReturn(prestamo.id)}
+                                  className="btn btn-success text-xs"
+                                  style={{ padding: '0.4rem 0.6rem' }}
+                                >
+                                  Devolver
+                                </button>
+                              )}
+                              <button
+                                onClick={() => handleDelete(prestamo.id)}
+                                className="btn btn-danger text-xs"
+                                style={{ padding: '0.4rem 0.6rem' }}
+                              >
+                                Eliminar
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         </div>

@@ -1,4 +1,4 @@
-an// ===== src/pages/Profile.jsx =====
+// ===== src/pages/Profile.jsx =====
 import { useAuth } from "../context/AuthContext";
 import { useState, useEffect } from "react";
 
@@ -12,35 +12,20 @@ export default function Profile() {
   const [formData, setFormData] = useState({
     username: user?.username || '',
     email: user?.email || '',
-    tipoIdentificacion: user?.tipoIdentificacion || '',
-    identificacion: user?.identificacion || '',
     nombre: user?.nombre || '',
     apellido: user?.apellido || '',
-    telefono: user?.telefono || '',
-    direccion: user?.direccion || '',
-    bio: user?.bio || ''
+    telefono: user?.telefono || ''
   });
 
-  const tiposIdentificacion = [
-    "Cédula de Ciudadanía",
-    "Tarjeta de Identidad",
-    "Cédula de Extranjería",
-    "Pasaporte",
-    "Otro"
-  ];
 
   useEffect(() => {
     if (user) {
       setFormData({
         username: user.username || '',
         email: user.email || '',
-        tipoIdentificacion: user.tipoIdentificacion || '',
-        identificacion: user.identificacion || '',
         nombre: user.nombre || '',
         apellido: user.apellido || '',
-        telefono: user.telefono || '',
-        direccion: user.direccion || '',
-        bio: user.bio || ''
+        telefono: user.telefono || ''
       });
     }
   }, [user]);
@@ -56,13 +41,9 @@ export default function Profile() {
     setFormData({
       username: user?.username || '',
       email: user?.email || '',
-      tipoIdentificacion: user?.tipoIdentificacion || '',
-      identificacion: user?.identificacion || '',
       nombre: user?.nombre || '',
       apellido: user?.apellido || '',
-      telefono: user?.telefono || '',
-      direccion: user?.direccion || '',
-      bio: user?.bio || ''
+      telefono: user?.telefono || ''
     });
     setError("");
     setSuccess("");
@@ -118,7 +99,7 @@ export default function Profile() {
   return (
     <div className="bg-gradient-page min-h-screen">
       <div className="container py-8">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <div className="card animate-slide-up">
             <div className="card-body">
               <div className="flex items-center gap-6 mb-8">
@@ -130,72 +111,44 @@ export default function Profile() {
                 </div>
               </div>
 
-              {user ? (
-                <div className="space-y-6">
-                  {/* Información básica */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="form-group">
-                      <label className="form-label">Nombre de usuario</label>
-                      <p className="text-lg font-medium">{user.username}</p>
-                    </div>
+              {user || true ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                  {/* Información de Cuenta */}
+                  <div key="account-info">
+                    <h3 className="text-xl font-bold mb-4 text-gray-800 text-center">Información de Cuenta</h3>
 
-                    <div className="form-group">
-                      <label className="form-label">Correo electrónico</label>
-                      <p className="text-lg font-medium">{user.email}</p>
-                    </div>
-
-                    {user.nombre && user.apellido && (
-                      <div className="form-group">
-                        <label className="form-label">Nombre completo</label>
-                        <p className="text-lg font-medium">{user.nombre} {user.apellido}</p>
+                      <div className="gap-6 alert justify-between ">
+                        <div key="username">
+                          <strong className="text-gray-600 text-sm uppercase tracking-wide block mb-1">Nombre de usuario</strong>
+                          <div className="text-lg text-gray-900">{user?.username || ''}</div>
+                        </div>
+                        <div key="email">
+                          <strong className="text-gray-600 text-sm uppercase tracking-wide block mb-1">Correo electrónico</strong>
+                          <div className="text-lg text-gray-900">{user?.email || ''}</div>
+                        </div>
                       </div>
-                    )}
-
-                    {user.tipoIdentificacion && user.identificacion && (
-                      <div className="form-group">
-                        <label className="form-label">Identificación</label>
-                        <p className="text-lg font-medium">{user.tipoIdentificacion}: {user.identificacion}</p>
-                      </div>
-                    )}
-
-                    {user.telefono && (
-                      <div className="form-group">
-                        <label className="form-label">Teléfono</label>
-                        <p className="text-lg font-medium">{user.telefono}</p>
-                      </div>
-                    )}
-
-                    {user.direccion && (
-                      <div className="form-group md:col-span-2">
-                        <label className="form-label">Dirección</label>
-                        <p className="text-lg font-medium">{user.direccion}</p>
-                      </div>
-                    )}
                   </div>
 
-                  {/* Biografía */}
-                  {user.bio && (
-                    <div className="form-group">
-                      <label className="form-label">Biografía</label>
-                      <p className="text-lg">{user.bio}</p>
-                    </div>
-                  )}
-
-                  {/* Información del sistema */}
-                  <div className="grid grid-cols-2 gap-6 pt-4 border-t border-gray-200">
-                    <div>
-                      <label className="form-label">Fecha de registro</label>
-                      <p className="text-sm text-muted">
-                        {new Date(user.createdAt).toLocaleDateString('es-ES', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })}
-                      </p>
-                    </div>
-                    <div>
-                      <label className="form-label">Rol</label>
-                      <p className="text-sm text-muted">{user.role || "Usuario estándar"}</p>
+                  {/* Información del Sistema */}
+                  <div key="system-info">
+                    <h3 className="text-xl font-bold mb-4 text-gray-800 text-center">Información del Sistema</h3>
+                    <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg shadow-lg border p-6">
+                      <div className="grid grid-cols-2 gap-6 alert">
+                        <div key="registration-date">
+                          <strong className="text-gray-600 text-sm uppercase tracking-wide block mb-1">Fecha de registro</strong>
+                          <div className="text-lg text-gray-900">
+                            {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('es-ES', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            }) : ''}
+                          </div>
+                        </div>
+                        <div key="role">
+                          <strong className="text-gray-600 text-sm uppercase tracking-wide block mb-1">Rol</strong>
+                          <div className="text-lg text-gray-900">{user?.role || "Usuario estándar"}</div>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -205,7 +158,7 @@ export default function Profile() {
                       onClick={openEditModal}
                       className="btn btn-primary"
                     >
-                      ✏️ Editar Perfil
+                       Editar Perfil
                     </button>
                   </div>
                 </div>
@@ -226,7 +179,7 @@ export default function Profile() {
               <button onClick={closeEditModal} className="modal-close">×</button>
             </div>
             <form onSubmit={handleSave}>
-              <div className="modal-body" style={{ padding: '2rem' }}>
+              <div className="modal-body p-8">
                 {error && (
                   <div className="alert alert-error animate-slide-down mb-6">
                     {error}
@@ -239,7 +192,7 @@ export default function Profile() {
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-2 gap-6">
                   <div className="form-group">
                     <label htmlFor="edit-username" className="form-label">Nombre de Usuario *</label>
                     <input
@@ -270,36 +223,6 @@ export default function Profile() {
                     />
                   </div>
 
-                  <div className="form-group">
-                    <label htmlFor="edit-tipoIdentificacion" className="form-label">Tipo de Identificación</label>
-                    <select
-                      id="edit-tipoIdentificacion"
-                      name="tipoIdentificacion"
-                      value={formData.tipoIdentificacion}
-                      onChange={handleInputChange}
-                      className="form-input"
-                      disabled={isLoading}
-                    >
-                      <option value="">Seleccionar tipo</option>
-                      {tiposIdentificacion.map(tipo => (
-                        <option key={tipo} value={tipo}>{tipo}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="edit-identificacion" className="form-label">Identificación</label>
-                    <input
-                      type="text"
-                      id="edit-identificacion"
-                      name="identificacion"
-                      value={formData.identificacion}
-                      onChange={handleInputChange}
-                      className="form-input"
-                      placeholder="Número de identificación"
-                      disabled={isLoading}
-                    />
-                  </div>
 
                   <div className="form-group">
                     <label htmlFor="edit-nombre" className="form-label">Nombre</label>
@@ -343,36 +266,9 @@ export default function Profile() {
                     />
                   </div>
 
-                  <div className="form-group md:col-span-2">
-                    <label htmlFor="edit-direccion" className="form-label">Dirección</label>
-                    <textarea
-                      id="edit-direccion"
-                      name="direccion"
-                      value={formData.direccion}
-                      onChange={handleInputChange}
-                      rows="2"
-                      className="form-input"
-                      placeholder="Dirección completa"
-                      disabled={isLoading}
-                    />
-                  </div>
-
-                  <div className="form-group md:col-span-2">
-                    <label htmlFor="edit-bio" className="form-label">Biografía</label>
-                    <textarea
-                      id="edit-bio"
-                      name="bio"
-                      value={formData.bio}
-                      onChange={handleInputChange}
-                      rows="3"
-                      className="form-input"
-                      placeholder="Cuéntanos sobre ti..."
-                      disabled={isLoading}
-                    />
-                  </div>
                 </div>
               </div>
-              <div className="modal-footer" style={{ justifyContent: 'space-between' }}>
+              <div className="modal-footer justify-between">
                 <button type="button" onClick={closeEditModal} className="btn btn-secondary" disabled={isLoading}>
                   Cancelar
                 </button>

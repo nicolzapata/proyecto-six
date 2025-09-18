@@ -199,9 +199,9 @@ const Escritores = () => {
         <div className="animate-fade-in">
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
-            <div>
-              <h1 className="text-2xl font-bold mb-2">✍️ Gestión de Escritores</h1>
-              <p className="text-muted">Administra la base de datos de autores</p>
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold mb-2 text-center">✍️ Gestión de Escritores</h1>
+              <p className="text-muted text-center">Administra la base de datos de autores</p>
             </div>
             <div className="card p-4">
               <div className="text-center">
