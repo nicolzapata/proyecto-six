@@ -55,7 +55,7 @@ const Carousel = () => {
   };
 
   return (
-    <div className="relative w-full h-64 lg:h-96 overflow-hidden rounded-lg shadow-lg">
+    <div className="relative w-full h-64 lg:h-96 overflow-hidden rounded-lg shadow-lg bg-gray-200">
       {/* Mostrar imagen actual */}
       <div className="w-full h-full relative">
         <img
@@ -66,11 +66,6 @@ const Carousel = () => {
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
           <h3 className="text-white text-lg font-semibold">{images[currentIndex].title}</h3>
           <p className="text-white/80 text-sm">Imagen {currentIndex + 1} de {images.length}</p>
-        </div>
-
-        {/* Indicador de imagen actual */}
-        <div className="absolute top-4 left-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium">
-          {currentIndex + 1}/{images.length}
         </div>
       </div>
 
