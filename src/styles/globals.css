@@ -359,6 +359,8 @@ h3 {
   position: relative;
   overflow: hidden;
   justify-content: center;
+  margin-bottom: 2rem;
+  text-align: center;
 }
 
 
@@ -481,6 +483,10 @@ h3 {
   color: var(--text-primary);
   border: 1px solid var(--border-glass);
   backdrop-filter: var(--backdrop-blur);
+    min-width: 120px;
+    padding: 0.5rem 1.5rem;
+    font-size: 1rem;
+    margin-left: 0.5rem;
 }
 
 .btn-secondary:hover {
@@ -684,14 +690,14 @@ h3 {
   padding: 1rem 2rem;
   margin: 0;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   position: sticky;
   top: 0;
   z-index: 1000;
   gap: 1rem;
   transition: var(--transition-normal);
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .navbar h3 {
@@ -707,26 +713,27 @@ h3 {
 
 .nav-links {
   display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
   align-items: center;
-  flex: 1;
-  justify-content: center;
-  margin: 0 2rem;
+  gap: 1rem;
+  margin: 0 1rem;
 }
 
 .nav-actions {
   display: flex;
   align-items: center;
   gap: 1rem;
+  justify-content: flex-end;
   flex-shrink: 0;
+  flex-wrap: nowrap;
 }
 
 .user-info {
   display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-right: 1rem;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.1rem;
+  margin-right: 0.1rem;
+  font-size: 0.9rem;
 }
 
 .nav-brand {
@@ -738,6 +745,10 @@ h3 {
   -webkit-text-fill-color: transparent;
   text-decoration: none;
   margin-right: auto;
+  min-width: 120px;
+  padding: 0.5rem 1.5rem;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.9rem;
 }
 
 .nav-link {
@@ -767,7 +778,7 @@ h3 {
 }
 
 .nav-link:hover {
-  color: white;
+  color: var(--text-primary);
   transform: translateY(-2px);
   box-shadow: var(--shadow-teal);
   border-color: var(--accent-primary);
@@ -896,9 +907,18 @@ h3 {
   .navbar {
     flex-direction: column;
     padding: 1rem;
-    gap: 1rem;
+    gap: 2rem;
   }
 
+  /* Estilo para el botón de cambio de tema */
+  .theme-toggle {
+    min-width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 0.5rem;
+  }
   .navbar h3 {
     text-align: center;
     font-size: 1.25rem;
@@ -963,6 +983,63 @@ h3 {
   .user-info {
     gap: 0.25rem;
   }
+}
+
+/* === ESTILOS DEL DASHBOARD === */
+.dashboard-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #eef3f0;
+  padding: 20px;
+}
+
+.dashboard-card {
+  background: #fff;
+  max-width: 480px;
+  width: 100%;
+  padding: 30px 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+.dashboard-card h1 {
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+  color: #2e7d32;
+}
+
+.dashboard-card p {
+  font-size: 1rem;
+  margin: 8px 0;
+  color: #444;
+}
+
+.dashboard-options {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.dashboard-options h2 {
+  font-size: 1.2rem;
+  margin-bottom: 12px;
+}
+
+.dashboard-options button {
+  background: #2e7d32;
+  color: #fff;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.dashboard-options button:hover {
+  background: #1b5e20;
 }
 
 

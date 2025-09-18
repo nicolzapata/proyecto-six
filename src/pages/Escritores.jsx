@@ -158,7 +158,7 @@ const Escritores = () => {
                 </div>
                 <div className="flex items-end">
                   <button onClick={openModal} className="btn btn-primary">
-                    + Agregar Escritor
+                    Agregar escritor
                   </button>
                 </div>
               </div>
@@ -168,19 +168,9 @@ const Escritores = () => {
           {/* Lista de escritores */}
           <div className="animate-slide-up">
             {filteredEscritores.length === 0 ? (
-              <div className="card">
-                <div className="card-body text-center py-8">
-                  <div className="text-4xl mb-4">✍️</div>
-                  <h3 className="text-lg font-medium mb-2">No se encontraron escritores</h3>
-                  <p className="text-muted mb-4">
-                    {searchTerm ? 'Intenta con otros términos de búsqueda' : 'Comienza agregando escritores a la base de datos'}
-                  </p>
-                  {!searchTerm && (
-                    <button onClick={openModal} className="btn btn-primary">
-                      + Agregar primer escritor
-                    </button>
-                  )}
-                </div>
+              <div className="text-center text-muted py-8">
+                <h3>No hay escritores registrados.</h3>
+                <p>Agrega el primer escritor usando el botón.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -189,7 +179,7 @@ const Escritores = () => {
                     <div className="card-body">
                       <div className="flex items-center gap-4 mb-4">
                         <div className="w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                          {escritor.nombre.charAt(0)}{escritor.apellido.charAt(0)}
+                          {escritor.nombre?.charAt(0)}{escritor.apellido?.charAt(0)}
                         </div>
                         <div>
                           <h3 className="text-lg font-semibold">
@@ -198,7 +188,6 @@ const Escritores = () => {
                           <p className="text-sm text-muted">{escritor.nacionalidad}</p>
                         </div>
                       </div>
-                      
                       <div className="space-y-2 mb-4">
                         {escritor.fechaNacimiento && (
                           <div className="flex justify-between text-sm">
@@ -217,13 +206,11 @@ const Escritores = () => {
                           </div>
                         )}
                       </div>
-
                       {escritor.biografia && (
                         <p className="text-sm text-muted mb-4 line-clamp-3">
                           {escritor.biografia}
                         </p>
                       )}
-
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleEdit(escritor)}
@@ -275,7 +262,6 @@ const Escritores = () => {
                       placeholder="Nombre del escritor"
                     />
                   </div>
-
                   <div className="form-group">
                     <label htmlFor="apellido" className="form-label">Apellido *</label>
                     <input
@@ -289,7 +275,6 @@ const Escritores = () => {
                       placeholder="Apellido del escritor"
                     />
                   </div>
-
                   <div className="form-group">
                     <label htmlFor="fechaNacimiento" className="form-label">Fecha de Nacimiento</label>
                     <input
@@ -301,7 +286,6 @@ const Escritores = () => {
                       className="form-input"
                     />
                   </div>
-
                   <div className="form-group">
                     <label htmlFor="nacionalidad" className="form-label">Nacionalidad *</label>
                     <select
@@ -318,7 +302,6 @@ const Escritores = () => {
                       ))}
                     </select>
                   </div>
-
                   <div className="form-group md:col-span-2">
                     <label htmlFor="generoLiterario" className="form-label">Género Literario *</label>
                     <select
@@ -335,7 +318,6 @@ const Escritores = () => {
                       ))}
                     </select>
                   </div>
-
                   <div className="form-group md:col-span-2">
                     <label htmlFor="obrasDestacadas" className="form-label">Obras Destacadas</label>
                     <textarea
@@ -348,7 +330,6 @@ const Escritores = () => {
                       placeholder="Lista las obras más importantes separadas por comas..."
                     />
                   </div>
-
                   <div className="form-group md:col-span-2">
                     <label htmlFor="biografia" className="form-label">Biografía</label>
                     <textarea

@@ -196,6 +196,7 @@ const Dashboard = () => {
         <div className="card-premium mb-8 animate-slide-down">
           <div className="card-body">
             <div className="flex justify-between items-start">
+              {/* Panel usuario (eliminado gestión de usuario) */}
               <div>
                 <div className="flex items-center gap-4 mb-4">
                   <div className="avatar avatar-xl avatar-gradient">
@@ -203,7 +204,7 @@ const Dashboard = () => {
                   </div>
                   <div>
                     <h1 className="text-3xl font-black text-gradient mb-2">
-                      ¡Bienvenido/a, {user?.username}! 👋
+                      ¡Bienvenido de vuelta, {user?.username}! 👋
                     </h1>
                     <p className="text-secondary font-medium">
                       {user?.role === 'admin' ? '👑 Administrador del Sistema' : '📚 Bibliotecario'}
@@ -219,7 +220,6 @@ const Dashboard = () => {
                     </div>
                   </div>
                 </div>
-                
                 {/* Métricas rápidas */}
                 <div className="grid grid-cols-3 gap-4 mt-6">
                   <div className="text-center p-3 bg-glass rounded-xl">
@@ -236,8 +236,7 @@ const Dashboard = () => {
                   </div>
                 </div>
               </div>
-              
-              {/* Panel de control rápido */}
+              {/* Panel de control rápido y resto del dashboard restaurado */}
               <div className="text-right">
                 <div className="flex gap-2 mb-4">
                   <button
@@ -255,7 +254,6 @@ const Dashboard = () => {
                     🚪
                   </button>
                 </div>
-                
                 {/* Estado del sistema */}
                 <div className="bg-glass rounded-xl p-3 text-sm">
                   <div className="flex items-center justify-between mb-2">
@@ -273,7 +271,6 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-
         {/* Grid de estadísticas principales */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
@@ -286,7 +283,6 @@ const Dashboard = () => {
             onClick={() => navigate("/libros")}
             delay={0.1}
           />
-          
           <StatCard
             title="Usuarios Registrados"
             value={stats.totalUsuarios}
@@ -297,7 +293,6 @@ const Dashboard = () => {
             onClick={() => navigate("/users")}
             delay={0.2}
           />
-          
           <StatCard
             title="Préstamos Activos"
             value={stats.prestamosActivos}
@@ -308,7 +303,6 @@ const Dashboard = () => {
             onClick={() => navigate("/prestamos")}
             delay={0.3}
           />
-          
           <StatCard
             title="Escritores"
             value={stats.totalEscritores}
@@ -320,7 +314,6 @@ const Dashboard = () => {
             delay={0.4}
           />
         </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           {/* Panel de métricas avanzadas */}
           <div className="lg:col-span-2">
@@ -341,7 +334,7 @@ const Dashboard = () => {
                     </span>
                   </div>
                   <div className="progress mb-2" style={{ height: '12px' }}>
-                    <div 
+                    <div
                       className="progress-bar"
                       style={{ width: `${(stats.librosDisponibles / stats.totalLibros) * 100}%` }}
                     />
@@ -351,7 +344,6 @@ const Dashboard = () => {
                     <span>{stats.librosPrestados} prestados</span>
                   </div>
                 </div>
-
                 {/* Métricas adicionales */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-glass p-4 rounded-xl">
@@ -359,14 +351,12 @@ const Dashboard = () => {
                     <div className="text-sm text-tertiary mb-1">Género más popular</div>
                     <div className="font-bold text-primary">{stats.generoMasPopular}</div>
                   </div>
-                  
                   <div className="bg-glass p-4 rounded-xl">
                     <div className="text-2xl mb-2">⭐</div>
                     <div className="text-sm text-tertiary mb-1">Autor más leído</div>
                     <div className="font-bold text-primary">{stats.autorMasLeido}</div>
                   </div>
                 </div>
-
                 {/* Indicadores de rendimiento */}
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
@@ -376,7 +366,6 @@ const Dashboard = () => {
                   <div className="progress">
                     <div className="progress-bar" style={{ width: '98.5%' }} />
                   </div>
-                  
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium">Satisfacción de usuarios</span>
                     <span className="text-sm font-bold text-teal-500">94.2%</span>
@@ -388,7 +377,6 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
-
           {/* Actividad reciente */}
           <div className="animate-slide-up" style={{ animationDelay: '0.6s' }}>
             <div className="card">
@@ -417,7 +405,6 @@ const Dashboard = () => {
                     </div>
                   ))}
                 </div>
-                
                 <div className="p-4 border-t border-glass">
                   <button className="btn btn-ghost w-full text-sm">
                     Ver todo el historial →
@@ -427,14 +414,12 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-
         {/* Acciones rápidas */}
         <div className="animate-slide-up" style={{ animationDelay: '0.7s' }}>
           <h2 className="text-2xl font-bold text-gradient mb-6 flex items-center gap-2">
             🚀 Acciones Rápidas
             <span className="text-sm font-normal text-tertiary">¿Qué quieres hacer hoy?</span>
           </h2>
-          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <QuickActionButton
               icon="📚"
@@ -443,7 +428,6 @@ const Dashboard = () => {
               onClick={() => navigate("/libros")}
               color="bg-gradient-to-br from-emerald-400 to-teal-500"
             />
-            
             <QuickActionButton
               icon="📋"
               title="Nuevo Préstamo"
@@ -451,7 +435,6 @@ const Dashboard = () => {
               onClick={() => navigate("/prestamos")}
               color="bg-gradient-to-br from-teal-400 to-cyan-500"
             />
-            
             <QuickActionButton
               icon="👤"
               title="Registrar Usuario"
@@ -459,7 +442,6 @@ const Dashboard = () => {
               onClick={() => navigate("/users")}
               color="bg-gradient-to-br from-cyan-400 to-blue-500"
             />
-            
             <QuickActionButton
               icon="✍️"
               title="Añadir Escritor"
@@ -469,7 +451,6 @@ const Dashboard = () => {
             />
           </div>
         </div>
-
         {/* Panel de alertas y notificaciones */}
         <div className="mt-8 animate-slide-up" style={{ animationDelay: '0.8s' }}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -493,13 +474,11 @@ const Dashboard = () => {
                     ✅ No hay préstamos vencidos
                   </div>
                 )}
-                
                 <div className="alert alert-info">
                   💡 Se recomienda hacer backup del sistema
                 </div>
               </div>
             </div>
-
             {/* Estadísticas rápidas */}
             <div className="card">
               <div className="card-header">
@@ -533,6 +512,5 @@ const Dashboard = () => {
       </div>
     </div>
   );
-};
-
+}
 export default Dashboard;

@@ -70,8 +70,8 @@ export default function Navbar() {
       <div className="nav-actions">
         {user && (
           <div className="user-info">
-            <span className="text-sm font-medium">
-              Hola, <span className="text-accent font-bold">{user.username}</span>
+            <span className="text-sm font-medium" style={{marginBottom: '0.2rem'}}>
+              Bienvenido, <span className="text-accent font-bold">{user.username}</span>
             </span>
             <button
               onClick={logout}
