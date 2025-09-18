@@ -1,4 +1,4 @@
-// src/pages/Dashboard.jsx - Dashboard Premium con Analytics Avanzados - MODIFICADO: 2025-09-18 07:02
+// src/pages/Dashboard_New.jsx - Dashboard Premium con Analytics Avanzados - NUEVA VERSION
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -19,7 +19,6 @@ const Dashboard = () => {
 
   const loadDashboardData = async () => {
     setIsLoading(true);
-    // Simular carga de datos
     await new Promise(resolve => setTimeout(resolve, 1200));
 
     const libros = JSON.parse(localStorage.getItem("libros") || "[]");
@@ -52,42 +51,7 @@ const Dashboard = () => {
       autorMasLeido: getAutorMasLeido(libros, prestamos)
     });
 
-    // Actividad reciente simulada
-    setRecentActivity([
-      {
-        id: 1,
-        tipo: "prestamo",
-        descripcion: "María García tomó prestado 'Cien años de soledad'",
-        tiempo: "Hace 2 horas",
-        icono: "📚",
-        color: "text-emerald-500"
-      },
-      {
-        id: 2,
-        tipo: "devolucion",
-        descripcion: "Carlos López devolvió 'Don Quijote de la Mancha'",
-        tiempo: "Hace 4 horas",
-        icono: "📖",
-        color: "text-teal-500"
-      },
-      {
-        id: 3,
-        tipo: "registro",
-        descripcion: "Nuevo usuario registrado: Ana Silva",
-        tiempo: "Hace 6 horas",
-        icono: "👤",
-        color: "text-cyan-500"
-      },
-      {
-        id: 4,
-        tipo: "libro",
-        descripcion: "Agregado nuevo libro: 'La Casa de los Espíritus'",
-        tiempo: "Hace 1 día",
-        icono: "➕",
-        color: "text-purple-500"
-      }
-    ]);
-
+    setRecentActivity([]);
     setIsLoading(false);
   };
 
@@ -96,7 +60,6 @@ const Dashboard = () => {
       acc[libro.genero] = (acc[libro.genero] || 0) + 1;
       return acc;
     }, {});
-
     return Object.entries(generos)
       .sort(([,a], [,b]) => b - a)[0]?.[0] || "N/A";
   };
@@ -109,7 +72,6 @@ const Dashboard = () => {
         autores[libro.autor] = (autores[libro.autor] || 0) + 1;
       }
     });
-
     return Object.entries(autores)
       .sort(([,a], [,b]) => b - a)[0]?.[0] || "N/A";
   };
@@ -119,63 +81,9 @@ const Dashboard = () => {
     navigate("/login");
   };
 
-  const StatCard = ({ title, value, subtitle, icon, color, trend, onClick, delay = 0 }) => (
-    <div
-      className={`card hover-lift hover-glow cursor-pointer animate-slide-up`}
-      style={{ animationDelay: `${delay}s` }}
-      onClick={onClick}
-    >
-      <div className="card-body p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className={`p-3 rounded-2xl bg-gradient-to-br ${color} shadow-lg`}>
-            <span className="text-2xl">{icon}</span>
-          </div>
-          {trend && (
-            <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${
-              trend > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
-            }`}>
-              <span>{trend > 0 ? '↗️' : '↘️'}</span>
-              <span>{Math.abs(trend)}%</span>
-            </div>
-          )}
-        </div>
-        <div className="space-y-1">
-          <p className="text-2xl font-bold text-primary">{isLoading ? '...' : value}</p>
-          <h3 className="font-semibold text-secondary">{title}</h3>
-          {subtitle && (
-            <p className="text-sm text-tertiary">{subtitle}</p>
-          )}
-        </div>
-        {!isLoading && (
-          <div className="mt-4 progress">
-            <div
-              className="progress-bar"
-              style={{ width: `${Math.min((value / 100) * 100, 100)}%` }}
-            />
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
-  const QuickActionButton = ({ icon, title, description, onClick, color }) => (
-    <button
-      onClick={onClick}
-      className={`card hover-scale text-left p-6 group transition-all duration-300 hover:shadow-2xl`}
-    >
-      <div className={`inline-flex items-center justify-center w-12 h-12 rounded-2xl ${color} mb-4 group-hover:animate-bounce`}>
-        <span className="text-xl">{icon}</span>
-      </div>
-      <h3 className="font-bold text-primary mb-2">{title}</h3>
-      <p className="text-sm text-tertiary group-hover:text-secondary transition-colors">
-        {description}
-      </p>
-    </button>
-  );
-
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-primary flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin w-16 h-16 border-4 border-accent-primary border-t-transparent rounded-full mx-auto mb-4"></div>
           <div className="loading-dots">
@@ -191,19 +99,18 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary to-secondary">
-      <div className="container py-8 pt-48">
+      <div className="container py-6" style={{ paddingTop: '10px' }}>
         {/* Header Premium */}
-        <div className="card-premium mb-8 mt-12 animate-slide-down max-w-4xl mx-auto">
+        <div className="card-premium mb-24 mt-8 animate-slide-down max-w-4xl mx-auto" style={{ marginTop: '70px' }}>
           <div className="card-body">
-            <div className="flex justify-between items-start">
-              {/* Panel usuario (eliminado gestión de usuario) */}
+            <div className="flex justify-center items-start">
               <div>
                 <div className="flex items-center gap-4 mb-4">
                   <div className="avatar avatar-xl avatar-gradient">
                   </div>
                   <div>
                     <h1 className="text-3xl font-black text-gradient mb-2">
-                      ¡Bienvenido de vuelta, {user?.username}! 👋
+                      ¡Bienvenido de vuelta, {user?.username}! 
                     </h1>
                     <p className="text-secondary font-medium">
                       {user?.role === 'admin' ? '👑 Administrador del Sistema' : '📚 Bibliotecario'}
@@ -220,7 +127,6 @@ const Dashboard = () => {
                   </div>
                 </div>
               </div>
-              {/* Panel de control rápido y resto del dashboard restaurado */}
               <div className="text-right">
                 <div className="flex gap-2 mb-4">
                   <button
@@ -238,7 +144,6 @@ const Dashboard = () => {
                     🚪
                   </button>
                 </div>
-                {/* Estado del sistema */}
                 <div className="bg-glass rounded-xl p-3 text-sm">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-tertiary">Estado del sistema</span>
@@ -255,9 +160,9 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-        {/* Grid de estadísticas principales */}
-        <div className="grid grid-cols-1 gap-8 mb-8">
-          {/* Panel de métricas avanzadas */}
+
+        {/* Panel de métricas avanzadas */}
+        <div className="grid grid-cols-1 gap-10 mb-16">
           <div className="animate-slide-up max-w-5xl mx-auto" style={{ animationDelay: '0.5s' }}>
             <div className="card">
               <div className="card-header">
@@ -267,7 +172,6 @@ const Dashboard = () => {
                 </h2>
               </div>
               <div className="card-body space-y-6">
-                {/* Gráfico de disponibilidad */}
                 <div>
                   <div className="flex justify-between items-center mb-3">
                     <h3 className="font-semibold text-secondary">Disponibilidad de Libros</h3>
@@ -286,7 +190,6 @@ const Dashboard = () => {
                     <span>{stats.librosPrestados} prestados</span>
                   </div>
                 </div>
-                {/* Métricas adicionales */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-glass p-4 rounded-xl">
                     <div className="text-2xl mb-2">📈</div>
@@ -299,7 +202,6 @@ const Dashboard = () => {
                     <div className="font-bold text-primary">{stats.autorMasLeido}</div>
                   </div>
                 </div>
-                {/* Indicadores de rendimiento */}
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium">Eficiencia del sistema</span>
@@ -320,10 +222,10 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
+
         {/* Panel de alertas y notificaciones */}
-        <div className="mt-8 animate-slide-up max-w-5xl mx-auto" style={{ animationDelay: '0.8s' }}>
+        <div className="mt-16 animate-slide-up max-w-5xl mx-auto" style={{ animationDelay: '0.8s' }}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Alertas */}
             <div className="card">
               <div className="card-header">
                 <h3 className="text-lg font-bold flex items-center gap-2">
@@ -348,7 +250,6 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
-            {/* Estadísticas rápidas */}
             <div className="card">
               <div className="card-header">
                 <h3 className="text-lg font-bold flex items-center gap-2">
@@ -381,5 +282,6 @@ const Dashboard = () => {
       </div>
     </div>
   );
-}
+};
+
 export default Dashboard;
