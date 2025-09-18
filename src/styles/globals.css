@@ -1048,4 +1048,271 @@ p {
   background: #1b5e20;
 }
 
+/* === ESTILOS ADICIONALES PARA LOGIN/REGISTER === */
 
+/* Animaciones adicionales */
+.animate-slide-down {
+  animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+  }
+  to { 
+    opacity: 1; 
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Spinner de carga */
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Layout de dos columnas para auth */
+.auth-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  padding: 2rem 0;
+}
+
+@media (min-width: 1024px) {
+  .auth-layout {
+    flex-direction: row;
+    gap: 4rem;
+    align-items: stretch;
+  }
+}
+
+/* Contenedor del carrusel en auth */
+.auth-carousel {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  height: 500px;
+}
+
+@media (min-width: 1024px) {
+  .auth-carousel {
+    width: 50%;
+    max-width: none;
+  }
+}
+
+/* Contenedor del formulario en auth */
+.auth-form {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  min-height: 500px;
+}
+
+@media (min-width: 1024px) {
+  .auth-form {
+    width: 50%;
+    max-width: none;
+  }
+}
+
+/* Carrusel mejorado */
+.carousel-enhanced {
+  height: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow-2xl);
+  border: 1px solid var(--border-glass);
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .carousel-enhanced {
+    height: 500px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .carousel-enhanced {
+    height: 500px;
+  }
+}
+
+/* Botones del carrusel mejorados */
+.carousel-btn {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: var(--transition-normal);
+}
+
+.carousel-btn:hover {
+  background: rgba(0, 0, 0, 0.9);
+  transform: translateY(-50%) scale(1.1);
+}
+
+/* Indicadores del carrusel */
+.carousel-indicator {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: var(--transition-normal);
+  backdrop-filter: blur(5px);
+}
+
+.carousel-indicator:hover {
+  transform: scale(1.2);
+}
+
+.carousel-indicator.active {
+  background: white;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+/* Overlay de texto del carrusel */
+.carousel-overlay {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4), transparent);
+  backdrop-filter: blur(5px);
+}
+
+.carousel-title {
+  color: white;
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  margin: 0;
+}
+
+.carousel-subtitle {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.875rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  margin: 0;
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+  .carousel-enhanced {
+    height: 300px;
+    border-radius: 16px;
+  }
+  
+  .carousel-title {
+    font-size: 1.1rem;
+  }
+  
+  .carousel-subtitle {
+    font-size: 0.8rem;
+  }
+  
+  .auth-layout {
+    gap: 1rem;
+    padding: 1rem 0;
+  }
+}
+
+@media (max-width: 500px) {
+  .auth-layout {
+    gap: 1rem;
+  }
+  
+  .carousel-enhanced {
+    height: 600px;
+  }
+}
+
+/* Utilidades de Tailwind CSS simuladas */
+.w-full { width: 100%; }
+.h-64 { height: 20rem; }
+.h-full { height: 100%; }
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.gap-4 { gap: 1rem; }
+.gap-8 { gap: 2rem; }
+.min-h-screen { min-height: 100vh; }
+.py-8 { padding-top: 2rem; padding-bottom: 2rem; }
+.max-w-md { max-width: 28rem; }
+.text-center { text-align: center; }
+.text-sm { font-size: 0.875rem; }
+.text-2xl { font-size: 1.5rem; }
+.font-bold { font-weight: 700; }
+.font-medium { font-weight: 500; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+.mt-6 { margin-top: 1.5rem; }
+.relative { position: relative; }
+.absolute { position: absolute; }
+.overflow-hidden { overflow: hidden; }
+.rounded-lg { border-radius: 0.5rem; }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+.bg-gray-200 { background-color: #e5e7eb; }
+.object-cover { object-fit: cover; }
+.p-4 { padding: 1rem; }
+.p-3 { padding: 0.75rem; }
+.rounded-full { border-radius: 9999px; }
+.text-white { color: white; }
+.text-xl { font-size: 1.25rem; }
+.transition-colors { transition: color 0.15s ease-in-out; }
+.transform { transform: translateZ(0); }
+.space-x-2 > * + * { margin-left: 0.5rem; }
+.hover\\:underline:hover { text-decoration: underline; }
+
+/* Posicionamiento específico */
+.top-1\/2 { top: 50%; }
+.left-2 { left: 0.5rem; }
+.right-2 { right: 0.5rem; }
+.bottom-4 { bottom: 1rem; }
+.left-1\/2 { left: 50%; }
+.-translate-y-1\/2 { transform: translateY(-50%); }
+.-translate-x-1\/2 { transform: translateX(-50%); }
+.w-4 { width: 1rem; }
+.h-4 { height: 1rem; }
+
+@media (min-width: 1024px) {
+  .lg\:flex-row { flex-direction: row; }
+  .lg\:w-1\/2 { width: 50%; }
+  .lg\:h-96 { height: 24rem; }
+}
