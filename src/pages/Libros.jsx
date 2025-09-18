@@ -305,8 +305,8 @@ const Libros = () => {
               <button onClick={closeModal} className="modal-close">×</button>
             </div>
             <form onSubmit={handleSubmit}>
-              <div className="modal-body">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="modal-body" style={{ padding: '2rem' }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="form-group">
                     <label htmlFor="titulo" className="form-label">
                       Título *
@@ -417,7 +417,7 @@ const Libros = () => {
                   ></textarea>
                 </div>
               </div>
-              <div className="modal-footer">
+              <div className="modal-footer" style={{ justifyContent: 'space-between' }}>
                 <button type="button" onClick={closeModal} className="btn btn-secondary">
                   Cancelar
                 </button>

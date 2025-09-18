@@ -12,11 +12,15 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
   // Cargar usuario desde localStorage al inicializar
   useEffect(() => {
+    if (isInitialized) return;
+
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
       try {
@@ -26,7 +30,9 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('currentUser');
       }
     }
-  }, []);
+    setIsAuthLoading(false);
+    setIsInitialized(true);
+  }, [isInitialized]);
 
   const login = (userData) => {
     // Asegurarse de que userData es un objeto válido
@@ -120,6 +126,7 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     loading,
+    isAuthLoading,
     error,
     success,
     requestPasswordReset,

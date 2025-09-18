@@ -9,22 +9,68 @@ const Escritores = () => {
   const [formData, setFormData] = useState({
     nombre: "",
     apellido: "",
-    fechaNacimiento: "",
     nacionalidad: "",
-    biografia: "",
     generoLiterario: "",
-    obrasDestacadas: ""
+    biografia: "",
+    fotografiaUrl: "",
+    obrasDestacadas: "",
+    premiosRecomendaciones: "",
+    idiomaPrincipal: "",
+    redesSociales: ""
   });
 
   const nacionalidades = [
     "Argentina", "Bolivia", "Brasil", "Chile", "Colombia", "Costa Rica", "Cuba", "Ecuador",
-    "El Salvador", "España", "Guatemala", "Honduras", "México", "Nicaragua", "Panamá",
-    "Paraguay", "Perú", "Puerto Rico", "República Dominicana", "Uruguay", "Venezuela", "Otra"
+    "El Salvador", "España", "Estados Unidos", "Francia", "Guatemala", "Honduras", "Italia",
+    "México", "Nicaragua", "Panamá", "Paraguay", "Perú", "Portugal", "Puerto Rico",
+    "Reino Unido", "República Dominicana", "Uruguay", "Venezuela", "Alemania", "Japón",
+    "Corea del Sur", "China", "India", "Rusia", "Canadá", "Australia", "Nueva Zelanda", "Otra"
   ];
+
+  const idiomasPorPais = {
+    "Argentina": ["Español"],
+    "Bolivia": ["Español", "Quechua", "Aymara"],
+    "Brasil": ["Portugués"],
+    "Chile": ["Español"],
+    "Colombia": ["Español"],
+    "Costa Rica": ["Español"],
+    "Cuba": ["Español"],
+    "Ecuador": ["Español"],
+    "El Salvador": ["Español"],
+    "España": ["Español", "Catalán", "Gallego", "Euskera"],
+    "Estados Unidos": ["Inglés"],
+    "Francia": ["Francés"],
+    "Guatemala": ["Español"],
+    "Honduras": ["Español"],
+    "Italia": ["Italiano"],
+    "México": ["Español"],
+    "Nicaragua": ["Español"],
+    "Panamá": ["Español"],
+    "Paraguay": ["Español", "Guaraní"],
+    "Perú": ["Español", "Quechua", "Aymara"],
+    "Portugal": ["Portugués"],
+    "Puerto Rico": ["Español", "Inglés"],
+    "Reino Unido": ["Inglés"],
+    "República Dominicana": ["Español"],
+    "Uruguay": ["Español"],
+    "Venezuela": ["Español"],
+    "Alemania": ["Alemán"],
+    "Japón": ["Japonés"],
+    "Corea del Sur": ["Coreano"],
+    "China": ["Chino mandarín"],
+    "India": ["Hindi", "Inglés", "Bengalí", "Telugu"],
+    "Rusia": ["Ruso"],
+    "Canadá": ["Inglés", "Francés"],
+    "Australia": ["Inglés"],
+    "Nueva Zelanda": ["Inglés", "Maorí"],
+    "Otra": ["Español", "Inglés", "Francés", "Alemán", "Italiano", "Portugués", "Otro"]
+  };
 
   const generosLiterarios = [
     "Novela", "Cuento", "Poesía", "Teatro", "Ensayo", "Biografía", "Historia",
-    "Ciencia ficción", "Fantasía", "Misterio", "Romance", "Thriller"
+    "Ciencia ficción", "Fantasía", "Misterio", "Romance", "Thriller", "Terror",
+    "Aventura", "Drama", "Comedia", "Literatura infantil", "Poesía contemporánea",
+    "Novela histórica", "Ficción histórica", "Autobiografía", "Memorias"
   ];
 
   useEffect(() => {
@@ -39,7 +85,9 @@ const Escritores = () => {
   const filteredEscritores = escritores.filter(escritor =>
     `${escritor.nombre} ${escritor.apellido}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
     escritor.nacionalidad.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    escritor.generoLiterario.toLowerCase().includes(searchTerm.toLowerCase())
+    escritor.generoLiterario.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (escritor.idiomaPrincipal && escritor.idiomaPrincipal.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (escritor.premiosRecomendaciones && escritor.premiosRecomendaciones.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const handleSubmit = (e) => {
@@ -86,11 +134,14 @@ const Escritores = () => {
     setFormData({
       nombre: "",
       apellido: "",
-      fechaNacimiento: "",
       nacionalidad: "",
-      biografia: "",
       generoLiterario: "",
-      obrasDestacadas: ""
+      biografia: "",
+      fotografiaUrl: "",
+      obrasDestacadas: "",
+      premiosRecomendaciones: "",
+      idiomaPrincipal: "",
+      redesSociales: ""
     });
     setShowModal(true);
   };
@@ -98,14 +149,35 @@ const Escritores = () => {
   const closeModal = () => {
     setShowModal(false);
     setEditingAuthor(null);
+    setFormData({
+      nombre: "",
+      apellido: "",
+      nacionalidad: "",
+      generoLiterario: "",
+      biografia: "",
+      fotografiaUrl: "",
+      obrasDestacadas: "",
+      premiosRecomendaciones: "",
+      idiomaPrincipal: "",
+      redesSociales: ""
+    });
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => {
+      const newData = {
+        ...prev,
+        [name]: value
+      };
+
+      // Si cambia la nacionalidad, resetear el idioma principal
+      if (name === 'nacionalidad') {
+        newData.idiomaPrincipal = '';
+      }
+
+      return newData;
+    });
   };
 
   const calcularEdad = (fechaNacimiento) => {
@@ -150,7 +222,7 @@ const Escritores = () => {
                   <input
                     type="text"
                     id="search"
-                    placeholder="Buscar por nombre, nacionalidad o género..."
+                    placeholder="Buscar por nombre, nacionalidad, género, idioma o premios..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="form-input"
@@ -178,7 +250,18 @@ const Escritores = () => {
                   <div key={escritor.id} className="card hover:shadow-lg transition-all duration-300">
                     <div className="card-body">
                       <div className="flex items-center gap-4 mb-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                        {escritor.fotografiaUrl ? (
+                          <img
+                            src={escritor.fotografiaUrl}
+                            alt={`${escritor.nombre} ${escritor.apellido}`}
+                            className="w-12 h-12 rounded-full object-cover"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                        ) : null}
+                        <div className={`w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-bold text-lg ${escritor.fotografiaUrl ? 'hidden' : ''}`}>
                           {escritor.nombre?.charAt(0)}{escritor.apellido?.charAt(0)}
                         </div>
                         <div>
@@ -186,19 +269,22 @@ const Escritores = () => {
                             {escritor.nombre} {escritor.apellido}
                           </h3>
                           <p className="text-sm text-muted">{escritor.nacionalidad}</p>
+                          {escritor.idiomaPrincipal && (
+                            <p className="text-xs text-muted">{escritor.idiomaPrincipal}</p>
+                          )}
                         </div>
                       </div>
                       <div className="space-y-2 mb-4">
-                        {escritor.fechaNacimiento && (
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted">Edad:</span>
-                            <span>{calcularEdad(escritor.fechaNacimiento)} años</span>
-                          </div>
-                        )}
                         <div className="flex justify-between text-sm">
                           <span className="text-muted">Género:</span>
                           <span>{escritor.generoLiterario}</span>
                         </div>
+                        {escritor.premiosRecomendaciones && (
+                          <div className="text-sm">
+                            <span className="text-muted">Premios:</span>
+                            <p className="line-clamp-1 mt-1 text-xs">{escritor.premiosRecomendaciones}</p>
+                          </div>
+                        )}
                         {escritor.obrasDestacadas && (
                           <div className="text-sm">
                             <span className="text-muted">Obras:</span>
@@ -210,6 +296,11 @@ const Escritores = () => {
                         <p className="text-sm text-muted mb-4 line-clamp-3">
                           {escritor.biografia}
                         </p>
+                      )}
+                      {escritor.redesSociales && (
+                        <div className="text-xs text-accent mb-2">
+                          🌐 Redes sociales disponibles
+                        </div>
                       )}
                       <div className="flex gap-2">
                         <button
@@ -247,8 +338,9 @@ const Escritores = () => {
               <button onClick={closeModal} className="modal-close">×</button>
             </div>
             <form onSubmit={handleSubmit}>
-              <div className="modal-body">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="modal-body" style={{ padding: '2rem' }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Información básica */}
                   <div className="form-group">
                     <label htmlFor="nombre" className="form-label">Nombre *</label>
                     <input
@@ -275,17 +367,8 @@ const Escritores = () => {
                       placeholder="Apellido del escritor"
                     />
                   </div>
-                  <div className="form-group">
-                    <label htmlFor="fechaNacimiento" className="form-label">Fecha de Nacimiento</label>
-                    <input
-                      type="date"
-                      id="fechaNacimiento"
-                      name="fechaNacimiento"
-                      value={formData.fechaNacimiento}
-                      onChange={handleInputChange}
-                      className="form-input"
-                    />
-                  </div>
+
+                  {/* Ubicación e idioma */}
                   <div className="form-group">
                     <label htmlFor="nacionalidad" className="form-label">Nacionalidad *</label>
                     <select
@@ -302,6 +385,29 @@ const Escritores = () => {
                       ))}
                     </select>
                   </div>
+                  <div className="form-group">
+                    <label htmlFor="idiomaPrincipal" className="form-label">Idioma Principal *</label>
+                    <select
+                      id="idiomaPrincipal"
+                      name="idiomaPrincipal"
+                      required
+                      value={formData.idiomaPrincipal}
+                      onChange={handleInputChange}
+                      className="form-input"
+                    >
+                      <option value="">Seleccionar idioma</option>
+                      {formData.nacionalidad && idiomasPorPais[formData.nacionalidad] ?
+                        idiomasPorPais[formData.nacionalidad].map(idioma => (
+                          <option key={idioma} value={idioma}>{idioma}</option>
+                        )) :
+                        idiomasPorPais["Otra"].map(idioma => (
+                          <option key={idioma} value={idioma}>{idioma}</option>
+                        ))
+                      }
+                    </select>
+                  </div>
+
+                  {/* Información literaria */}
                   <div className="form-group md:col-span-2">
                     <label htmlFor="generoLiterario" className="form-label">Género Literario *</label>
                     <select
@@ -318,6 +424,22 @@ const Escritores = () => {
                       ))}
                     </select>
                   </div>
+
+                  {/* Fotografía */}
+                  <div className="form-group md:col-span-2">
+                    <label htmlFor="fotografiaUrl" className="form-label">Fotografía (URL)</label>
+                    <input
+                      type="url"
+                      id="fotografiaUrl"
+                      name="fotografiaUrl"
+                      value={formData.fotografiaUrl}
+                      onChange={handleInputChange}
+                      className="form-input"
+                      placeholder="https://ejemplo.com/foto.jpg"
+                    />
+                  </div>
+
+                  {/* Contenido literario */}
                   <div className="form-group md:col-span-2">
                     <label htmlFor="obrasDestacadas" className="form-label">Obras Destacadas</label>
                     <textarea
@@ -325,11 +447,25 @@ const Escritores = () => {
                       name="obrasDestacadas"
                       value={formData.obrasDestacadas}
                       onChange={handleInputChange}
-                      rows="2"
+                      rows="3"
                       className="form-input"
                       placeholder="Lista las obras más importantes separadas por comas..."
                     />
                   </div>
+
+                  <div className="form-group md:col-span-2">
+                    <label htmlFor="premiosRecomendaciones" className="form-label">Premios o Recomendaciones</label>
+                    <textarea
+                      id="premiosRecomendaciones"
+                      name="premiosRecomendaciones"
+                      value={formData.premiosRecomendaciones}
+                      onChange={handleInputChange}
+                      rows="2"
+                      className="form-input"
+                      placeholder="Premios literarios, reconocimientos, recomendaciones..."
+                    />
+                  </div>
+
                   <div className="form-group md:col-span-2">
                     <label htmlFor="biografia" className="form-label">Biografía</label>
                     <textarea
@@ -339,12 +475,25 @@ const Escritores = () => {
                       onChange={handleInputChange}
                       rows="4"
                       className="form-input"
-                      placeholder="Breve biografía del escritor..."
+                      placeholder="Biografía completa del escritor..."
+                    />
+                  </div>
+
+                  <div className="form-group md:col-span-2">
+                    <label htmlFor="redesSociales" className="form-label">Redes Sociales / Portafolio</label>
+                    <textarea
+                      id="redesSociales"
+                      name="redesSociales"
+                      value={formData.redesSociales}
+                      onChange={handleInputChange}
+                      rows="2"
+                      className="form-input"
+                      placeholder="Enlaces a redes sociales, sitio web, portafolio..."
                     />
                   </div>
                 </div>
               </div>
-              <div className="modal-footer">
+              <div className="modal-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <button type="button" onClick={closeModal} className="btn btn-secondary">
                   Cancelar
                 </button>
