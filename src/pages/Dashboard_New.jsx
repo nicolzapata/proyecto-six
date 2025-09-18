@@ -103,57 +103,53 @@ const Dashboard = () => {
         {/* Header Premium */}
         <div className="card-premium mb-24 mt-8 animate-slide-down max-w-4xl mx-auto" style={{ marginTop: '70px' }}>
           <div className="card-body">
-            <div className="flex justify-center items-start">
-              <div>
-                <div className="flex items-center gap-4 mb-4">
+            <div className="flex flex-col lg:flex-row justify-center items-start gap-6">
+              <div className="flex-1">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-4">
                   <div className="avatar avatar-xl avatar-gradient">
                   </div>
-                  <div>
-                    <h1 className="text-3xl font-black text-gradient mb-2">
-                      ¡Bienvenido de vuelta, {user?.username}! 
+                  
+                  <div className="flex-1">
+                    <h1 className="text-2xl sm:text-3xl font-black text-gradient mb-2 text-center">
+                      ¡Bienvenido de vuelta, {user?.username}!
                     </h1>
-                    <p className="text-secondary font-medium">
-                      {user?.role === 'admin' ? '👑 Administrador del Sistema' : '📚 Bibliotecario'}
-                    </p>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-tertiary">
-                      <span>🕒 {currentTime.toLocaleTimeString('es-ES')}</span>
-                      <span>📅 {currentTime.toLocaleDateString('es-ES', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                      <div className="text-center alert alert-success">
+                        <p className="text-secondary font-medium mb-2">Rol</p>
+                        <p className="text-lg font-semibold text-primary">
+                          {user?.role === 'admin' ? 'Administrador del Sistema' : 'Bibliotecario'}
+                        </p>
+                      </div>
+                      <div className="text-center alert alert-info">
+                        <div className="card-body space-y-3">
+                          <p className="text-secondary font-medium mb-2">Fecha y Hora</p>
+                          <div className="text-sm text-tertiary space-y-1">
+                            <div>{currentTime.toLocaleTimeString('es-ES')}</div>
+                            <div>{currentTime.toLocaleDateString('es-ES', {
+                              weekday: 'long',
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}</div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="text-right">
-                <div className="flex gap-2 mb-4">
-                  <button
-                    onClick={() => navigate("/profile")}
-                    className="btn btn-ghost tooltip"
-                    data-tooltip="Ver perfil"
-                  >
-                    👤
-                  </button>
-                  <button
-                    onClick={handleLogout}
-                    className="btn btn-danger tooltip"
-                    data-tooltip="Cerrar sesión"
-                  >
-                    🚪
-                  </button>
-                </div>
+              <div className="w-full lg:w-auto lg:text-right">
                 <div className="bg-glass rounded-xl p-3 text-sm">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-tertiary">Estado del sistema</span>
-                    <div className="flex items-center gap-1">
-                      <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                      <span className="text-emerald-500 font-semibold">Activo</span>
+                  <div className="flex flex-col sm:flex-row justify-center items-start sm:items-center mb-3 gap-2 alert alert-success">
+                    <div className="card-body space-y-3">
+                      <span className="text-tertiary">Estado del sistema:</span>
+                        <span className="text-emerald-500 font-semibold">  Activo</span>
                     </div>
                   </div>
-                  <div className="text-xs text-tertiary">
-                    Último backup: hace 2 horas
+                  <div className=" text-tertiary alert alert-info mb-1">
+                    <div className="card-body space-y-3">
+                      Último acceso: {new Date(user?.lastLogin || user?.createdAt).toLocaleString('es-ES')}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -166,22 +162,22 @@ const Dashboard = () => {
           <div className="animate-slide-up max-w-5xl mx-auto" style={{ animationDelay: '0.5s' }}>
             <div className="card">
               <div className="card-header">
-                <h2 className="text-xl font-bold flex items-center gap-2">
-                  📊 Métricas Avanzadas
+                <h2 className="text-lg sm:text-xl font-bold flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                   Métricas Avanzadas
                   <span className="badge badge-primary">En vivo</span>
                 </h2>
               </div>
               <div className="card-body space-y-6">
                 <div>
-                  <div className="flex justify-between items-center mb-3">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2">
                     <h3 className="font-semibold text-secondary">Disponibilidad de Libros</h3>
-                    <span className="text-2xl font-bold text-gradient">
-                      {((stats.librosDisponibles / stats.totalLibros) * 100).toFixed(1)}%
+                    <span className="text-xl sm:text-2xl font-bold text-gradient">
+                      {stats.totalLibros} Libros
                     </span>
                   </div>
                   <div className="progress mb-2" style={{ height: '12px' }}>
                     <div
-                      className="progress-bar"
+                      className="progress-bar alert alert-success"
                       style={{ width: `${(stats.librosDisponibles / stats.totalLibros) * 100}%` }}
                     />
                   </div>
@@ -190,32 +186,14 @@ const Dashboard = () => {
                     <span>{stats.librosPrestados} prestados</span>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-glass p-4 rounded-xl">
-                    <div className="text-2xl mb-2">📈</div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-glass p-4 rounded-xl alert alert-info">
                     <div className="text-sm text-tertiary mb-1">Género más popular</div>
                     <div className="font-bold text-primary">{stats.generoMasPopular}</div>
                   </div>
-                  <div className="bg-glass p-4 rounded-xl">
-                    <div className="text-2xl mb-2">⭐</div>
+                  <div className="bg-glass p-4 rounded-xl alert alert-success">
                     <div className="text-sm text-tertiary mb-1">Autor más leído</div>
                     <div className="font-bold text-primary">{stats.autorMasLeido}</div>
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Eficiencia del sistema</span>
-                    <span className="text-sm font-bold text-emerald-500">98.5%</span>
-                  </div>
-                  <div className="progress">
-                    <div className="progress-bar" style={{ width: '98.5%' }} />
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Satisfacción de usuarios</span>
-                    <span className="text-sm font-bold text-teal-500">94.2%</span>
-                  </div>
-                  <div className="progress">
-                    <div className="progress-bar" style={{ width: '94.2%' }} />
                   </div>
                 </div>
               </div>
@@ -228,8 +206,8 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="card">
               <div className="card-header">
-                <h3 className="text-lg font-bold flex items-center gap-2">
-                  ⚠️ Alertas del Sistema
+                <h3 className="text-base sm:text-lg font-bold flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                   Alertas del Sistema
                   {stats.prestamosVencidos > 0 && (
                     <span className="badge badge-error">{stats.prestamosVencidos}</span>
                   )}
@@ -241,39 +219,12 @@ const Dashboard = () => {
                     <strong>{stats.prestamosVencidos}</strong> préstamo(s) vencido(s) requieren atención
                   </div>
                 ) : (
-                  <div className="alert alert-success">
+                  <div className="alert alert-info">
                     ✅ No hay préstamos vencidos
                   </div>
                 )}
-                <div className="alert alert-info">
+                <div className="alert alert-success">
                   💡 Se recomienda hacer backup del sistema
-                </div>
-              </div>
-            </div>
-            <div className="card">
-              <div className="card-header">
-                <h3 className="text-lg font-bold flex items-center gap-2">
-                  📈 Resumen Semanal
-                </h3>
-              </div>
-              <div className="card-body">
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-secondary">Nuevos préstamos</span>
-                    <span className="font-bold text-emerald-500">+{stats.prestamosActivos}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-secondary">Libros devueltos</span>
-                    <span className="font-bold text-teal-500">+12</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-secondary">Nuevos usuarios</span>
-                    <span className="font-bold text-cyan-500">+3</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-secondary">Tasa de ocupación</span>
-                    <span className="font-bold text-purple-500">{((stats.librosPrestados / stats.totalLibros) * 100).toFixed(1)}%</span>
-                  </div>
                 </div>
               </div>
             </div>

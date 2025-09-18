@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
+import Carousel from "../components/Carousel";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -39,10 +40,18 @@ const Login = () => {
   };
 
   return (
-    <div className="bg-gradient-page">
-      <div className="container flex items-center justify-center min-h-screen py-8">
-        <div className="card animate-slide-up" style={{ maxWidth: '420px', width: '100%' }}>
-          <div className="card-body">
+    <div className="bg-gradient-page min-h-screen">
+      <div className="container py-8">
+        <div className="flex flex-col lg:flex-row items-center justify-center gap-8 min-h-[80vh]">
+          {/* Carrusel de imágenes */}
+          <div className="w-full lg:w-1/2">
+            <Carousel />
+          </div>
+
+          {/* Formulario de login */}
+          <div className="w-full lg:w-1/2 flex justify-center">
+            <div className="card w-full max-w-md">
+              <div className="card-body">
             <div className="text-center mb-6">
               <h1 className="text-2xl font-bold mb-2">
                 📚 Bienvenido a la Biblioteca
@@ -120,12 +129,14 @@ const Login = () => {
                   Recupérala aquí
                 </Link>
               </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+               </div>
+             </div>
+           </div>
+         </div>
+       </div>
+     </div>
+   </div>
+ );
 };
 
 export default Login;
