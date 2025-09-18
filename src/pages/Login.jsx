@@ -40,103 +40,103 @@ const Login = () => {
   };
 
   return (
-    <div className="bg-gradient-page min-h-screen">
-      <div className="container py-8">
-        <div className="flex flex-col lg:flex-row items-center justify-center gap-8 min-h-[80vh]">
+    <div className="bg-gradient-page">
+      <div className="container">
+        <div className="auth-layout">
           {/* Carrusel de imágenes */}
-          <div className="w-full lg:w-1/2">
+          <div className="auth-carousel">
             <Carousel />
           </div>
 
           {/* Formulario de login */}
-          <div className="w-full lg:w-1/2 flex justify-center">
+          <div className="auth-form">
             <div className="card w-full max-w-md">
               <div className="card-body">
-            <div className="text-center mb-6">
-              <h1 className="text-2xl font-bold mb-2">
-                📚 Bienvenido a la Biblioteca
-              </h1>
-              <p className="text-muted">Inicia sesión para continuar</p>
-            </div>
-            
-            {error && (
-              <div className="alert alert-error animate-slide-down">
-                {error}
-              </div>
-            )}
-            
-            <form onSubmit={handleLogin} className="flex flex-col gap-4">
-              <div className="form-group">
-                <label htmlFor="username" className="form-label">
-                  Nombre de usuario
-                </label>
-                <input
-                  type="text"
-                  id="username"
-                  name="username"
-                  required
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Ingresa tu usuario"
-                  className="form-input"
-                  disabled={isLoading}
-                />
-              </div>
-              
-              <div className="form-group">
-                <label htmlFor="password" className="form-label">
-                  Contraseña
-                </label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Ingresa tu contraseña"
-                  className="form-input"
-                  disabled={isLoading}
-                />
-              </div>
-              
-              <button 
-                type="submit" 
-                className="btn btn-primary"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <div className="loading-spinner"></div>
-                    Iniciando sesión...
-                  </>
-                ) : (
-                  "Iniciar sesión"
+                <div className="text-center mb-6">
+                  <h1 className="text-2xl font-bold mb-2">
+                    📚 Bienvenido a la Biblioteca
+                  </h1>
+                  <p className="text-muted">Inicia sesión para continuar</p>
+                </div>
+                
+                {error && (
+                  <div className="alert alert-error animate-slide-down">
+                    {error}
+                  </div>
                 )}
-              </button>
-            </form>
-            
-            <div className="mt-6 text-center">
-              <p className="text-sm text-muted mb-2">
-                ¿No tienes cuenta?{" "}
-                <Link to="/register" className="text-accent font-medium hover:underline">
-                  Regístrate aquí
-                </Link>
-              </p>
-              <p className="text-sm text-muted">
-                ¿Olvidaste tu contraseña?{" "}
-                <Link to="/forgotpassword" className="text-accent font-medium hover:underline">
-                  Recupérala aquí
-                </Link>
-              </p>
-               </div>
-             </div>
-           </div>
-         </div>
-       </div>
-     </div>
-   </div>
- );
+                
+                <form onSubmit={handleLogin} className="flex flex-col gap-4">
+                  <div className="form-group">
+                    <label htmlFor="username" className="form-label">
+                      Nombre de usuario
+                    </label>
+                    <input
+                      type="text"
+                      id="username"
+                      name="username"
+                      required
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="Ingresa tu usuario"
+                      className="form-input"
+                      disabled={isLoading}
+                    />
+                  </div>
+                  
+                  <div className="form-group">
+                    <label htmlFor="password" className="form-label">
+                      Contraseña
+                    </label>
+                    <input
+                      type="password"
+                      id="password"
+                      name="password"
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Ingresa tu contraseña"
+                      className="form-input"
+                      disabled={isLoading}
+                    />
+                  </div>
+                  
+                  <button 
+                    type="submit" 
+                    className="btn btn-primary"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <div className="loading-spinner"></div>
+                        Iniciando sesión...
+                      </>
+                    ) : (
+                      "Iniciar sesión"
+                    )}
+                  </button>
+                </form>
+                
+                <div className="mt-6 text-center">
+                  <p className="text-sm text-muted mb-2">
+                    ¿No tienes cuenta?{" "}
+                    <Link to="/register" className="text-accent font-medium hover:underline">
+                      Regístrate aquí
+                    </Link>
+                  </p>
+                  <p className="text-sm text-muted">
+                    ¿Olvidaste tu contraseña?{" "}
+                    <Link to="/forgotpassword" className="text-accent font-medium hover:underline">
+                      Recupérala aquí
+                    </Link>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default Login;

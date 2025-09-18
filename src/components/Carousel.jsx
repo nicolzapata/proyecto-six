@@ -3,25 +3,25 @@ import { useState, useEffect } from 'react';
 const Carousel = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Array de imágenes de biblioteca (placeholders simples y confiables)
+  // Array de imágenes de biblioteca (imágenes específicas de Unsplash)
   const images = [
     {
-      src: 'https://via.placeholder.com/600x400/4f46e5/ffffff?text=Biblioteca+Moderna',
+      src: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600&h=400&fit=crop',
       alt: 'Biblioteca moderna con estanterías',
       title: 'Biblioteca Moderna'
     },
     {
-      src: 'https://via.placeholder.com/600x400/059669/ffffff?text=Sala+de+Lectura',
+      src: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=400&fit=crop',
       alt: 'Sala de lectura',
       title: 'Sala de Lectura'
     },
     {
-      src: 'https://via.placeholder.com/600x400/dc2626/ffffff?text=Coleccion+de+Libros',
-      alt: 'Libros antiguos',
+      src: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600&h=400&fit=crop',
+      alt: 'Colección de libros antiguos',
       title: 'Colección de Libros Antiguos'
     },
     {
-      src: 'https://via.placeholder.com/600x400/7c3aed/ffffff?text=Biblioteca+Universitaria',
+      src: 'https://images.unsplash.com/photo-1568667256549-094345857637?w=600&h=400&fit=crop',
       alt: 'Biblioteca universitaria',
       title: 'Biblioteca Universitaria'
     }
@@ -55,7 +55,7 @@ const Carousel = () => {
   };
 
   return (
-    <div className="relative w-full h-64 lg:h-96 overflow-hidden rounded-lg shadow-lg bg-gray-200">
+    <div className="carousel-enhanced relative w-full overflow-hidden rounded-lg shadow-lg bg-gray-200">
       {/* Mostrar imagen actual */}
       <div className="w-full h-full relative">
         <img
@@ -63,24 +63,26 @@ const Carousel = () => {
           alt={images[currentIndex].alt}
           className="w-full h-full object-cover"
         />
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-          <h3 className="text-white text-lg font-semibold">{images[currentIndex].title}</h3>
-          <p className="text-white/80 text-sm">Imagen {currentIndex + 1} de {images.length}</p>
+        <div className="carousel-overlay absolute bottom-0 left-0 right-0 p-4">
+          <h3 className="carousel-title">{images[currentIndex].title}</h3>
+          <p className="carousel-subtitle">Imagen {currentIndex + 1} de {images.length}</p>
         </div>
       </div>
 
       {/* Botones de navegación */}
       <button
         onClick={prevSlide}
-        className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black/70 transition-colors text-xl"
+        className="carousel-btn absolute left-2 top-1/2 transform -translate-y-1/2 text-white p-3 rounded-full hover:bg-black/70 transition-colors text-xl"
         aria-label="Imagen anterior"
+        style={{ transform: 'translateY(-50%)' }}
       >
         ‹
       </button>
       <button
         onClick={nextSlide}
-        className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black/70 transition-colors text-xl"
+        className="carousel-btn absolute right-2 top-1/2 transform -translate-y-1/2 text-white p-3 rounded-full hover:bg-black/70 transition-colors text-xl"
         aria-label="Imagen siguiente"
+        style={{ transform: 'translateY(-50%)' }}
       >
         ›
       </button>
@@ -91,8 +93,8 @@ const Carousel = () => {
           <button
             key={index}
             onClick={() => goToSlide(index)}
-            className={`w-4 h-4 rounded-full transition-colors ${
-              index === currentIndex ? 'bg-white' : 'bg-white/50'
+            className={`carousel-indicator w-4 h-4 rounded-full transition-colors ${
+              index === currentIndex ? 'active' : ''
             }`}
             aria-label={`Ir a imagen ${index + 1}`}
           />
