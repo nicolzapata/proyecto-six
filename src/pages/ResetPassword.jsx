@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import LoadingSpinner from "../components/Common/LoadingSpinner";
 import MessageAlert from "../components/Common/MessageAlert";
+import ThemeToggle from "../components/ThemeToggle";
 import { validateEmail, validatePassword, validatePasswordMatch, validateResetCode } from "../utils/validators";
 
 
@@ -116,111 +117,167 @@ const ResetPassword = () => {
   const isFormValid = formData.email && formData.code && formData.newPassword && formData.confirmPassword && !hasValidationErrors;
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2>Restablecer Contraseña</h2>
-        <p className="auth-subtitle">
-          Ingresa el código que recibiste por email y tu nueva contraseña.
-        </p>
+    <div className="bg-gradient-page">
 
-        {/* Mensajes */}
-        <MessageAlert type="error" message={error} onClose={clearMessages} />
-        <MessageAlert type="success" message={success} onClose={clearMessages} />
+      <div className="container">
+        <div className="auth-layout">
+          {/* Formulario a la izquierda */}
+          <div className="auth-form">
+            <div className="auth-card">
+              <h2 className="text-2xl font-bold mb-2 text-gradient text-center">
+                Restablecer Contraseña
+              </h2>
+              <p className="auth-subtitle text-center">
+                Ingresa el código que recibiste por email y tu nueva contraseña
+              </p>
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
-            <label htmlFor="email">Correo electrónico</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              required
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="tu.email@ejemplo.com"
-              disabled={loading}
-              className={validationErrors.email ? 'input-error' : ''}
-            />
-            <MessageAlert type="error" message={validationErrors.email} />
+              {/* Indicadores de seguridad */}
+              <div className="flex justify-center gap-4 mb-6">
+                <div className="flex items-center gap-2 text-sm text-muted">
+                  <span className="text-green-500">✓</span>
+                  <span>Código único</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted">
+                  <span className="text-green-500">✓</span>
+                  <span>Encriptación avanzada</span>
+                </div>
+              </div>
+
+              {/* Mensajes */}
+              <MessageAlert type="error" message={error} onClose={clearMessages} />
+              <MessageAlert type="success" message={success} onClose={clearMessages} />
+
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <div className="form-group">
+                  <label htmlFor="email" className="form-label">Correo electrónico</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    required
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="tu.email@ejemplo.com"
+                    disabled={loading}
+                    className={`form-input ${validationErrors.email ? 'input-error' : ''}`}
+                  />
+                  <MessageAlert type="error" message={validationErrors.email} />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="code" className="form-label">Código de recuperación</label>
+                  <input
+                    type="text"
+                    id="code"
+                    name="code"
+                    required
+                    value={formData.code}
+                    onChange={handleChange}
+                    placeholder="Ingresa el código de 6 dígitos"
+                    disabled={loading}
+                    maxLength="6"
+                    className={`form-input ${validationErrors.code ? 'input-error' : ''}`}
+                  />
+                  <MessageAlert type="error" message={validationErrors.code} />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="newPassword" className="form-label">Nueva contraseña</label>
+                  <input
+                    type="password"
+                    id="newPassword"
+                    name="newPassword"
+                    required
+                    value={formData.newPassword}
+                    onChange={handleChange}
+                    placeholder="Mínimo 6 caracteres"
+                    disabled={loading}
+                    minLength="6"
+                    className={`form-input ${validationErrors.newPassword ? 'input-error' : ''}`}
+                  />
+                  <MessageAlert type="error" message={validationErrors.newPassword} />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="confirmPassword" className="form-label">Confirmar nueva contraseña</label>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    required
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    placeholder="Repite la contraseña"
+                    disabled={loading}
+                    minLength="6"
+                    className={`form-input ${validationErrors.confirmPassword ? 'input-error' : ''}`}
+                  />
+                  <MessageAlert type="error" message={validationErrors.confirmPassword} />
+                </div>
+
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={loading || !isFormValid}
+                >
+                  {loading ? (
+                    <>
+                      <LoadingSpinner small /> Restableciendo...
+                    </>
+                  ) : (
+                    "Restablecer contraseña"
+                  )}
+                </button>
+              </form>
+
+              <div className="auth-links">
+                <p>
+                  ¿No tienes un código? <Link to="/forgotpassword">Solicitar código</Link>
+                </p>
+                <p>
+                  <Link to="/login">Volver al inicio de sesión</Link>
+                </p>
+              </div>
+            </div>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="code">Código de recuperación</label>
-            <input
-              type="text"
-              id="code"
-              name="code"
-              required
-              value={formData.code}
-              onChange={handleChange}
-              placeholder="Ingresa el código de 6 dígitos"
-              disabled={loading}
-              maxLength="6"
-              className={validationErrors.code ? 'input-error' : ''}
-            />
-            <MessageAlert type="error" message={validationErrors.code} />
+          {/* Collage de imágenes a la derecha */}
+          <div className="auth-carousel">
+            <div className="grid grid-cols-2 grid-rows-2 gap-4 justify-center">
+              <div className="rounded-lg overflow-hidden shadow-lg">
+                <img
+                  src="https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=400&h=300&fit=crop"
+                  alt="Nueva contraseña segura"
+                  className="w-full h-32 object-cover"
+                />
+              </div>
+              <div className="rounded-lg overflow-hidden shadow-lg">
+                <img
+                  src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=300&h=200&fit=crop"
+                  alt="Contraseña segura"
+                  className="w-full h-32 object-cover"
+                />
+              </div>
+              <div className="rounded-lg overflow-hidden shadow-lg">
+                <img
+                  src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=300&h=200&fit=crop"
+                  alt="Protección de datos"
+                  className="w-full h-32 object-cover"
+                />
+              </div>
+              <div className="rounded-lg overflow-hidden shadow-lg">
+                <img
+                  src="https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=300&h=200&fit=crop"
+                  alt="Nueva contraseña"
+                  className="w-full h-32 object-cover"
+                />
+              </div>
+            </div>
           </div>
-
-          <div className="form-group">
-            <label htmlFor="newPassword">Nueva contraseña</label>
-            <input
-              type="password"
-              id="newPassword"
-              name="newPassword"
-              required
-              value={formData.newPassword}
-              onChange={handleChange}
-              placeholder="Mínimo 6 caracteres"
-              disabled={loading}
-              minLength="6"
-              className={validationErrors.newPassword ? 'input-error' : ''}
-            />
-            <MessageAlert type="error" message={validationErrors.newPassword} />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="confirmPassword">Confirmar nueva contraseña</label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              required
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder="Repite la contraseña"
-              disabled={loading}
-              minLength="6"
-              className={validationErrors.confirmPassword ? 'input-error' : ''}
-            />
-            <MessageAlert type="error" message={validationErrors.confirmPassword} />
-          </div>
-
-          <button
-            type="submit"
-            className=""
-            disabled={loading || !isFormValid}
-          >
-            {loading ? (
-              <>
-                <LoadingSpinner small /> Restableciendo...
-              </>
-            ) : (
-              "Restablecer contraseña"
-            )}
-          </button>
-        </form>
-
-        <div className="auth-links">
-          <p>
-            ¿No tienes un código? <Link to="/ForgotPassword">Solicitar código</Link>
-          </p>
-          <p>
-            <Link to="/login">Volver al inicio de sesión</Link>
-          </p>
         </div>
       </div>
     </div>
   );
-};
+}
 
 export default ResetPassword;

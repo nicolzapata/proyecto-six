@@ -1,3 +1,10 @@
+/* Collage cuadrado 2x2 para auth-carousel */
+.auth-carousel .grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 1rem;
+}
 /* ===== SISTEMA CSS AVANZADO - BIBLIOTECA PROFESIONAL ===== */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
@@ -1122,21 +1129,44 @@ p {
   }
 }
 
-/* Contenedor del carrusel en auth */
+/* Contenedor del carrusel en auth (corregido) */
 .auth-carousel {
   width: 100%;
-  max-width: 480px;
+  max-width: 400px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  flex: 1;
+  align-items: center;
   height: 500px;
+  margin: 0 auto;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 500px;
+  margin: 0 auto;
+  min-height: 400px;
+}
+/* Collage cuadrado 2x2 para auth-carousel */
+.auth-carousel .grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 1rem;
 }
 
 @media (min-width: 1024px) {
   .auth-carousel {
     width: 50%;
     max-width: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 500px;
+    margin: 0 auto;
+    min-height: 400px;
   }
 }
 
@@ -1315,4 +1345,100 @@ p {
   .lg\:flex-row { flex-direction: row; }
   .lg\:w-1\/2 { width: 50%; }
   .lg\:h-96 { height: 24rem; }
+}
+
+/* === ANIMACIONES PARA ELEMENTOS DECORATIVOS === */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(5deg);
+  }
+}
+
+@keyframes float-delayed {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-15px) rotate(-3deg);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 8s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+/* === ESTILOS PARA RESET PASSWORD === */
+.auth-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  background: var(--bg-primary);
+}
+
+.auth-card {
+  background: var(--bg-gradient-card);
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
+  border-radius: 20px;
+  border: 1px solid var(--border-glass);
+  box-shadow: var(--shadow-lg);
+  padding: 3rem;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  transition: var(--transition-normal);
+}
+
+.auth-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-2xl);
+}
+
+.auth-subtitle {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+.input-error {
+  border-color: var(--rose-500) !important;
+  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.1) !important;
+}
+
+.input-error:focus {
+  border-color: var(--rose-500) !important;
+  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.2) !important;
+}
+
+.auth-links {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.auth-links p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+.auth-links a {
+  color: var(--accent-primary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: var(--transition-fast);
+}
+
+.auth-links a:hover {
+  color: var(--accent-secondary);
+  text-decoration: underline;
 }
