@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 /* Collage cuadrado 2x2 para auth-carousel */
 .auth-carousel .grid {
   display: grid;
@@ -6,8 +9,6 @@
   gap: 1rem;
 }
 /* ===== SISTEMA CSS AVANZADO - BIBLIOTECA PROFESIONAL ===== */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
   /* === PALETA DE COLORES AVANZADA === */

@@ -4,6 +4,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const handleResponse = async (response) => {
   if (!response.ok) {
     const error = await response.json();
+    console.error('Error en respuesta:', response.status, error);
     throw new Error(error.message || 'Error en la petición');
   }
   return response.json();

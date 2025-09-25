@@ -1,10 +1,12 @@
 // ===== src/pages/Register.jsx =====
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import Carousel from "../components/Carousel";
 
 const Register = () => {
   const [formData, setFormData] = useState({
+    name: "",
     username: "",
     email: "",
     password: "",
@@ -13,6 +15,7 @@ const Register = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -41,39 +44,27 @@ const Register = () => {
       return;
     }
 
-    // Simular delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      const result = await register({
+        name: formData.name,
+        username: formData.username,
+        email: formData.email,
+        password: formData.password
+      });
 
-    const existingUsers = JSON.parse(localStorage.getItem("users") || "[]");
-
-    const userExists = existingUsers.some(
-      user =>
-        user.username === formData.username || user.email === formData.email
-    );
-
-    if (userExists) {
-      setError("El nombre de usuario o email ya está registrado");
+      if (result.success) {
+        setSuccess("¡Registro exitoso! Redirigiendo al login...");
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
+      } else {
+        setError(result.error || "Error al registrarse");
+      }
+    } catch (err) {
+      setError("Error al registrarse. Inténtalo de nuevo.");
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    const newUser = {
-      id: Date.now(),
-      username: formData.username,
-      email: formData.email,
-      password: formData.password,
-      createdAt: new Date().toISOString(),
-      role: "user"
-    };
-
-    const updatedUsers = [...existingUsers, newUser];
-    localStorage.setItem("users", JSON.stringify(updatedUsers));
-
-    setSuccess("¡Registro exitoso! Redirigiendo al login...");
-
-    setTimeout(() => {
-      navigate("/login");
-    }, 2000);
   };
 
   return (
@@ -109,6 +100,23 @@ const Register = () => {
                 )}
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                  <div className="form-group">
+                    <label htmlFor="name" className="form-label">
+                      Nombre completo
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      required
+                      value={formData.name}
+                      onChange={handleChange}
+                      className="form-input"
+                      placeholder="Tu nombre completo"
+                      disabled={isLoading}
+                    />
+                  </div>
+
                   <div className="form-group">
                     <label htmlFor="username" className="form-label">
                       Nombre de usuario

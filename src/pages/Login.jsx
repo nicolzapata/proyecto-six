@@ -16,27 +16,19 @@ const Login = () => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
-    
-    // Simular un pequeño delay para la experiencia de usuario
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    // Obtener usuarios del localStorage
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
-    
-    // Buscar usuario por username y contraseña
-    const user = users.find(
-      (user) => user.username === username && user.password === password
-    );
-    
-    if (user) {
-      // Iniciar sesión exitosamente
-      login(user);
-      navigate("/dashboard");
-    } else {
-      setError("Credenciales incorrectas. Por favor, inténtalo de nuevo.");
+
+    try {
+      const result = await login({ username, password });
+      if (result.success) {
+        navigate("/dashboard");
+      } else {
+        setError(result.error || "Credenciales incorrectas. Por favor, inténtalo de nuevo.");
+      }
+    } catch (err) {
+      setError("Error al iniciar sesión. Inténtalo de nuevo.");
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
 
   return (

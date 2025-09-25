@@ -14,22 +14,17 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Verificar si hay un token guardado al inicializar
+  // Verificar sesión activa al inicializar
   useEffect(() => {
     const checkAuthStatus = async () => {
-      const token = localStorage.getItem('token');
-      
-      if (token) {
-        try {
-          const userData = await authAPI.getProfile();
-          setUser(userData);
-        } catch (error) {
-          console.error('Token inválido:', error);
-          localStorage.removeItem('token');
-          localStorage.removeItem('currentUser');
-        }
+      try {
+        const response = await authAPI.getCurrentUser();
+        setUser(response.user);
+      } catch (error) {
+        console.error('No hay sesión activa:', error);
+        // No hacer nada, el usuario no está logueado
       }
-      
+
       setIsAuthLoading(false);
     };
 
@@ -42,17 +37,17 @@ export const AuthProvider = ({ children }) => {
     setSuccess('');
 
     try {
+      console.log('Intentando login con username:', credentials.username);
       const response = await authAPI.login(credentials);
-      
-      // Guardar token y datos de usuario
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('currentUser', JSON.stringify(response.user));
-      
+      console.log('Respuesta del login:', response);
+
+      // El backend maneja la sesión con cookies, solo guardar el usuario en el estado
       setUser(response.user);
       setSuccess('Login exitoso');
-      
+
       return { success: true, user: response.user };
     } catch (err) {
+      console.error('Error en login:', err);
       setError(err.message || 'Error al iniciar sesión');
       return { success: false, error: err.message };
     } finally {
@@ -67,14 +62,11 @@ export const AuthProvider = ({ children }) => {
 
     try {
       const response = await authAPI.register(userData);
-      
-      // Guardar token y datos de usuario
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('currentUser', JSON.stringify(response.user));
-      
+
+      // El backend maneja la sesión con cookies, solo guardar el usuario en el estado
       setUser(response.user);
       setSuccess('Registro exitoso');
-      
+
       return { success: true, user: response.user };
     } catch (err) {
       setError(err.message || 'Error al registrarse');
@@ -84,11 +76,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('currentUser');
-    setSuccess('Sesión cerrada exitosamente');
+  const logout = async () => {
+    try {
+      await authAPI.logout();
+      setUser(null);
+      setSuccess('Sesión cerrada exitosamente');
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+      // Aun así limpiar el estado local
+      setUser(null);
+    }
   };
 
   const clearMessages = () => {
