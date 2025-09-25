@@ -10,22 +10,24 @@ export default function Profile() {
   const [error, setError] = useState("");
 
   const [formData, setFormData] = useState({
-    username: user?.username || '',
+    username: user?.username || user?.name || '',
     email: user?.email || '',
     nombre: user?.nombre || '',
     apellido: user?.apellido || '',
-    telefono: user?.telefono || ''
+    telefono: user?.telefono || '',
+    foto: user?.foto || ''
   });
 
 
   useEffect(() => {
     if (user) {
       setFormData({
-        username: user.username || '',
+        username: user.username || user.name || '',
         email: user.email || '',
         nombre: user.nombre || '',
         apellido: user.apellido || '',
-        telefono: user.telefono || ''
+        telefono: user.telefono || '',
+        foto: user.foto || ''
       });
     }
   }, [user]);
@@ -37,13 +39,28 @@ export default function Profile() {
     });
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setFormData({
+          ...formData,
+          foto: e.target.result
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const openEditModal = () => {
     setFormData({
-      username: user?.username || '',
+      username: user?.username || user?.name || '',
       email: user?.email || '',
       nombre: user?.nombre || '',
       apellido: user?.apellido || '',
-      telefono: user?.telefono || ''
+      telefono: user?.telefono || '',
+      foto: user?.foto || ''
     });
     setError("");
     setSuccess("");
@@ -103,7 +120,12 @@ export default function Profile() {
           <div className="card animate-slide-up">
             <div className="card-body">
               <div className="flex items-center gap-6 mb-8">
-                <div className="w-20 h-20 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-bold text-2xl">
+                <div className="w-20 h-20 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-bold text-2xl overflow-hidden">
+                  {user?.foto ? (
+                    <img src={user.foto} alt="Foto de perfil" className="w-full h-full object-cover" />
+                  ) : (
+                    user?.username?.charAt(0)?.toUpperCase() || user?.name?.charAt(0)?.toUpperCase() || '👤'
+                  )}
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold mb-2">👤 Mi Perfil</h1>
@@ -120,7 +142,7 @@ export default function Profile() {
                       <div className="gap-6 alert justify-between ">
                         <div key="username">
                           <strong className="text-gray-600 text-sm uppercase tracking-wide block mb-1">Nombre de usuario</strong>
-                          <div className="text-lg text-gray-900">{user?.username || ''}</div>
+                          <div className="text-lg text-gray-900">{user?.username || user?.name || ''}</div>
                         </div>
                         <div key="email">
                           <strong className="text-gray-600 text-sm uppercase tracking-wide block mb-1">Correo electrónico</strong>
@@ -179,7 +201,7 @@ export default function Profile() {
               <button onClick={closeEditModal} className="modal-close">×</button>
             </div>
             <form onSubmit={handleSave}>
-              <div className="modal-body p-8">
+              <div className="modal-body p-20">
                 {error && (
                   <div className="alert alert-error animate-slide-down mb-6">
                     {error}
@@ -192,7 +214,7 @@ export default function Profile() {
                   </div>
                 )}
 
-                <div className="grid grid-cols-2 gap-6">
+                <div className="flex flex-col gap-12">
                   <div className="form-group">
                     <label htmlFor="edit-username" className="form-label">Nombre de Usuario *</label>
                     <input
@@ -264,6 +286,24 @@ export default function Profile() {
                       placeholder="Número de teléfono"
                       disabled={isLoading}
                     />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="edit-foto" className="form-label">Foto de Perfil</label>
+                    <input
+                      type="file"
+                      id="edit-foto"
+                      name="foto"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="form-input"
+                      disabled={isLoading}
+                    />
+                    {formData.foto && (
+                      <div className="mt-2">
+                        <img src={formData.foto} alt="Preview" className="w-16 h-16 rounded-full object-cover" />
+                      </div>
+                    )}
                   </div>
 
                 </div>

@@ -44,6 +44,7 @@ export const authAPI = {
     const response = await fetch(`${API_URL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(userData)
     });
     return handleResponse(response);
@@ -191,10 +192,30 @@ export const loansAPI = {
     return handleResponse(response);
   },
 
+  getById: async (id) => {
+    const response = await authenticatedFetch(`${API_URL}/loans/${id}`);
+    return handleResponse(response);
+  },
+
   create: async (loanData) => {
     const response = await authenticatedFetch(`${API_URL}/loans`, {
       method: 'POST',
       body: JSON.stringify(loanData)
+    });
+    return handleResponse(response);
+  },
+
+  update: async (id, loanData) => {
+    const response = await authenticatedFetch(`${API_URL}/loans/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(loanData)
+    });
+    return handleResponse(response);
+  },
+
+  delete: async (id) => {
+    const response = await authenticatedFetch(`${API_URL}/loans/${id}`, {
+      method: 'DELETE'
     });
     return handleResponse(response);
   },

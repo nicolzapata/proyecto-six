@@ -267,8 +267,12 @@ const Users = () => {
                       <tr key={user.id}>
                         <td>
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                              {(user.nombre && user.apellido) ? `${user.nombre.charAt(0)}${user.apellido.charAt(0)}` : user.username.charAt(0).toUpperCase()}
+                            <div className="w-8 h-8 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
+                              {user.foto ? (
+                                <img src={user.foto} alt="Foto" className="w-full h-full object-cover rounded-full" />
+                              ) : (
+                                (user.nombre && user.apellido) ? `${user.nombre.charAt(0)}${user.apellido.charAt(0)}` : user.username.charAt(0).toUpperCase()
+                              )}
                             </div>
                             <div className="min-w-0">
                               <div className="font-medium truncate">
@@ -335,8 +339,12 @@ const Users = () => {
             <div className="modal-body" style={{ padding: '2rem' }}>
               <div className="flex flex-col gap-6">
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                    {selectedUser.username.charAt(0).toUpperCase()}
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-bold text-lg overflow-hidden">
+                    {selectedUser.foto ? (
+                      <img src={selectedUser.foto} alt="Foto" className="w-full h-full object-cover rounded-full" />
+                    ) : (
+                      selectedUser.username.charAt(0).toUpperCase()
+                    )}
                   </div>
                   <div>
                     <h4 className="text-lg font-semibold">{selectedUser.username}</h4>

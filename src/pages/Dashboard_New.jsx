@@ -107,11 +107,16 @@ const Dashboard = () => {
               <div className="flex-1">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-4">
                   <div className="avatar avatar-xl avatar-gradient">
+                    {user?.foto ? (
+                      <img src={user.foto} alt="Foto de perfil" className="w-full h-full object-cover rounded-full" />
+                    ) : (
+                      user?.username?.charAt(0)?.toUpperCase() || user?.name?.charAt(0)?.toUpperCase() || 'U'
+                    )}
                   </div>
                   
                   <div className="flex-1">
                     <h1 className="text-2xl sm:text-3xl font-black text-gradient mb-2 text-center">
-                      ¡Bienvenido de vuelta, {user?.username}!
+                      ¡Bienvenido de vuelta, {user?.username || user?.name || 'Usuario'}!
                     </h1>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                       <div className="text-center alert alert-success">

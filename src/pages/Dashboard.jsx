@@ -200,11 +200,15 @@ const Dashboard = () => {
               <div>
                 <div className="flex items-center gap-4 mb-4">
                   <div className="avatar avatar-xl avatar-gradient">
-                    {user?.username?.charAt(0)?.toUpperCase()}
+                    {user?.foto ? (
+                      <img src={user.foto} alt="Foto de perfil" className="w-full h-full object-cover rounded-full" />
+                    ) : (
+                      user?.username?.charAt(0)?.toUpperCase() || user?.name?.charAt(0)?.toUpperCase() || 'U'
+                    )}
                   </div>
                   <div>
                     <h1 className="text-3xl font-black text-gradient mb-2">
-                      ¡Bienvenido de vuelta, {user?.username}! 👋
+                      ¡Bienvenido de vuelta, {user?.username || user?.name || 'Usuario'}! 👋
                     </h1>
                     <p className="text-secondary font-medium">
                       {user?.role === 'admin' ? '👑 Administrador del Sistema' : '📚 Bibliotecario'}

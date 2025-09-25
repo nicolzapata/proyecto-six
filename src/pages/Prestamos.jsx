@@ -1,5 +1,7 @@
 // ===== src/pages/Prestamos.jsx =====
 import { useState, useEffect } from "react";
+import { loansAPI, booksAPI, usersAPI } from "../services/api";
+import LoadingSpinner from "../components/Common/LoadingSpinner";
 
 const Prestamos = () => {
   const [prestamos, setPrestamos] = useState([]);
@@ -7,6 +9,8 @@ const Prestamos = () => {
   const [editingLoan, setEditingLoan] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
     usuarioId: "",
     libroId: "",
@@ -30,14 +34,24 @@ const Prestamos = () => {
     loadData();
   }, []);
 
-  const loadData = () => {
-    const storedPrestamos = JSON.parse(localStorage.getItem("prestamos") || "[]");
-    const storedUsuarios = JSON.parse(localStorage.getItem("users") || "[]");
-    const storedLibros = JSON.parse(localStorage.getItem("libros") || "[]");
-    
-    setPrestamos(storedPrestamos);
-    setUsuarios(storedUsuarios);
-    setLibros(storedLibros);
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const [prestamosRes, usuariosRes, librosRes] = await Promise.all([
+        loansAPI.getAll(),
+        usersAPI.getAll(),
+        booksAPI.getAll()
+      ]);
+      setPrestamos(prestamosRes);
+      setUsuarios(usuariosRes);
+      setLibros(librosRes);
+    } catch (err) {
+      setError('Error al cargar los datos: ' + err.message);
+      console.error('Error loading data:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filteredPrestamos = prestamos.filter(prestamo => {
@@ -54,29 +68,24 @@ const Prestamos = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (editingLoan) {
-      const updatedPrestamos = prestamos.map(prestamo =>
-        prestamo.id === editingLoan.id
-          ? { ...formData, id: editingLoan.id }
-          : prestamo
-      );
-      setPrestamos(updatedPrestamos);
-      localStorage.setItem("prestamos", JSON.stringify(updatedPrestamos));
-    } else {
-      const nuevoPrestamo = {
-        ...formData,
-        id: Date.now(),
-        fechaCreacion: new Date().toISOString()
-      };
-      const updatedPrestamos = [...prestamos, nuevoPrestamo];
-      setPrestamos(updatedPrestamos);
-      localStorage.setItem("prestamos", JSON.stringify(updatedPrestamos));
+    try {
+      setLoading(true);
+      setError(null);
+      if (editingLoan) {
+        await loansAPI.update(editingLoan.id, formData);
+      } else {
+        await loansAPI.create(formData);
+      }
+      await loadData();
+      closeModal();
+    } catch (err) {
+      setError('Error al guardar el préstamo: ' + err.message);
+      console.error('Error saving loan:', err);
+    } finally {
+      setLoading(false);
     }
-    
-    closeModal();
   };
 
   const handleEdit = (prestamo) => {
@@ -89,26 +98,34 @@ const Prestamos = () => {
     setShowModal(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm("¿Estás seguro de que deseas eliminar este préstamo?")) {
-      const updatedPrestamos = prestamos.filter(prestamo => prestamo.id !== id);
-      setPrestamos(updatedPrestamos);
-      localStorage.setItem("prestamos", JSON.stringify(updatedPrestamos));
+      try {
+        setLoading(true);
+        setError(null);
+        await loansAPI.delete(id);
+        await loadData();
+      } catch (err) {
+        setError('Error al eliminar el préstamo: ' + err.message);
+        console.error('Error deleting loan:', err);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
-  const handleReturn = (id) => {
-    const updatedPrestamos = prestamos.map(prestamo =>
-      prestamo.id === id
-        ? { 
-            ...prestamo, 
-            estado: "devuelto", 
-            fechaDevolucion: new Date().toISOString().split('T')[0] 
-          }
-        : prestamo
-    );
-    setPrestamos(updatedPrestamos);
-    localStorage.setItem("prestamos", JSON.stringify(updatedPrestamos));
+  const handleReturn = async (id) => {
+    try {
+      setLoading(true);
+      setError(null);
+      await loansAPI.returnBook(id);
+      await loadData();
+    } catch (err) {
+      setError('Error al devolver el libro: ' + err.message);
+      console.error('Error returning book:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const openModal = () => {
@@ -156,6 +173,7 @@ const Prestamos = () => {
   return (
     <div className="bg-gradient-page min-h-screen">
       <div className="container py-8">
+        {loading && <LoadingSpinner />}
         <div className="animate-fade-in">
           {/* Header */}
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4">
@@ -184,6 +202,14 @@ const Prestamos = () => {
               </div>
             </div>
           </div>
+
+          {error && (
+            <div className="card mb-6">
+              <div className="alert alert-error">
+                {error}
+              </div>
+            </div>
+          )}
 
           {/* Filtros */}
           <div className="card mb-6">
@@ -221,7 +247,7 @@ const Prestamos = () => {
                   </select>
                 </div>
                 <div className="flex items-end w-full lg:w-auto">
-                  <button onClick={openModal} className="btn btn-primary w-full lg:w-auto">
+                  <button onClick={openModal} className="btn btn-primary w-full lg:w-auto" disabled={loading}>
                     + Nuevo Préstamo
                   </button>
                 </div>
@@ -270,8 +296,12 @@ const Prestamos = () => {
                         <tr key={prestamo.id}>
                           <td>
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                                {usuario?.username?.charAt(0)?.toUpperCase()}
+                              <div className="w-8 h-8 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
+                                {usuario?.foto ? (
+                                  <img src={usuario.foto} alt="Foto" className="w-full h-full object-cover rounded-full" />
+                                ) : (
+                                  usuario?.username?.charAt(0)?.toUpperCase()
+                                )}
                               </div>
                               <div className="min-w-0">
                                 <div className="font-medium truncate">{usuario?.username || 'Usuario eliminado'}</div>
@@ -312,6 +342,7 @@ const Prestamos = () => {
                                 onClick={() => handleEdit(prestamo)}
                                 className="btn btn-secondary text-xs"
                                 style={{ padding: '0.4rem 0.6rem' }}
+                                disabled={loading}
                               >
                                 Editar
                               </button>
@@ -320,6 +351,7 @@ const Prestamos = () => {
                                   onClick={() => handleReturn(prestamo.id)}
                                   className="btn btn-success text-xs"
                                   style={{ padding: '0.4rem 0.6rem' }}
+                                  disabled={loading}
                                 >
                                   Devolver
                                 </button>
@@ -328,6 +360,7 @@ const Prestamos = () => {
                                 onClick={() => handleDelete(prestamo.id)}
                                 className="btn btn-danger text-xs"
                                 style={{ padding: '0.4rem 0.6rem' }}
+                                disabled={loading}
                               >
                                 Eliminar
                               </button>
@@ -453,13 +486,13 @@ const Prestamos = () => {
                 </div>
               </div>
               <div className="modal-footer" style={{ justifyContent: 'space-between' }}>
-                <button type="button" onClick={closeModal} className="btn btn-secondary">
-                  Cancelar
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  {editingLoan ? 'Actualizar' : 'Registrar'} Préstamo
-                </button>
-              </div>
+                 <button type="button" onClick={closeModal} className="btn btn-secondary" disabled={loading}>
+                   Cancelar
+                 </button>
+                 <button type="submit" className="btn btn-primary" disabled={loading}>
+                   {editingLoan ? 'Actualizar' : 'Registrar'} Préstamo
+                 </button>
+               </div>
             </form>
           </div>
         </div>

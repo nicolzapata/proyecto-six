@@ -25,10 +25,38 @@ export default function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/forgotpassword" element={<ForgotPassword />} />
           <Route path="/resetpassword" element={<ResetPassword />} />
-          <Route path="/users" element={<Users />} />
-          <Route path="/escritores" element={<Escritores />} />
-          <Route path="/libros" element={<Libros />} />
-          <Route path="/prestamos" element={<Prestamos />} />
+          <Route
+            path="/users"
+            element={
+              <PrivateRoute>
+                <Users />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/escritores"
+            element={
+              <PrivateRoute>
+                <Escritores />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/libros"
+            element={
+              <PrivateRoute>
+                <Libros />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/prestamos"
+            element={
+              <PrivateRoute>
+                <Prestamos />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/dashboard"
             element={

@@ -71,7 +71,7 @@ export default function Navbar() {
         {user && (
           <div className="user-info">
             <span className="text-sm font-medium">
-              Bienvenido, <span className="text-accent font-bold">{user.username}</span>
+              Bienvenido, <span className="text-accent font-bold">{user.username || user.name || 'Usuario'}</span>
             </span>
             <button
               onClick={logout}
