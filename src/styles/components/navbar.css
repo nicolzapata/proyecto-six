@@ -169,6 +169,125 @@
   }
 }
 
+/* === MENÚ DESPLEGABLE DEL PERFIL === */
+.profile-menu-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.profile-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition-normal);
+  backdrop-filter: var(--backdrop-blur);
+  position: relative;
+}
+
+.profile-button:hover {
+  background: var(--bg-secondary);
+  border-color: var(--accent-primary);
+  color: var(--text-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-teal);
+}
+
+.profile-button.active {
+  background: var(--gradient-primary);
+  color: white;
+  box-shadow: var(--shadow-teal);
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  background: var(--bg-gradient-card);
+  backdrop-filter: var(--backdrop-blur);
+  border: 1px solid var(--border-glass);
+  border-radius: 16px;
+  box-shadow: var(--shadow-2xl);
+  min-width: 200px;
+  z-index: 1000;
+  animation: slideDownFade 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+@keyframes slideDownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: var(--transition-fast);
+  font-size: 0.9rem;
+  font-weight: 500;
+  border: none;
+  background: none;
+  width: 100%;
+  cursor: pointer;
+  text-align: left;
+}
+
+.dropdown-item:hover {
+  background: var(--bg-secondary);
+  color: var(--accent-primary);
+}
+
+.dropdown-item svg {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.dropdown-item:hover svg {
+  opacity: 1;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: var(--border-primary);
+  margin: 0.25rem 0;
+}
+
+.logout-item {
+  color: var(--rose-500);
+  font-weight: 600;
+}
+
+.logout-item:hover {
+  background: rgba(244, 63, 94, 0.1);
+  color: var(--rose-600);
+}
+
+.logout-item svg {
+  color: var(--rose-500);
+}
+
+.logout-item:hover svg {
+  color: var(--rose-600);
+}
+
 @media (max-width: 480px) {
   .navbar {
     padding: 0.75rem;
@@ -193,5 +312,15 @@
 
   .user-info {
     gap: 0.25rem;
+  }
+
+  .profile-dropdown {
+    min-width: 180px;
+    right: -10px;
+  }
+
+  .dropdown-item {
+    padding: 0.875rem 1rem;
+    font-size: 0.85rem;
   }
 }

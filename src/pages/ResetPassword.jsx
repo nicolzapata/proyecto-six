@@ -6,6 +6,8 @@ import LoadingSpinner from "../components/Common/LoadingSpinner";
 import MessageAlert from "../components/Common/MessageAlert";
 import ThemeToggle from "../components/ThemeToggle";
 import { validateEmail, validatePassword, validatePasswordMatch, validateResetCode } from "../utils/validators";
+import "../styles/components/login-register.css";
+import "../styles/pages/collage.css";
 
 
 const ResetPassword = () => {
@@ -118,28 +120,35 @@ const ResetPassword = () => {
 
   return (
     <div className="bg-gradient-page">
-
       <div className="container">
-        <div className="auth-layout">
-          {/* Formulario a la izquierda */}
-          <div className="auth-form">
-            <div className="auth-card">
-              <h2 className="text-2xl font-bold mb-2 text-gradient text-center">
-                Restablecer Contraseña
-              </h2>
-              <p className="auth-subtitle text-center">
-                Ingresa el código que recibiste por email y tu nueva contraseña
-              </p>
+        <div className="flex justify-center items-center min-h-screen py-8">
+          <div className="auth-form max-w-lg w-full">
+            <div className="card">
+              {/* Header */}
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold mb-2 text-gradient">
+                  Restablecer Contraseña
+                </h2>
+                <p className="auth-subtitle">
+                  Ingresa el código que recibiste por email y tu nueva contraseña
+                </p>
+              </div>
 
-              {/* Indicadores de seguridad */}
-              <div className="flex justify-center gap-4 mb-6">
-                <div className="flex items-center gap-2 text-sm text-muted">
-                  <span className="text-green-500">✓</span>
-                  <span>Código único</span>
+              {/* Indicadores de progreso */}
+              <div className="flex justify-center gap-2 mb-6">
+                <div className="flex items-center gap-2 text-sm">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span className="text-muted">Código</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-muted">
-                  <span className="text-green-500">✓</span>
-                  <span>Encriptación avanzada</span>
+                <div className="w-8 h-px bg-muted"></div>
+                <div className="flex items-center gap-2 text-sm">
+                  <div className="w-3 h-3 bg-accent-primary rounded-full"></div>
+                  <span className="font-medium">Nueva contraseña</span>
+                </div>
+                <div className="w-8 h-px bg-muted"></div>
+                <div className="flex items-center gap-2 text-sm">
+                  <div className="w-3 h-3 bg-muted rounded-full"></div>
+                  <span className="text-muted">Completado</span>
                 </div>
               </div>
 
@@ -237,40 +246,6 @@ const ResetPassword = () => {
                 <p>
                   <Link to="/login">Volver al inicio de sesión</Link>
                 </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Collage de imágenes a la derecha */}
-          <div className="auth-carousel">
-            <div className="grid grid-cols-2 grid-rows-2 gap-4 justify-center">
-              <div className="rounded-lg overflow-hidden shadow-lg">
-                <img
-                  src="https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=400&h=300&fit=crop"
-                  alt="Nueva contraseña segura"
-                  className="w-full h-32 object-cover"
-                />
-              </div>
-              <div className="rounded-lg overflow-hidden shadow-lg">
-                <img
-                  src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=300&h=200&fit=crop"
-                  alt="Contraseña segura"
-                  className="w-full h-32 object-cover"
-                />
-              </div>
-              <div className="rounded-lg overflow-hidden shadow-lg">
-                <img
-                  src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=300&h=200&fit=crop"
-                  alt="Protección de datos"
-                  className="w-full h-32 object-cover"
-                />
-              </div>
-              <div className="rounded-lg overflow-hidden shadow-lg">
-                <img
-                  src="https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=300&h=200&fit=crop"
-                  alt="Nueva contraseña"
-                  className="w-full h-32 object-cover"
-                />
               </div>
             </div>
           </div>

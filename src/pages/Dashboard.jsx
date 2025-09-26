@@ -1,4 +1,4 @@
-// src/pages/Dashboard.jsx - Dashboard Premium con Analytics Avanzados
+// src/pages/Dashboard.jsx - DASHBOARD MODIFICADO - VERSION FINAL
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -16,8 +16,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     loadDashboardData();
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
+    setCurrentTime(new Date()); // Solo establecer la hora inicial
   }, []);
 
   const loadDashboardData = async () => {
@@ -124,16 +123,15 @@ const Dashboard = () => {
     navigate("/login");
   };
 
-  const StatCard = ({ title, value, subtitle, icon, color, trend, onClick, delay = 0 }) => (
-    <div 
-      className={`card hover-lift hover-glow cursor-pointer animate-slide-up`}
-      style={{ animationDelay: `${delay}s` }}
+  const StatCard = ({ title, value, subtitle, icon, color, trend, onClick, textAlign = 'center' }) => (
+    <div
+      className={`card hover-lift hover-glow cursor-pointer`}
       onClick={onClick}
     >
-      <div className="card-body p-6">
-        <div className="flex items-center justify-between mb-4">
+      <div className="card-body p-4">
+        <div className={`flex items-center ${textAlign === 'left' ? 'justify-start' : textAlign === 'right' ? 'justify-end' : 'justify-between'} mb-4`}>
           <div className={`p-3 rounded-2xl bg-gradient-to-br ${color} shadow-lg`}>
-            <span className="text-2xl">{icon}</span>
+            <span className="text-xl">{icon}</span>
           </div>
           {trend && (
             <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${
@@ -144,8 +142,8 @@ const Dashboard = () => {
             </div>
           )}
         </div>
-        <div className="space-y-1">
-          <p className="text-2xl font-bold text-primary">{isLoading ? '...' : value}</p>
+        <div className={`space-y-1 ${textAlign === 'left' ? 'text-left' : textAlign === 'right' ? 'text-right' : 'text-center'}`}>
+          <p className="text-xl font-bold text-primary">{isLoading ? '...' : value}</p>
           <h3 className="font-semibold text-secondary">{title}</h3>
           {subtitle && (
             <p className="text-sm text-tertiary">{subtitle}</p>
@@ -153,8 +151,8 @@ const Dashboard = () => {
         </div>
         {!isLoading && (
           <div className="mt-4 progress">
-            <div 
-              className="progress-bar" 
+            <div
+              className="progress-bar"
               style={{ width: `${Math.min((value / 100) * 100, 100)}%` }}
             />
           </div>
@@ -195,10 +193,10 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-primary">
-      <div className="container py-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="container py-8 max-w-7xl mx-auto">
         {/* Header Premium */}
-        <div className="card-premium mb-8 animate-slide-down">
+        <div className="card-premium mb-8">
           <div className="card-body">
             <div className="flex justify-between items-start">
               {/* Panel usuario (eliminado gestión de usuario) */}
@@ -214,34 +212,20 @@ const Dashboard = () => {
                   <div>
                     <h1 className="text-3xl font-black text-gradient mb-2">
                       ¡Bienvenido de vuelta, {user?.username || user?.name || 'Usuario'}! 👋
+                      <div className="text-4xl font-bold text-purple-600 mt-2">CAMBIO VISIBLE</div>
                     </h1>
                     <p className="text-secondary font-medium">
                       {user?.role === 'admin' ? '👑 Administrador del Sistema' : '📚 Bibliotecario'}
                     </p>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-tertiary">
-                      <span>🕒 {currentTime.toLocaleTimeString('es-ES')}</span>
-                      <span>📅 {currentTime.toLocaleDateString('es-ES', { 
-                        weekday: 'long', 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
-                      })}</span>
-                    </div>
-                  </div>
-                </div>
-                {/* Métricas rápidas */}
-                <div className="grid grid-cols-3 gap-4 mt-6">
-                  <div className="text-center p-3 bg-glass rounded-xl">
-                    <div className="text-lg font-bold text-emerald-500">{stats.prestamosActivos}</div>
-                    <div className="text-xs text-tertiary">Préstamos hoy</div>
-                  </div>
-                  <div className="text-center p-3 bg-glass rounded-xl">
-                    <div className="text-lg font-bold text-teal-500">{stats.usuariosActivos}</div>
-                    <div className="text-xs text-tertiary">Usuarios activos</div>
-                  </div>
-                  <div className="text-center p-3 bg-glass rounded-xl">
-                    <div className="text-lg font-bold text-cyan-500">{((stats.librosDisponibles / stats.totalLibros) * 100).toFixed(0)}%</div>
-                    <div className="text-xs text-tertiary">Disponibilidad</div>
+                    <div className="flex items-center justify-center gap-4 mt-2 text-sm text-tertiary">
+                       <span>🕒 {currentTime.toLocaleTimeString('es-ES')}</span>
+                       <span>📅 {currentTime.toLocaleDateString('es-ES', {
+                         weekday: 'long',
+                         year: 'numeric',
+                         month: 'long',
+                         day: 'numeric'
+                       })}</span>
+                     </div>
                   </div>
                 </div>
               </div>
@@ -290,7 +274,27 @@ const Dashboard = () => {
         )}
 
         {/* Grid de estadísticas principales */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+          <StatCard
+            title="Disponibilidad"
+            value={`${stats.totalLibros > 0 ? Math.round((stats.librosDisponibles / stats.totalLibros) * 100) : 0}%`}
+            subtitle={`${stats.librosDisponibles} de ${stats.totalLibros} libros`}
+            icon="📈"
+            color="from-green-400 to-emerald-500"
+            trend={5}
+            onClick={() => navigate("/libros")}
+            textAlign="right"
+          />
+          <StatCard
+            title="Libros Prestados"
+            value={stats.librosPrestados}
+            subtitle="Actualmente en circulación"
+            icon="📖"
+            color="from-orange-400 to-red-500"
+            trend={-2}
+            onClick={() => navigate("/prestamos")}
+            textAlign="left"
+          />
           <StatCard
             title="Total de Libros"
             value={stats.totalLibros}
@@ -299,17 +303,17 @@ const Dashboard = () => {
             color="from-emerald-400 to-teal-500"
             trend={12}
             onClick={() => navigate("/libros")}
-            delay={0.1}
+            textAlign="left"
           />
           <StatCard
-            title="Usuarios Registrados"
-            value={stats.totalUsuarios}
-            subtitle={`${stats.usuariosActivos} activos este mes`}
-            icon="👥"
-            color="from-teal-400 to-cyan-500"
-            trend={8}
-            onClick={() => navigate("/users")}
-            delay={0.2}
+            title="Género Popular"
+            value={stats.generoMasPopular}
+            subtitle="Más solicitado"
+            icon="🏷️"
+            color="from-blue-400 to-indigo-500"
+            trend={10}
+            onClick={() => navigate("/libros")}
+            textAlign="center"
           />
           <StatCard
             title="Préstamos Activos"
@@ -319,7 +323,17 @@ const Dashboard = () => {
             color="from-cyan-400 to-blue-500"
             trend={-3}
             onClick={() => navigate("/prestamos")}
-            delay={0.3}
+            textAlign="center"
+          />
+          <StatCard
+            title="Tasa de Ocupación"
+            value={`${stats.totalLibros > 0 ? Math.round((stats.librosPrestados / stats.totalLibros) * 100) : 0}%`}
+            subtitle="Libros en uso"
+            icon="📊"
+            color="from-purple-400 to-violet-500"
+            trend={3}
+            onClick={() => navigate("/prestamos")}
+            textAlign="left"
           />
           <StatCard
             title="Escritores"
@@ -329,203 +343,18 @@ const Dashboard = () => {
             color="from-purple-400 to-pink-500"
             trend={15}
             onClick={() => navigate("/escritores")}
-            delay={0.4}
+            textAlign="right"
           />
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          {/* Panel de métricas avanzadas */}
-          <div className="lg:col-span-2">
-            <div className="card animate-slide-up" style={{ animationDelay: '0.5s' }}>
-              <div className="card-header">
-                <h2 className="text-xl font-bold flex items-center gap-2">
-                  📊 Métricas Avanzadas
-                  <span className="badge badge-primary">En vivo</span>
-                </h2>
-              </div>
-              <div className="card-body space-y-6">
-                {/* Gráfico de disponibilidad */}
-                <div>
-                  <div className="flex justify-between items-center mb-3">
-                    <h3 className="font-semibold text-secondary">Disponibilidad de Libros</h3>
-                    <span className="text-2xl font-bold text-gradient">
-                      {((stats.librosDisponibles / stats.totalLibros) * 100).toFixed(1)}%
-                    </span>
-                  </div>
-                  <div className="progress mb-2" style={{ height: '12px' }}>
-                    <div
-                      className="progress-bar"
-                      style={{ width: `${(stats.librosDisponibles / stats.totalLibros) * 100}%` }}
-                    />
-                  </div>
-                  <div className="flex justify-between text-xs text-tertiary">
-                    <span>{stats.librosDisponibles} disponibles</span>
-                    <span>{stats.librosPrestados} prestados</span>
-                  </div>
-                </div>
-                {/* Métricas adicionales */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-glass p-4 rounded-xl">
-                    <div className="text-2xl mb-2">📈</div>
-                    <div className="text-sm text-tertiary mb-1">Género más popular</div>
-                    <div className="font-bold text-primary">{stats.generoMasPopular}</div>
-                  </div>
-                  <div className="bg-glass p-4 rounded-xl">
-                    <div className="text-2xl mb-2">⭐</div>
-                    <div className="text-sm text-tertiary mb-1">Autor más leído</div>
-                    <div className="font-bold text-primary">{stats.autorMasLeido}</div>
-                  </div>
-                </div>
-                {/* Indicadores de rendimiento */}
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Eficiencia del sistema</span>
-                    <span className="text-sm font-bold text-emerald-500">98.5%</span>
-                  </div>
-                  <div className="progress">
-                    <div className="progress-bar" style={{ width: '98.5%' }} />
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Satisfacción de usuarios</span>
-                    <span className="text-sm font-bold text-teal-500">94.2%</span>
-                  </div>
-                  <div className="progress">
-                    <div className="progress-bar" style={{ width: '94.2%' }} />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* Actividad reciente */}
-          <div className="animate-slide-up" style={{ animationDelay: '0.6s' }}>
-            <div className="card">
-              <div className="card-header">
-                <h2 className="text-xl font-bold flex items-center gap-2">
-                  🔔 Actividad Reciente
-                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                </h2>
-              </div>
-              <div className="card-body p-0">
-                <div className="space-y-0">
-                  {recentActivity.map((activity, index) => (
-                    <div
-                      key={activity.id}
-                      className="flex items-start gap-3 p-4 hover:bg-glass transition-colors border-b border-glass last:border-b-0"
-                    >
-                      <div className={`text-xl ${activity.color} animate-bounce`} style={{ animationDelay: `${index * 0.2}s` }}>
-                        {activity.icono}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-primary mb-1">
-                          {activity.descripcion}
-                        </p>
-                        <p className="text-xs text-tertiary">{activity.tiempo}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="p-4 border-t border-glass">
-                  <button className="btn btn-ghost w-full text-sm">
-                    Ver todo el historial →
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* Acciones rápidas */}
-        <div className="animate-slide-up" style={{ animationDelay: '0.7s' }}>
-          <h2 className="text-2xl font-bold text-gradient mb-6 flex items-center gap-2">
-            🚀 Acciones Rápidas
-            <span className="text-sm font-normal text-tertiary">¿Qué quieres hacer hoy?</span>
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <QuickActionButton
-              icon="📚"
-              title="Agregar Libro"
-              description="Añade un nuevo libro al catálogo"
-              onClick={() => navigate("/libros")}
-              color="bg-gradient-to-br from-emerald-400 to-teal-500"
-            />
-            <QuickActionButton
-              icon="📋"
-              title="Nuevo Préstamo"
-              description="Registra un préstamo de libro"
-              onClick={() => navigate("/prestamos")}
-              color="bg-gradient-to-br from-teal-400 to-cyan-500"
-            />
-            <QuickActionButton
-              icon="👤"
-              title="Registrar Usuario"
-              description="Agrega un nuevo usuario al sistema"
-              onClick={() => navigate("/users")}
-              color="bg-gradient-to-br from-cyan-400 to-blue-500"
-            />
-            <QuickActionButton
-              icon="✍️"
-              title="Añadir Escritor"
-              description="Registra un nuevo autor"
-              onClick={() => navigate("/escritores")}
-              color="bg-gradient-to-br from-purple-400 to-pink-500"
-            />
-          </div>
-        </div>
-        {/* Panel de alertas y notificaciones */}
-        <div className="mt-8 animate-slide-up" style={{ animationDelay: '0.8s' }}>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Alertas */}
-            <div className="card">
-              <div className="card-header">
-                <h3 className="text-lg font-bold flex items-center gap-2">
-                  ⚠️ Alertas del Sistema
-                  {stats.prestamosVencidos > 0 && (
-                    <span className="badge badge-error">{stats.prestamosVencidos}</span>
-                  )}
-                </h3>
-              </div>
-              <div className="card-body space-y-3">
-                {stats.prestamosVencidos > 0 ? (
-                  <div className="alert alert-warning">
-                    <strong>{stats.prestamosVencidos}</strong> préstamo(s) vencido(s) requieren atención
-                  </div>
-                ) : (
-                  <div className="alert alert-success">
-                    ✅ No hay préstamos vencidos
-                  </div>
-                )}
-                <div className="alert alert-info">
-                  💡 Se recomienda hacer backup del sistema
-                </div>
-              </div>
-            </div>
-            {/* Estadísticas rápidas */}
-            <div className="card">
-              <div className="card-header">
-                <h3 className="text-lg font-bold flex items-center gap-2">
-                  📈 Resumen Semanal
-                </h3>
-              </div>
-              <div className="card-body">
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-secondary">Nuevos préstamos</span>
-                    <span className="font-bold text-emerald-500">+{stats.prestamosActivos}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-secondary">Libros devueltos</span>
-                    <span className="font-bold text-teal-500">+12</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-secondary">Nuevos usuarios</span>
-                    <span className="font-bold text-cyan-500">+3</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-secondary">Tasa de ocupación</span>
-                    <span className="font-bold text-purple-500">{((stats.librosPrestados / stats.totalLibros) * 100).toFixed(1)}%</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <StatCard
+            title="Usuarios Registrados"
+            value={stats.totalUsuarios}
+            subtitle={`${stats.usuariosActivos} activos este mes`}
+            icon="👥"
+            color="from-teal-400 to-cyan-500"
+            trend={8}
+            onClick={() => navigate("/users")}
+            textAlign="center"
+          />
         </div>
       </div>
     </div>

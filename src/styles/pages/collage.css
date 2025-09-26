@@ -1,0 +1,63 @@
+/* === ESTILOS PARA COLLAGE DE RECUPERACIÓN DE CONTRASEÑA === */
+
+/* Contenedor del collage */
+.auth-carousel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0.75rem;
+  height: 500px;
+  padding-top: 2rem;
+}
+
+/* Grid del collage */
+.auth-carousel .grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 1rem;
+  width: 100%;
+  height: 100%;
+}
+
+/* Imágenes del collage */
+.auth-carousel .rounded-lg {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.auth-carousel .rounded-lg:hover {
+  transform: scale(1.05);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+}
+
+.auth-carousel img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.auth-carousel .rounded-lg:hover img {
+  transform: scale(1.1);
+}
+
+/* Responsive para collage */
+@media (max-width: 768px) {
+  .auth-carousel {
+    height: 400px;
+    padding-top: 1rem;
+  }
+
+  .auth-carousel .grid {
+    gap: 0.75rem;
+  }
+
+  .auth-carousel .rounded-lg {
+    border-radius: 8px;
+  }
+}

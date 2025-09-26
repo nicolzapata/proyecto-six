@@ -8,6 +8,8 @@ import ThemeToggle from "../components/ThemeToggle";
 import { validateEmail } from "../utils/validators";
 import { emailExists } from "../utils/userHelpers";
 import EmailJSConfig from "../components/EmailJSConfig";
+import "../styles/components/login-register.css";
+import "../styles/pages/collage.css";
 
 
 const ForgotPassword = () => {
@@ -76,7 +78,7 @@ const ForgotPassword = () => {
         <div className="auth-layout">
           {/* Formulario a la izquierda */}
           <div className="auth-form">
-            <div className="auth-card">
+            <div className="card">
               <h2 className="text-2xl font-bold mb-2 text-gradient text-center">
                 Recuperar Contraseña
               </h2>
@@ -172,30 +174,30 @@ const ForgotPassword = () => {
             <div className="grid grid-cols-2 grid-rows-2 gap-4">
               <div className="rounded-lg overflow-hidden shadow-lg">
                 <img
-                  src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400&h=300&fit=crop"
-                  alt="Seguridad digital"
-                  className="w-full h-32 object-cover"
+                  src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=400&h=300&fit=crop"
+                  alt="Recuperación de contraseña"
+                  className="w-full h-24 object-cover"
                 />
               </div>
               <div className="rounded-lg overflow-hidden shadow-lg">
                 <img
                   src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=300&h=200&fit=crop"
-                  alt="Protección de datos"
-                  className="w-full h-32 object-cover"
+                  alt="Seguridad de datos"
+                  className="w-full h-24 object-cover"
+                />
+              </div>
+              <div className="rounded-lg overflow-hidden shadow-lg">
+                <img
+                  src="https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=300&h=200&fit=crop"
+                  alt="Autenticación segura"
+                  className="w-full h-24 object-cover"
                 />
               </div>
               <div className="rounded-lg overflow-hidden shadow-lg">
                 <img
                   src="https://images.unsplash.com/photo-1551808525-51a94da548ce?w=300&h=200&fit=crop"
-                  alt="Seguridad digital"
-                  className="w-full h-32 object-cover"
-                />
-              </div>
-              <div className="rounded-lg overflow-hidden shadow-lg">
-                <img
-                  src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=300&h=200&fit=crop"
-                  alt="Verificación segura"
-                  className="w-full h-32 object-cover"
+                  alt="Protección digital"
+                  className="w-full h-24 object-cover"
                 />
               </div>
             </div>

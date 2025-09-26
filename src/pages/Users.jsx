@@ -31,6 +31,22 @@ const Users = () => {
   const [registerSuccess, setRegisterSuccess] = useState("");
   const [isRegisterLoading, setIsRegisterLoading] = useState(false);
 
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    tipoIdentificacion: "",
+    identificacion: "",
+    nombre: "",
+    apellido: "",
+    telefono: "",
+    direccion: "",
+    email: "",
+    username: ""
+  });
+  const [editError, setEditError] = useState("");
+  const [editSuccess, setEditSuccess] = useState("");
+  const [isEditLoading, setIsEditLoading] = useState(false);
+
   const tiposIdentificacion = [
     "Cédula de Ciudadanía",
     "Tarjeta de Identidad",
@@ -157,6 +173,82 @@ const Users = () => {
     setRegisterSuccess("");
   };
 
+  const handleEditUser = (user) => {
+    setEditingUser(user);
+    setEditFormData({
+      tipoIdentificacion: user.tipoIdentificacion || "",
+      identificacion: user.identificacion || "",
+      nombre: user.nombre || "",
+      apellido: user.apellido || "",
+      telefono: user.telefono || "",
+      direccion: user.direccion || "",
+      email: user.email || "",
+      username: user.username || ""
+    });
+    setEditError("");
+    setEditSuccess("");
+    setShowEditModal(true);
+  };
+
+  const closeEditModal = () => {
+    setShowEditModal(false);
+    setEditingUser(null);
+    setEditFormData({
+      tipoIdentificacion: "",
+      identificacion: "",
+      nombre: "",
+      apellido: "",
+      telefono: "",
+      direccion: "",
+      email: "",
+      username: ""
+    });
+    setEditError("");
+    setEditSuccess("");
+  };
+
+  const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    setEditError("");
+    setEditSuccess("");
+    setIsEditLoading(true);
+
+    try {
+      const userData = {
+        tipoIdentificacion: editFormData.tipoIdentificacion,
+        identificacion: editFormData.identificacion,
+        nombre: editFormData.nombre,
+        apellido: editFormData.apellido,
+        telefono: editFormData.telefono,
+        direccion: editFormData.direccion,
+        email: editFormData.email,
+        username: editFormData.username
+      };
+
+      await usersAPI.update(editingUser.id, userData);
+      await loadUsers();
+
+      setEditSuccess("¡Usuario actualizado exitosamente!");
+
+      setTimeout(() => {
+        closeEditModal();
+      }, 2000);
+    } catch (err) {
+      setEditError('Error al actualizar el usuario: ' + err.message);
+      console.error('Error updating user:', err);
+    } finally {
+      setIsEditLoading(false);
+    }
+  };
+
   const handleRegisterInputChange = (e) => {
     const { name, value } = e.target;
     setRegisterFormData(prev => ({
@@ -217,19 +309,19 @@ const Users = () => {
 
   return (
     <div className="bg-gradient-page min-h-screen">
-      <div className="container py-8">
+      <div className="container py-8 max-w-4xl mx-auto">
         {loading && <LoadingSpinner />}
         <div className="animate-fade-in">
           {/* Header */}
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4 max-w-4xl mx-auto">
             <div className="flex-1">
               <h1 className="text-xl sm:text-2xl font-bold mb-2 text-center">👥 Gestión de Usuarios</h1>
               <p className="text-muted text-center">Administra los usuarios del sistema</p>
             </div>
-            <div className="card p-3 sm:p-4 w-full lg:w-auto">
-              <div className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold">{users.length}</div>
-                <div className="text-xs sm:text-sm text-muted">Usuarios totales</div>
+            <div className="card p-1 sm:p-2 w-auto max-w-xs">
+              <div className="text-center" >
+                <div className="text-lg sm:text-xl font-bold">{users.length}</div>
+                <div className="text-xs text-muted">Usuarios totales</div>
               </div>
             </div>
           </div>
@@ -326,20 +418,41 @@ const Users = () => {
                           </span>
                         </td>
                         <td>
-                          <div className="flex gap-1 sm:gap-2">
+                          <div className="flex gap-0.5">
                             <button
                               onClick={() => handleViewUser(user)}
                               className="btn btn-secondary text-xs"
-                              style={{ padding: '0.4rem 0.6rem' }}
+                              style={{ padding: '0.3rem 0.4rem' }}
+                              title="Ver detalles"
                             >
-                              Ver
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                              </svg>
+                            </button>
+                            <button
+                              onClick={() => handleEditUser(user)}
+                              className="btn btn-primary text-xs"
+                              style={{ padding: '0.4rem 0.5rem' }}
+                              title="Editar usuario"
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                              </svg>
                             </button>
                             <button
                               onClick={() => handleDeleteUser(user)}
                               className="btn btn-danger text-xs"
-                              style={{ padding: '0.4rem 0.6rem' }}
+                              style={{ padding: '0.4rem 0.5rem' }}
+                              title="Eliminar usuario"
                             >
-                              Eliminar
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M3 6h18"></path>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                <line x1="10" y1="11" x2="10" y2="17"></line>
+                                <line x1="14" y1="11" x2="14" y2="17"></line>
+                              </svg>
                             </button>
                           </div>
                         </td>
@@ -648,6 +761,173 @@ const Users = () => {
                     </>
                   ) : (
                     "Registrar Usuario"
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de edición de usuario */}
+      {showEditModal && editingUser && (
+        <div className="modal-overlay" onClick={closeEditModal}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 className="modal-title">Editar Usuario</h3>
+              <button onClick={closeEditModal} className="modal-close">×</button>
+            </div>
+            <form onSubmit={handleEditSubmit}>
+              <div className="modal-body" style={{ padding: '2rem' }}>
+                {editError && (
+                  <div className="alert alert-error animate-slide-down mb-6">
+                    {editError}
+                  </div>
+                )}
+
+                {editSuccess && (
+                  <div className="alert alert-success animate-slide-down mb-6">
+                    {editSuccess}
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="form-group">
+                    <label htmlFor="edit-tipoIdentificacion" className="form-label">Tipo de Identificación *</label>
+                    <select
+                      id="edit-tipoIdentificacion"
+                      name="tipoIdentificacion"
+                      required
+                      value={editFormData.tipoIdentificacion}
+                      onChange={handleEditInputChange}
+                      className="form-input"
+                      disabled={isEditLoading}
+                    >
+                      <option value="">Seleccionar tipo</option>
+                      {tiposIdentificacion.map(tipo => (
+                        <option key={tipo} value={tipo}>{tipo}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="edit-identificacion" className="form-label">Identificación *</label>
+                    <input
+                      type="text"
+                      id="edit-identificacion"
+                      name="identificacion"
+                      required
+                      value={editFormData.identificacion}
+                      onChange={handleEditInputChange}
+                      className="form-input"
+                      placeholder="Número de identificación"
+                      disabled={isEditLoading}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="edit-nombre" className="form-label">Nombre *</label>
+                    <input
+                      type="text"
+                      id="edit-nombre"
+                      name="nombre"
+                      required
+                      value={editFormData.nombre}
+                      onChange={handleEditInputChange}
+                      className="form-input"
+                      placeholder="Nombre del usuario"
+                      disabled={isEditLoading}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="edit-apellido" className="form-label">Apellido *</label>
+                    <input
+                      type="text"
+                      id="edit-apellido"
+                      name="apellido"
+                      required
+                      value={editFormData.apellido}
+                      onChange={handleEditInputChange}
+                      className="form-input"
+                      placeholder="Apellido del usuario"
+                      disabled={isEditLoading}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="edit-telefono" className="form-label">Teléfono *</label>
+                    <input
+                      type="tel"
+                      id="edit-telefono"
+                      name="telefono"
+                      required
+                      value={editFormData.telefono}
+                      onChange={handleEditInputChange}
+                      className="form-input"
+                      placeholder="Número de teléfono"
+                      disabled={isEditLoading}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="edit-email" className="form-label">Email *</label>
+                    <input
+                      type="email"
+                      id="edit-email"
+                      name="email"
+                      required
+                      value={editFormData.email}
+                      onChange={handleEditInputChange}
+                      className="form-input"
+                      placeholder="correo@ejemplo.com"
+                      disabled={isEditLoading}
+                    />
+                  </div>
+
+                  <div className="form-group md:col-span-2">
+                    <label htmlFor="edit-direccion" className="form-label">Dirección *</label>
+                    <textarea
+                      id="edit-direccion"
+                      name="direccion"
+                      required
+                      value={editFormData.direccion}
+                      onChange={handleEditInputChange}
+                      rows="2"
+                      className="form-input"
+                      placeholder="Dirección completa"
+                      disabled={isEditLoading}
+                    />
+                  </div>
+
+                  <div className="form-group md:col-span-2">
+                    <label htmlFor="edit-username" className="form-label">Nombre de Usuario *</label>
+                    <input
+                      type="text"
+                      id="edit-username"
+                      name="username"
+                      required
+                      value={editFormData.username}
+                      onChange={handleEditInputChange}
+                      className="form-input"
+                      placeholder="Nombre de usuario para login"
+                      disabled={isEditLoading}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="modal-footer" style={{ justifyContent: 'space-between' }}>
+                <button type="button" onClick={closeEditModal} className="btn btn-secondary" disabled={isEditLoading}>
+                  Cancelar
+                </button>
+                <button type="submit" className="btn btn-primary" disabled={isEditLoading}>
+                  {isEditLoading ? (
+                    <>
+                      <div className="loading-spinner"></div>
+                      Actualizando...
+                    </>
+                  ) : (
+                    "Actualizar Usuario"
                   )}
                 </button>
               </div>
