@@ -23,6 +23,7 @@ const Prestamos = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [libros, setLibros] = useState([]);
 
+
   const estadosPrestamo = [
     { value: "activo", label: "Activo", color: "warning" },
     { value: "devuelto", label: "Devuelto", color: "success" },
@@ -43,9 +44,40 @@ const Prestamos = () => {
         usersAPI.getAll(),
         booksAPI.getAll()
       ]);
-      setPrestamos(prestamosRes);
-      setUsuarios(usuariosRes);
-      setLibros(librosRes);
+
+      // Mapear préstamos
+      const prestamosArray = Array.isArray(prestamosRes) ? prestamosRes : (prestamosRes.loans || []);
+      const mappedPrestamos = prestamosArray.map(prestamo => ({
+        id: prestamo._id,
+        usuarioId: prestamo.userId || prestamo.usuarioId,
+        libroId: prestamo.bookId || prestamo.libroId,
+        fechaPrestamo: prestamo.loanDate || prestamo.fechaPrestamo,
+        fechaDevolucion: prestamo.returnDate || prestamo.fechaDevolucion,
+        estado: prestamo.status || prestamo.estado,
+        observaciones: prestamo.notes || prestamo.observaciones
+      }));
+
+      // Mapear usuarios
+      const usuariosArray = Array.isArray(usuariosRes) ? usuariosRes : (usuariosRes.users || []);
+      const mappedUsuarios = usuariosArray.map(user => ({
+        id: user._id,
+        username: user.username || user.name?.split(' ')[0]?.toLowerCase() || user.email?.split('@')[0],
+        email: user.email,
+        name: user.name
+      }));
+
+      // Mapear libros
+      const librosArray = Array.isArray(librosRes) ? librosRes : (librosRes.books || []);
+      const mappedLibros = librosArray.map(libro => ({
+        id: libro._id,
+        titulo: libro.title,
+        autor: libro.author?.name || libro.author,
+        disponible: libro.availableCopies > 0
+      }));
+
+      setPrestamos(mappedPrestamos);
+      setUsuarios(mappedUsuarios);
+      setLibros(mappedLibros);
     } catch (err) {
       setError('Error al cargar los datos: ' + err.message);
       console.error('Error loading data:', err);
@@ -169,6 +201,7 @@ const Prestamos = () => {
     const diasVencidos = calcularDiasVencidos(p.fechaPrestamo, p.estado);
     return diasVencidos > 0 && p.estado === "activo";
   }).length;
+
 
   return (
     <div className="bg-gradient-page min-h-screen">

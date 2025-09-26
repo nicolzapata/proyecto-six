@@ -2,6 +2,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import ThemeToggle from "./ThemeToggle";
+import "../styles/components/navbar.css";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -32,12 +33,6 @@ export default function Navbar() {
               className={`nav-link ${location.pathname === "/dashboard" ? "active" : ""}`}
             >
               Panel
-            </Link>
-            <Link
-              to="/profile"
-              className={`nav-link ${location.pathname === "/profile" ? "active" : ""}`}
-            >
-              Perfil
             </Link>
             <Link
               to="/users"
@@ -80,6 +75,27 @@ export default function Navbar() {
               Cerrar sesión
             </button>
           </div>
+        )}
+        {user && (
+          <Link
+            to="/profile"
+            className={`nav-link ${location.pathname === "/profile" ? "active" : ""}`}
+            title="Perfil"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </Link>
         )}
         <ThemeToggle />
       </div>

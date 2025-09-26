@@ -1,6 +1,7 @@
 // src/pages/Users.jsx
 import { useState, useEffect } from "react";
-import { useAuth } from "../context/AuthContext";
+import { usersAPI, authAPI } from "../services/api";
+import LoadingSpinner from "../components/Common/LoadingSpinner";
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -10,7 +11,9 @@ const Users = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
-  const { user: currentUser } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
 
   const [registerFormData, setRegisterFormData] = useState({
     tipoIdentificacion: "",
@@ -40,9 +43,33 @@ const Users = () => {
     loadUsers();
   }, []);
 
-  const loadUsers = () => {
-    const storedUsers = JSON.parse(localStorage.getItem("users") || "[]");
-    setUsers(storedUsers);
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const usersData = await usersAPI.getAll();
+      // Verificar que usersData sea un array
+      const usersArray = Array.isArray(usersData) ? usersData : (usersData.users || []);
+      // Mapear los campos del backend al formato del frontend
+      const mappedUsers = usersArray.map(user => ({
+        id: user._id,
+        username: user.username || user.name?.split(' ')[0]?.toLowerCase() || user.email?.split('@')[0],
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        isActive: user.isActive,
+        createdAt: user.createdAt,
+        phone: user.phone,
+        address: user.address
+      }));
+      console.log('Usuarios mapeados:', mappedUsers);
+      setUsers(mappedUsers);
+    } catch (err) {
+      console.error('Error completo al cargar usuarios:', err);
+      setError('Error al cargar los usuarios: ' + (err.message || 'Acceso denegado. Se requieren permisos de administrador.'));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filteredUsers = users.filter(user =>
@@ -59,21 +86,28 @@ const Users = () => {
   };
 
   const handleDeleteUser = (user) => {
-    if (user.id === currentUser?.id) {
-      alert("No puedes eliminar tu propia cuenta");
-      return;
-    }
     setUserToDelete(user);
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (userToDelete) {
-      const updatedUsers = users.filter(user => user.id !== userToDelete.id);
-      localStorage.setItem("users", JSON.stringify(updatedUsers));
-      setUsers(updatedUsers);
-      setUserToDelete(null);
-      setShowDeleteModal(false);
+      try {
+        setLoading(true);
+        setError(null);
+        // Usar el _id original del backend para la API
+        const backendUserId = users.find(u => u.id === userToDelete.id)?._id || userToDelete.id;
+        // Asumiendo que toggleStatus desactiva al usuario en lugar de eliminarlo
+        await usersAPI.toggleStatus(backendUserId);
+        await loadUsers();
+        setUserToDelete(null);
+        setShowDeleteModal(false);
+      } catch (err) {
+        setError('Error al desactivar el usuario: ' + err.message);
+        console.error('Error deactivating user:', err);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -150,53 +184,41 @@ const Users = () => {
       return;
     }
 
-    // Simular delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      // Usar authAPI.register para registrar el usuario
+      const userData = {
+        username: registerFormData.username,
+        email: registerFormData.email,
+        password: registerFormData.password,
+        tipoIdentificacion: registerFormData.tipoIdentificacion,
+        identificacion: registerFormData.identificacion,
+        nombre: registerFormData.nombre,
+        apellido: registerFormData.apellido,
+        telefono: registerFormData.telefono,
+        direccion: registerFormData.direccion
+      };
 
-    const existingUsers = JSON.parse(localStorage.getItem("users") || "[]");
+      await authAPI.register(userData);
+      await loadUsers();
 
-    const userExists = existingUsers.some(
-      user =>
-        user.username === registerFormData.username ||
-        user.email === registerFormData.email ||
-        user.identificacion === registerFormData.identificacion
-    );
+      setRegisterSuccess("¡Usuario registrado exitosamente!");
 
-    if (userExists) {
-      setRegisterError("El nombre de usuario, email o identificación ya está registrado");
+      setTimeout(() => {
+        closeRegisterModal();
+      }, 2000);
+    } catch (err) {
+      setRegisterError('Error al registrar el usuario: ' + err.message);
+      console.error('Error registering user:', err);
+    } finally {
       setIsRegisterLoading(false);
-      return;
     }
-
-    const newUser = {
-      id: Date.now(),
-      username: registerFormData.username,
-      email: registerFormData.email,
-      password: registerFormData.password,
-      tipoIdentificacion: registerFormData.tipoIdentificacion,
-      identificacion: registerFormData.identificacion,
-      nombre: registerFormData.nombre,
-      apellido: registerFormData.apellido,
-      telefono: registerFormData.telefono,
-      direccion: registerFormData.direccion,
-      createdAt: new Date().toISOString(),
-      role: "user"
-    };
-
-    const updatedUsers = [...existingUsers, newUser];
-    localStorage.setItem("users", JSON.stringify(updatedUsers));
-    setUsers(updatedUsers);
-
-    setRegisterSuccess("¡Usuario registrado exitosamente!");
-
-    setTimeout(() => {
-      closeRegisterModal();
-    }, 2000);
   };
+
 
   return (
     <div className="bg-gradient-page min-h-screen">
       <div className="container py-8">
+        {loading && <LoadingSpinner />}
         <div className="animate-fade-in">
           {/* Header */}
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4">
@@ -211,6 +233,14 @@ const Users = () => {
               </div>
             </div>
           </div>
+
+          {error && (
+            <div className="card mb-6">
+              <div className="alert alert-error">
+                {error}
+              </div>
+            </div>
+          )}
 
           {/* Buscador */}
           <div className="card mb-6">
@@ -279,9 +309,6 @@ const Users = () => {
                                 {user.nombre && user.apellido ? `${user.nombre} ${user.apellido}` : user.username}
                               </div>
                               <div className="text-sm text-muted truncate">{user.username}</div>
-                              {user.id === currentUser?.id && (
-                                <div className="text-xs text-accent">Tú</div>
-                              )}
                             </div>
                           </div>
                         </td>
@@ -307,15 +334,13 @@ const Users = () => {
                             >
                               Ver
                             </button>
-                            {user.id !== currentUser?.id && (
-                              <button
-                                onClick={() => handleDeleteUser(user)}
-                                className="btn btn-danger text-xs"
-                                style={{ padding: '0.4rem 0.6rem' }}
-                              >
-                                Eliminar
-                              </button>
-                            )}
+                            <button
+                              onClick={() => handleDeleteUser(user)}
+                              className="btn btn-danger text-xs"
+                              style={{ padding: '0.4rem 0.6rem' }}
+                            >
+                              Eliminar
+                            </button>
                           </div>
                         </td>
                       </tr>

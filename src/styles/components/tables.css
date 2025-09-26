@@ -1,0 +1,58 @@
+/* === TABLAS MODERNAS === */
+.table-container {
+  margin: 3rem auto;
+  padding: 2.5rem;
+  max-width: 1200px;
+  justify-content: center;
+  background: var(--bg-gradient-card);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--border-glass);
+  backdrop-filter: var(--backdrop-blur);
+  position: relative;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: transparent;
+}
+
+.table thead {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  backdrop-filter: blur(10px);
+}
+
+.table th {
+  padding: 1.5rem 2rem;
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  border-bottom: 2px solid var(--border-primary);
+  position: relative;
+}
+
+.table td {
+  padding: 1.25rem 2rem;
+  border-bottom: 1px solid var(--border-primary);
+  color: var(--text-primary);
+  transition: var(--transition-normal);
+}
+
+.table tbody tr {
+  transition: var(--transition-normal);
+  position: relative;
+}
+
+.table tbody tr:hover {
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.05), rgba(16, 185, 129, 0.05));
+  transform: scale(1.01);
+}
+
+.table tbody tr:hover td {
+  color: var(--text-primary);
+}

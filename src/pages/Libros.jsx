@@ -1,5 +1,7 @@
 // src/pages/Libros.jsx
 import { useState, useEffect } from "react";
+import { booksAPI } from "../services/api";
+import LoadingSpinner from "../components/Common/LoadingSpinner";
 import {
   validateISBN,
   validateFechaPublicacion,
@@ -14,6 +16,8 @@ const Libros = () => {
   const [editingBook, setEditingBook] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterGenre, setFilterGenre] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
     titulo: "",
     autor: "",
@@ -35,9 +39,32 @@ const Libros = () => {
     loadLibros();
   }, []);
 
-  const loadLibros = () => {
-    const storedLibros = JSON.parse(localStorage.getItem("libros") || "[]");
-    setLibros(storedLibros);
+  const loadLibros = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const librosData = await booksAPI.getAll();
+      // Verificar que librosData sea un array
+      const librosArray = Array.isArray(librosData) ? librosData : (librosData.books || []);
+      // Mapear los campos del backend al formato del frontend
+      const mappedLibros = librosArray.map(libro => ({
+        id: libro._id,
+        titulo: libro.title,
+        autor: libro.author?.name || libro.author,
+        isbn: libro.isbn,
+        genero: libro.genre,
+        fechaPublicacion: libro.publicationDate || '',
+        disponible: libro.availableCopies > 0,
+        descripcion: libro.description || '',
+        fechaCreacion: libro.createdAt
+      }));
+      setLibros(mappedLibros);
+    } catch (err) {
+      setError('Error al cargar los libros: ' + err.message);
+      console.error('Error loading books:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filteredLibros = libros.filter(libro => {
@@ -100,28 +127,17 @@ const Libros = () => {
     try {
       if (editingBook) {
         // Editar libro existente
-        const updatedLibros = libros.map(libro =>
-          libro.id === editingBook.id
-            ? { ...formData, id: editingBook.id }
-            : libro
-        );
-        setLibros(updatedLibros);
-        localStorage.setItem("libros", JSON.stringify(updatedLibros));
+        await booksAPI.update(editingBook.id, formData);
       } else {
         // Crear nuevo libro
-        const nuevoLibro = {
-          ...formData,
-          id: Date.now(),
-          fechaCreacion: new Date().toISOString()
-        };
-        const updatedLibros = [...libros, nuevoLibro];
-        setLibros(updatedLibros);
-        localStorage.setItem("libros", JSON.stringify(updatedLibros));
+        await booksAPI.create(formData);
       }
 
+      await loadLibros();
       closeModal();
     } catch (error) {
       console.error('Error al guardar libro:', error);
+      setError('Error al guardar el libro: ' + error.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -133,22 +149,37 @@ const Libros = () => {
     setShowModal(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm("¿Estás seguro de que deseas eliminar este libro?")) {
-      const updatedLibros = libros.filter(libro => libro.id !== id);
-      setLibros(updatedLibros);
-      localStorage.setItem("libros", JSON.stringify(updatedLibros));
+      try {
+        setLoading(true);
+        setError(null);
+        await booksAPI.delete(id);
+        await loadLibros();
+      } catch (err) {
+        setError('Error al eliminar el libro: ' + err.message);
+        console.error('Error deleting book:', err);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
-  const toggleDisponibilidad = (id) => {
-    const updatedLibros = libros.map(libro =>
-      libro.id === id
-        ? { ...libro, disponible: !libro.disponible }
-        : libro
-    );
-    setLibros(updatedLibros);
-    localStorage.setItem("libros", JSON.stringify(updatedLibros));
+  const toggleDisponibilidad = async (id) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const libro = libros.find(l => l.id === id);
+      if (libro) {
+        await booksAPI.update(id, { disponible: !libro.disponible });
+        await loadLibros();
+      }
+    } catch (err) {
+      setError('Error al actualizar la disponibilidad: ' + err.message);
+      console.error('Error updating book availability:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const openModal = () => {
@@ -203,6 +234,7 @@ const Libros = () => {
   return (
     <div className="bg-gradient-page min-h-screen">
       <div className="container py-8">
+        {loading && <LoadingSpinner />}
         <div className="animate-fade-in">
           {/* Header */}
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4">
@@ -231,6 +263,14 @@ const Libros = () => {
               </div>
             </div>
           </div>
+
+          {error && (
+            <div className="card mb-6">
+              <div className="alert alert-error">
+                {error}
+              </div>
+            </div>
+          )}
 
           {/* Filtros y búsqueda */}
           <div className="card mb-6">
@@ -266,7 +306,7 @@ const Libros = () => {
                   </select>
                 </div>
                 <div className="flex items-end w-full lg:w-auto">
-                  <button onClick={openModal} className="btn btn-primary w-full lg:w-auto">
+                  <button onClick={openModal} className="btn btn-primary w-full lg:w-auto" disabled={loading}>
                     + Agregar Libro
                   </button>
                 </div>
@@ -338,6 +378,7 @@ const Libros = () => {
                           onClick={() => handleEdit(libro)}
                           className="btn btn-secondary flex-1 text-xs sm:text-sm"
                           style={{ padding: '0.4rem 0.6rem' }}
+                          disabled={loading}
                         >
                           Editar
                         </button>
@@ -345,6 +386,7 @@ const Libros = () => {
                           onClick={() => toggleDisponibilidad(libro.id)}
                           className={`btn flex-1 text-xs sm:text-sm ${libro.disponible ? 'btn-warning' : 'btn-success'}`}
                           style={{ padding: '0.4rem 0.6rem' }}
+                          disabled={loading}
                         >
                           {libro.disponible ? 'Prestar' : 'Devolver'}
                         </button>
@@ -352,6 +394,7 @@ const Libros = () => {
                           onClick={() => handleDelete(libro.id)}
                           className="btn btn-danger text-xs sm:text-sm"
                           style={{ padding: '0.4rem 0.6rem' }}
+                          disabled={loading}
                         >
                           🗑️
                         </button>
@@ -391,6 +434,7 @@ const Libros = () => {
                       onChange={handleInputChange}
                       className={`form-input ${formErrors.titulo ? 'border-error' : ''}`}
                       placeholder="Título del libro"
+                      disabled={isSubmitting}
                     />
                     {formErrors.titulo && (
                       <div className="text-error text-sm mt-1">{formErrors.titulo}</div>
@@ -492,11 +536,18 @@ const Libros = () => {
                 </div>
               </div>
               <div className="modal-footer" style={{ justifyContent: 'space-between' }}>
-                <button type="button" onClick={closeModal} className="btn btn-secondary">
+                <button type="button" onClick={closeModal} className="btn btn-secondary" disabled={isSubmitting}>
                   Cancelar
                 </button>
-                <button type="submit" className="btn btn-primary">
-                  {editingBook ? 'Actualizar' : 'Agregar'} Libro
+                <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <div className="loading-spinner"></div>
+                      {editingBook ? 'Actualizando...' : 'Agregando...'}
+                    </>
+                  ) : (
+                    `${editingBook ? 'Actualizar' : 'Agregar'} Libro`
+                  )}
                 </button>
               </div>
             </form>

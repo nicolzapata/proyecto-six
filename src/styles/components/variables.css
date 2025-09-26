@@ -1,0 +1,151 @@
+/* ===== SISTEMA CSS AVANZADO - BIBLIOTECA PROFESIONAL ===== */
+
+:root {
+  /* === PALETA DE COLORES AVANZADA === */
+  --emerald-50: #ecfdf5;
+  --emerald-100: #d1fae5;
+  --emerald-200: #a7f3d0;
+  --emerald-300: #6ee7b7;
+  --emerald-400: #34d399;
+  --emerald-500: #10b981;
+  --emerald-600: #059669;
+  --emerald-700: #047857;
+  --emerald-800: #065f46;
+  --emerald-900: #064e3b;
+
+  --teal-50: #f0fdfa;
+  --teal-100: #ccfbf1;
+  --teal-200: #99f6e4;
+  --teal-300: #5eead4;
+  --teal-400: #2dd4bf;
+  --teal-500: #14b8a6;
+  --teal-600: #0d9488;
+  --teal-700: #0f766e;
+  --teal-800: #115e59;
+  --teal-900: #134e4a;
+
+  --cyan-400: #22d3ee;
+  --cyan-500: #06b6d4;
+
+  --purple-400: #a855f7;
+  --purple-500: #9333ea;
+  --purple-600: #7c3aed;
+
+  --orange-400: #fb923c;
+  --orange-500: #f97316;
+
+  --rose-400: #fb7185;
+  --rose-500: #f43f5e;
+
+  --amber-400: #fbbf24;
+  --amber-500: #f59e0b;
+
+  /* === GRISES REFINADOS === */
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --slate-900: #0f172a;
+  --slate-950: #020617;
+
+  /* === CONFIGURACIÓN DE GRADIENTES === */
+  --gradient-primary: linear-gradient(135deg, var(--teal-400) 0%, var(--emerald-500) 50%, var(--cyan-400) 100%);
+  --gradient-secondary: linear-gradient(135deg, var(--purple-400) 0%, var(--teal-500) 100%);
+  --gradient-accent: linear-gradient(135deg, var(--orange-400) 0%, var(--rose-400) 100%);
+  --gradient-dark: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+
+  /* === EFECTOS AVANZADOS === */
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.18);
+  --backdrop-blur: blur(20px);
+  --backdrop-saturate: saturate(180%);
+
+  /* === SOMBRAS PROFESIONALES === */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+
+  /* === SOMBRAS COLOREADAS === */
+  --shadow-emerald: 0 20px 25px -5px rgb(16 185 129 / 0.1), 0 8px 10px -6px rgb(16 185 129 / 0.1);
+  --shadow-teal: 0 20px 25px -5px rgb(20 184 166 / 0.1), 0 8px 10px -6px rgb(20 184 166 / 0.1);
+  --shadow-purple: 0 20px 25px -5px rgb(147 51 234 / 0.1), 0 8px 10px -6px rgb(147 51 234 / 0.1);
+
+  /* === TRANSICIONES FLUIDAS === */
+  --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* === TEMA CLARO AVANZADO === */
+[data-theme="light"] {
+  --bg-primary: linear-gradient(135deg, #fafafa 0%, var(--emerald-50) 30%, var(--teal-50) 70%, #ffffff 100%);
+  --bg-secondary: rgba(255, 255, 255, 0.9);
+  --bg-tertiary: var(--slate-50);
+  --bg-glass: rgba(255, 255, 255, 0.7);
+  --bg-gradient-card: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.6));
+
+  --text-primary: var(--slate-900);
+  --text-secondary: var(--slate-700);
+  --text-tertiary: var(--slate-500);
+  --text-accent: var(--teal-700);
+  --text-gradient: var(--gradient-primary);
+
+  --border-primary: rgba(148, 163, 184, 0.2);
+  --border-secondary: rgba(148, 163, 184, 0.3);
+  --border-glass: rgba(255, 255, 255, 0.3);
+
+  --accent-primary: var(--teal-500);
+  --accent-secondary: var(--emerald-500);
+  --accent-tertiary: var(--cyan-500);
+
+  --pattern-dots: radial-gradient(circle at 1px 1px, rgba(20, 184, 166, 0.15) 1px, transparent 0);
+  --pattern-size: 20px 20px;
+}
+
+/* === TEMA OSCURO AVANZADO === */
+[data-theme="dark"] {
+  --bg-primary: var(--gradient-dark);
+  --bg-secondary: rgba(15, 23, 42, 0.8);
+  --bg-tertiary: var(--slate-800);
+  --bg-glass: rgba(15, 23, 42, 0.6);
+  --bg-gradient-card: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+
+  --text-primary: var(--slate-100);
+  --text-secondary: var(--slate-300);
+  --text-tertiary: var(--slate-400);
+  --text-accent: var(--teal-400);
+  --text-gradient: var(--gradient-primary);
+
+  --border-primary: rgba(71, 85, 105, 0.3);
+  --border-secondary: rgba(71, 85, 105, 0.5);
+  --border-glass: rgba(255, 255, 255, 0.1);
+
+  --accent-primary: var(--teal-400);
+  --accent-secondary: var(--emerald-400);
+  --accent-tertiary: var(--cyan-400);
+
+  --pattern-dots: radial-gradient(circle at 1px 1px, rgba(45, 212, 191, 0.1) 1px, transparent 0);
+  --pattern-size: 20px 20px;
+
+  /* === SOMBRAS OSCURAS === */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.4);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.5);
+
+  --shadow-emerald: 0 20px 25px -5px rgb(16 185 129 / 0.2), 0 8px 10px -6px rgb(16 185 129 / 0.2);
+  --shadow-teal: 0 20px 25px -5px rgb(20 184 166 / 0.2), 0 8px 10px -6px rgb(20 184 166 / 0.2);
+  --shadow-purple: 0 20px 25px -5px rgb(147 51 234 / 0.2), 0 8px 10px -6px rgb(147 51 234 / 0.2);
+}

@@ -1,11 +1,15 @@
 // ===== src/pages/Escritores.jsx =====
 import { useState, useEffect } from "react";
+import { authorsAPI } from "../services/api";
+import LoadingSpinner from "../components/Common/LoadingSpinner";
 
 const Escritores = () => {
   const [escritores, setEscritores] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editingAuthor, setEditingAuthor] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
     nombre: "",
     apellido: "",
@@ -77,9 +81,35 @@ const Escritores = () => {
     loadEscritores();
   }, []);
 
-  const loadEscritores = () => {
-    const storedEscritores = JSON.parse(localStorage.getItem("escritores") || "[]");
-    setEscritores(storedEscritores);
+  const loadEscritores = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const autoresData = await authorsAPI.getAll();
+      // Verificar que autoresData sea un array
+      const autoresArray = Array.isArray(autoresData) ? autoresData : (autoresData.authors || []);
+      // Mapear los campos del backend al formato del frontend
+      const mappedEscritores = autoresArray.map(autor => ({
+        id: autor._id,
+        nombre: autor.name.split(' ')[0] || '',
+        apellido: autor.name.split(' ').slice(1).join(' ') || '',
+        nacionalidad: autor.nationality,
+        generoLiterario: autor.genre || 'Novela', // Campo por defecto si no existe
+        biografia: autor.biography || '',
+        fotografiaUrl: autor.photo || '',
+        obrasDestacadas: autor.works || '',
+        premiosRecomendaciones: autor.awards || '',
+        idiomaPrincipal: autor.language || 'Español',
+        redesSociales: autor.socialMedia || '',
+        fechaCreacion: autor.createdAt
+      }));
+      setEscritores(mappedEscritores);
+    } catch (err) {
+      setError('Error al cargar los escritores: ' + err.message);
+      console.error('Error loading authors:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filteredEscritores = escritores.filter(escritor =>
@@ -90,29 +120,25 @@ const Escritores = () => {
     (escritor.premiosRecomendaciones && escritor.premiosRecomendaciones.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (editingAuthor) {
-      const updatedEscritores = escritores.map(escritor =>
-        escritor.id === editingAuthor.id
-          ? { ...formData, id: editingAuthor.id }
-          : escritor
-      );
-      setEscritores(updatedEscritores);
-      localStorage.setItem("escritores", JSON.stringify(updatedEscritores));
-    } else {
-      const nuevoEscritor = {
-        ...formData,
-        id: Date.now(),
-        fechaCreacion: new Date().toISOString()
-      };
-      const updatedEscritores = [...escritores, nuevoEscritor];
-      setEscritores(updatedEscritores);
-      localStorage.setItem("escritores", JSON.stringify(updatedEscritores));
+
+    try {
+      setLoading(true);
+      setError(null);
+      if (editingAuthor) {
+        await authorsAPI.update(editingAuthor.id, formData);
+      } else {
+        await authorsAPI.create(formData);
+      }
+      await loadEscritores();
+      closeModal();
+    } catch (err) {
+      setError('Error al guardar el escritor: ' + err.message);
+      console.error('Error saving author:', err);
+    } finally {
+      setLoading(false);
     }
-    
-    closeModal();
   };
 
   const handleEdit = (escritor) => {
@@ -121,11 +147,19 @@ const Escritores = () => {
     setShowModal(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm("¿Estás seguro de que deseas eliminar este escritor?")) {
-      const updatedEscritores = escritores.filter(escritor => escritor.id !== id);
-      setEscritores(updatedEscritores);
-      localStorage.setItem("escritores", JSON.stringify(updatedEscritores));
+      try {
+        setLoading(true);
+        setError(null);
+        await authorsAPI.delete(id);
+        await loadEscritores();
+      } catch (err) {
+        setError('Error al eliminar el escritor: ' + err.message);
+        console.error('Error deleting author:', err);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -196,6 +230,7 @@ const Escritores = () => {
   return (
     <div className="bg-gradient-page min-h-screen">
       <div className="container py-8">
+        {loading && <LoadingSpinner />}
         <div className="animate-fade-in">
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
@@ -210,6 +245,14 @@ const Escritores = () => {
               </div>
             </div>
           </div>
+
+          {error && (
+            <div className="card mb-6">
+              <div className="alert alert-error">
+                {error}
+              </div>
+            </div>
+          )}
 
           {/* Buscador */}
           <div className="card mb-6">

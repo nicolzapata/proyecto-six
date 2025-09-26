@@ -37,12 +37,36 @@ export const AuthProvider = ({ children }) => {
     setSuccess('');
 
     try {
-      console.log('Intentando login con username:', credentials.username);
-      const response = await authAPI.login(credentials);
+      console.log('Intentando login con:', credentials);
+
+      // Preparar las credenciales para el backend
+      const loginData = {
+        username: credentials.username,
+        email: credentials.username.includes('@') ? credentials.username : undefined,
+        password: credentials.password
+      };
+
+      // Si el username parece un email, enviarlo como email
+      if (credentials.username.includes('@')) {
+        loginData.email = credentials.username;
+        delete loginData.username;
+      }
+
+      console.log('Enviando datos de login:', loginData);
+      const response = await authAPI.login(loginData);
       console.log('Respuesta del login:', response);
 
-      // El backend maneja la sesión con cookies, solo guardar el usuario en el estado
-      setUser(response.user);
+      // Verificar la sesión después del login para asegurar que las cookies funcionan
+      try {
+        const sessionResponse = await authAPI.getCurrentUser();
+        setUser(sessionResponse.user);
+        console.log('Sesión verificada:', sessionResponse.user);
+      } catch (sessionError) {
+        console.error('Error verificando sesión:', sessionError);
+        // Si falla la verificación, usar los datos del login
+        setUser(response.user);
+      }
+
       setSuccess('Login exitoso');
 
       return { success: true, user: response.user };

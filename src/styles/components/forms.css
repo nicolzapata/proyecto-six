@@ -1,0 +1,91 @@
+/* === FORMULARIOS PREMIUM === */
+.form-group {
+  position: relative;
+  margin-bottom: 3rem;
+}
+
+.form-label {
+  display: block;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
+.form-input {
+  width: 100%;
+  padding: 1.5rem 2.5rem;
+  border: 2px solid var(--border-primary);
+  border-radius: 12px;
+  font-size: 1rem;
+  font-family: inherit;
+  background: var(--bg-glass);
+  color: var(--text-primary);
+  transition: var(--transition-normal);
+  backdrop-filter: var(--backdrop-blur);
+  position: relative;
+}
+
+.form-input::placeholder {
+  color: var(--text-tertiary);
+  font-weight: 400;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  background: var(--bg-secondary);
+  box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.1), var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.form-input:hover:not(:focus) {
+  border-color: var(--accent-secondary);
+  transform: translateY(-1px);
+}
+
+/* === INPUT CON EFECTOS FLOTANTES === */
+.form-floating {
+  position: relative;
+}
+
+.form-floating .form-input {
+  padding-top: 1.625rem;
+  padding-bottom: 0.625rem;
+}
+
+.form-floating .form-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  padding: 1rem 1.25rem;
+  pointer-events: none;
+  border: 1px solid transparent;
+  transform-origin: 0 0;
+  transition: var(--transition-normal);
+  margin-bottom: 0;
+  text-transform: none;
+  font-weight: 400;
+  color: var(--text-tertiary);
+}
+
+.form-floating .form-input:focus ~ .form-label,
+.form-floating .form-input:not(:placeholder-shown) ~ .form-label {
+  opacity: 0.65;
+  transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+  color: var(--accent-primary);
+  font-weight: 600;
+}
+
+.input-error {
+  border-color: var(--rose-500) !important;
+  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.1) !important;
+}
+
+.input-error:focus {
+  border-color: var(--rose-500) !important;
+  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.2) !important;
+}

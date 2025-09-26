@@ -119,7 +119,7 @@ export default function Profile() {
         <div className="max-w-4xl mx-auto">
           <div className="card animate-slide-up">
             <div className="card-body">
-              <div className="flex items-center gap-6 mb-8">
+              <div className="flex items-center text-center gap-6 mb-8">
                 <div className="w-20 h-20 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-bold text-2xl overflow-hidden">
                   {user?.foto ? (
                     <img src={user.foto} alt="Foto de perfil" className="w-full h-full object-cover" />
@@ -128,7 +128,7 @@ export default function Profile() {
                   )}
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold mb-2">👤 Mi Perfil</h1>
+                  <h1 className="text-2xl font-bold mb-2 text-center">👤 Mi Perfil</h1>
                   <p className="text-muted">Gestiona tu información personal</p>
                 </div>
               </div>

@@ -2,6 +2,8 @@
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { dashboardAPI, booksAPI, usersAPI, loansAPI, authorsAPI } from "../services/api";
+import LoadingSpinner from "../components/Common/LoadingSpinner";
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -9,6 +11,7 @@ const Dashboard = () => {
   const [stats, setStats] = useState({});
   const [recentActivity, setRecentActivity] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -18,77 +21,79 @@ const Dashboard = () => {
   }, []);
 
   const loadDashboardData = async () => {
-    setIsLoading(true);
-    // Simular carga de datos
-    await new Promise(resolve => setTimeout(resolve, 1200));
-    
-    const libros = JSON.parse(localStorage.getItem("libros") || "[]");
-    const usuarios = JSON.parse(localStorage.getItem("users") || "[]");
-    const prestamos = JSON.parse(localStorage.getItem("prestamos") || "[]");
-    const escritores = JSON.parse(localStorage.getItem("escritores") || "[]");
-    
-    const librosDisponibles = libros.filter(l => l.disponible).length;
-    const prestamosActivos = prestamos.filter(p => p.estado === "activo").length;
-    const usuariosActivos = usuarios.filter(u => {
-      const lastLogin = new Date(u.lastLogin || u.createdAt);
-      const daysSince = (new Date() - lastLogin) / (1000 * 60 * 60 * 24);
-      return daysSince <= 30;
-    }).length;
+    try {
+      setIsLoading(true);
+      setError(null);
 
-    setStats({
-      totalLibros: libros.length,
-      librosDisponibles,
-      librosPrestados: libros.length - librosDisponibles,
-      totalUsuarios: usuarios.length,
-      usuariosActivos,
-      prestamosActivos,
-      prestamosVencidos: prestamos.filter(p => {
-        if (p.estado !== "activo") return false;
-        const diasTranscurridos = Math.ceil((new Date() - new Date(p.fechaPrestamo)) / (1000 * 60 * 60 * 24));
-        return diasTranscurridos > 15;
-      }).length,
-      totalEscritores: escritores.length,
-      generoMasPopular: getGeneroMasPopular(libros),
-      autorMasLeido: getAutorMasLeido(libros, prestamos)
-    });
+      // Cargar datos desde las APIs disponibles
+      const [librosData, autoresData] = await Promise.all([
+        booksAPI.getAll().catch(() => []), // Fallback si no hay auth
+        authorsAPI.getAll().catch(() => [])
+      ]);
 
-    // Actividad reciente simulada
-    setRecentActivity([
-      { 
-        id: 1, 
-        tipo: "prestamo", 
-        descripcion: "María García tomó prestado 'Cien años de soledad'", 
-        tiempo: "Hace 2 horas",
-        icono: "📚",
-        color: "text-emerald-500"
-      },
-      { 
-        id: 2, 
-        tipo: "devolucion", 
-        descripcion: "Carlos López devolvió 'Don Quijote de la Mancha'", 
-        tiempo: "Hace 4 horas",
-        icono: "📖",
-        color: "text-teal-500"
-      },
-      { 
-        id: 3, 
-        tipo: "registro", 
-        descripcion: "Nuevo usuario registrado: Ana Silva", 
-        tiempo: "Hace 6 horas",
-        icono: "👤",
-        color: "text-cyan-500"
-      },
-      { 
-        id: 4, 
-        tipo: "libro", 
-        descripcion: "Agregado nuevo libro: 'La Casa de los Espíritus'", 
-        tiempo: "Hace 1 día",
-        icono: "➕",
-        color: "text-purple-500"
-      }
-    ]);
+      // Mapear libros
+      const librosArray = Array.isArray(librosData) ? librosData : (librosData.books || []);
+      const libros = librosArray.map(libro => ({
+        id: libro._id,
+        titulo: libro.title,
+        autor: libro.author?.name || libro.author,
+        disponible: libro.availableCopies > 0,
+        genero: libro.genre
+      }));
 
-    setIsLoading(false);
+      // Mapear autores
+      const autoresArray = Array.isArray(autoresData) ? autoresData : (autoresData.authors || []);
+      const autores = autoresArray.map(autor => ({
+        id: autor._id,
+        nombre: autor.name
+      }));
+
+      const librosDisponibles = libros.filter(l => l.disponible).length;
+
+      setStats({
+        totalLibros: libros.length,
+        librosDisponibles,
+        librosPrestados: libros.length - librosDisponibles,
+        totalUsuarios: 0, // No disponible sin auth
+        usuariosActivos: 0,
+        prestamosActivos: 0,
+        prestamosVencidos: 0,
+        totalEscritores: autores.length,
+        generoMasPopular: getGeneroMasPopular(libros),
+        autorMasLeido: "N/A" // No disponible sin datos de préstamos
+      });
+
+      // Actividad simulada
+      setRecentActivity([
+        {
+          id: 1,
+          tipo: "info",
+          descripcion: `${libros.length} libros y ${autores.length} autores cargados`,
+          tiempo: "Ahora",
+          icono: "📊",
+          color: "text-blue-500"
+        }
+      ]);
+
+    } catch (err) {
+      setError('Error al cargar los datos del dashboard: ' + err.message);
+      console.error('Error loading dashboard data:', err);
+      // Set default stats
+      setStats({
+        totalLibros: 0,
+        librosDisponibles: 0,
+        librosPrestados: 0,
+        totalUsuarios: 0,
+        usuariosActivos: 0,
+        prestamosActivos: 0,
+        prestamosVencidos: 0,
+        totalEscritores: 0,
+        generoMasPopular: "N/A",
+        autorMasLeido: "N/A"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const getGeneroMasPopular = (libros) => {
@@ -275,6 +280,15 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
+
+        {error && (
+          <div className="card mb-8">
+            <div className="alert alert-error">
+              {error}
+            </div>
+          </div>
+        )}
+
         {/* Grid de estadísticas principales */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
