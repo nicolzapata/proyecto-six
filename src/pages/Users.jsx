@@ -318,11 +318,9 @@ const Users = () => {
               <h1 className="text-xl sm:text-2xl font-bold mb-2 text-center">👥 Gestión de Usuarios</h1>
               <p className="text-muted text-center">Administra los usuarios del sistema</p>
             </div>
-            <div className="card p-1 sm:p-2 w-auto max-w-xs">
-              <div className="text-center" >
-                <div className="text-lg sm:text-xl font-bold">{users.length}</div>
-                <div className="text-xs text-muted">Usuarios totales</div>
-              </div>
+            <div className="card p-1 text-center" style={{ width: '201px' }}>
+              <div className="text-sm font-bold">{users.length}</div>
+              <div className="text-xs text-muted">Usuarios totales</div>
             </div>
           </div>
 

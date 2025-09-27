@@ -238,11 +238,9 @@ const Escritores = () => {
               <h1 className="text-2xl font-bold mb-2 text-center">✍️ Gestión de Escritores</h1>
               <p className="text-muted text-center">Administra la base de datos de autores</p>
             </div>
-            <div className="card p-4">
-              <div className="text-center">
-                <div className="text-xl font-bold text-accent">{escritores.length}</div>
-                <div className="text-sm text-muted">Escritores registrados</div>
-              </div>
+            <div className="card p-1 text-center" style={{ width: '201px' }}>
+              <div className="text-sm font-bold text-accent">{escritores.length}</div>
+              <div className="text-xs text-muted">Escritores registrados</div>
             </div>
           </div>
 

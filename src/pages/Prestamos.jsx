@@ -214,24 +214,18 @@ const Prestamos = () => {
               <h1 className="text-xl sm:text-2xl font-bold mb-2">📋 Gestión de Préstamos</h1>
               <p className="text-muted">Administra los préstamos de libros</p>
             </div>
-            <div className="flex flex-wrap gap-2 sm:gap-4 w-full lg:w-auto justify-center lg:justify-end">
-              <div className="card p-3 sm:p-4 flex-1 sm:flex-none min-w-0">
-                <div className="text-center">
-                  <div className="text-lg sm:text-xl font-bold text-warning-600">{prestamosActivos}</div>
-                  <div className="text-xs sm:text-sm text-muted">Activos</div>
-                </div>
+            <div className="flex flex-nowrap gap-1 w-full lg:w-auto justify-center">
+              <div className="card p-1 text-center" style={{ width: '201px' }}>
+                <div className="text-sm font-bold text-warning-600">{prestamosActivos}</div>
+                <div className="text-xs text-muted">Activos</div>
               </div>
-              <div className="card p-3 sm:p-4 flex-1 sm:flex-none min-w-0">
-                <div className="text-center">
-                  <div className="text-lg sm:text-xl font-bold text-error-600">{prestamosVencidos}</div>
-                  <div className="text-xs sm:text-sm text-muted">Vencidos</div>
-                </div>
+              <div className="card p-1 text-center" style={{ width: '201px' }}>
+                <div className="text-sm font-bold text-error-600">{prestamosVencidos}</div>
+                <div className="text-xs text-muted">Vencidos</div>
               </div>
-              <div className="card p-3 sm:p-4 flex-1 sm:flex-none min-w-0">
-                <div className="text-center">
-                  <div className="text-lg sm:text-xl font-bold text-accent">{prestamos.length}</div>
-                  <div className="text-xs sm:text-sm text-muted">Total</div>
-                </div>
+              <div className="card p-1 text-center" style={{ width: '201px' }}>
+                <div className="text-sm font-bold text-accent">{prestamos.length}</div>
+                <div className="text-xs text-muted">Total</div>
               </div>
             </div>
           </div>
