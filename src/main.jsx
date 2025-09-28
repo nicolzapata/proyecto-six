@@ -13,6 +13,7 @@ import "./styles/components/cards.css"; // Estilos de cards
 import "./styles/components/modals.css"; // Estilos de modales
 import "./styles/components/tables.css"; // Estilos de tablas
 import "./styles/components/alerts.css"; // Estilos de alertas
+import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
