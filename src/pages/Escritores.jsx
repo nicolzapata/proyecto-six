@@ -1,15 +1,23 @@
 // ===== src/pages/Escritores.jsx =====
 import { useState, useEffect } from "react";
 import { authorsAPI } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 import LoadingSpinner from "../components/Common/LoadingSpinner";
+import {
+  validateRequired,
+  validateMinLength,
+  validateMaxLength
+} from "../utils/validators";
 
 const Escritores = () => {
+  const { user } = useAuth();
   const [escritores, setEscritores] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editingAuthor, setEditingAuthor] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [expandedCards, setExpandedCards] = useState(new Set());
   const [formData, setFormData] = useState({
     nombre: "",
     apellido: "",
@@ -22,6 +30,7 @@ const Escritores = () => {
     idiomaPrincipal: "",
     redesSociales: ""
   });
+  const [formErrors, setFormErrors] = useState({});
 
   const nacionalidades = [
     "Argentina", "Bolivia", "Brasil", "Chile", "Colombia", "Costa Rica", "Cuba", "Ecuador",
@@ -77,6 +86,21 @@ const Escritores = () => {
     "Novela histórica", "Ficción histórica", "Autobiografía", "Memorias"
   ];
 
+  // Función para mapear datos del frontend al formato del backend
+  const mapToBackend = (formData) => {
+    return {
+      name: `${formData.nombre} ${formData.apellido}`.trim(),
+      nationality: formData.nacionalidad,
+      genre: formData.generoLiterario,
+      biography: formData.biografia || '',
+      photo: formData.fotografiaUrl || '',
+      works: formData.obrasDestacadas || '',
+      awards: formData.premiosRecomendaciones || '',
+      language: formData.idiomaPrincipal,
+      socialMedia: formData.redesSociales || ''
+    };
+  };
+
   useEffect(() => {
     loadEscritores();
   }, []);
@@ -104,12 +128,72 @@ const Escritores = () => {
         fechaCreacion: autor.createdAt
       }));
       setEscritores(mappedEscritores);
+      console.log('DEBUG Escritores: Escritores cargados exitosamente, cantidad:', mappedEscritores.length);
     } catch (err) {
       setError('Error al cargar los escritores: ' + err.message);
       console.error('Error loading authors:', err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const validateForm = () => {
+    const errors = {};
+
+    // Validar nombre
+    const nombreValidation = validateRequired(formData.nombre, "Nombre");
+    if (!nombreValidation.isValid) errors.nombre = nombreValidation.error;
+
+    const nombreLength = validateMinLength(formData.nombre, 2, "Nombre");
+    if (!nombreLength.isValid) errors.nombre = nombreLength.error;
+
+    const nombreMaxLength = validateMaxLength(formData.nombre, 50, "Nombre");
+    if (!nombreMaxLength.isValid) errors.nombre = nombreMaxLength.error;
+
+    // Validar apellido
+    const apellidoValidation = validateRequired(formData.apellido, "Apellido");
+    if (!apellidoValidation.isValid) errors.apellido = apellidoValidation.error;
+
+    const apellidoLength = validateMinLength(formData.apellido, 2, "Apellido");
+    if (!apellidoLength.isValid) errors.apellido = apellidoLength.error;
+
+    const apellidoMaxLength = validateMaxLength(formData.apellido, 50, "Apellido");
+    if (!apellidoMaxLength.isValid) errors.apellido = apellidoMaxLength.error;
+
+    // Validar nacionalidad
+    const nacionalidadValidation = validateRequired(formData.nacionalidad, "Nacionalidad");
+    if (!nacionalidadValidation.isValid) errors.nacionalidad = nacionalidadValidation.error;
+
+    // Validar género literario
+    const generoValidation = validateRequired(formData.generoLiterario, "Género literario");
+    if (!generoValidation.isValid) errors.generoLiterario = generoValidation.error;
+
+    // Validar idioma principal
+    const idiomaValidation = validateRequired(formData.idiomaPrincipal, "Idioma principal");
+    if (!idiomaValidation.isValid) errors.idiomaPrincipal = idiomaValidation.error;
+
+    // Validar biografía
+    const bioMaxLength = validateMaxLength(formData.biografia, 1000, "Biografía");
+    if (!bioMaxLength.isValid) errors.biografia = bioMaxLength.error;
+
+    // Validar obras destacadas
+    const obrasMaxLength = validateMaxLength(formData.obrasDestacadas, 500, "Obras destacadas");
+    if (!obrasMaxLength.isValid) errors.obrasDestacadas = obrasMaxLength.error;
+
+    // Validar premios
+    const premiosMaxLength = validateMaxLength(formData.premiosRecomendaciones, 500, "Premios");
+    if (!premiosMaxLength.isValid) errors.premiosRecomendaciones = premiosMaxLength.error;
+
+    // Validar redes sociales
+    const redesMaxLength = validateMaxLength(formData.redesSociales, 300, "Redes sociales");
+    if (!redesMaxLength.isValid) errors.redesSociales = redesMaxLength.error;
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const canEditAuthor = (autor) => {
+    return user?.role === 'admin' || autor.createdBy === user?._id;
   };
 
   const filteredEscritores = escritores.filter(escritor =>
@@ -123,31 +207,54 @@ const Escritores = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!validateForm()) {
+      return;
+    }
+
+    console.log('DEBUG Escritores: formData:', formData);
+    console.log('DEBUG Escritores: editingAuthor:', editingAuthor);
+
     try {
       setLoading(true);
       setError(null);
+      const backendData = mapToBackend(formData);
+      console.log('DEBUG Escritores: backendData:', backendData);
       if (editingAuthor) {
-        await authorsAPI.update(editingAuthor.id, formData);
+        console.log('DEBUG Escritores: updating author id:', editingAuthor.id);
+        const response = await authorsAPI.update(editingAuthor.id, backendData);
+        console.log('DEBUG Escritores: update response:', response);
       } else {
-        await authorsAPI.create(formData);
+        const response = await authorsAPI.create(backendData);
+        console.log('DEBUG Escritores: create response:', response);
       }
       await loadEscritores();
       closeModal();
     } catch (err) {
+      console.error('DEBUG Escritores: Error completo:', err);
+      console.error('DEBUG Escritores: Error message:', err.message);
+      console.error('DEBUG Escritores: Error stack:', err.stack);
       setError('Error al guardar el escritor: ' + err.message);
-      console.error('Error saving author:', err);
     } finally {
       setLoading(false);
     }
   };
 
   const handleEdit = (escritor) => {
+    if (!canEditAuthor(escritor)) {
+      alert('No tienes permisos para editar este autor');
+      return;
+    }
     setEditingAuthor(escritor);
     setFormData({ ...escritor });
     setShowModal(true);
   };
 
   const handleDelete = async (id) => {
+    const autor = escritores.find(e => e.id === id);
+    if (!canEditAuthor(autor)) {
+      alert('No tienes permisos para eliminar este autor');
+      return;
+    }
     if (window.confirm("¿Estás seguro de que deseas eliminar este escritor?")) {
       try {
         setLoading(true);
@@ -177,6 +284,7 @@ const Escritores = () => {
       idiomaPrincipal: "",
       redesSociales: ""
     });
+    setFormErrors({});
     setShowModal(true);
   };
 
@@ -195,6 +303,7 @@ const Escritores = () => {
       idiomaPrincipal: "",
       redesSociales: ""
     });
+    setFormErrors({});
   };
 
   const handleInputChange = (e) => {
@@ -212,6 +321,14 @@ const Escritores = () => {
 
       return newData;
     });
+
+    // Limpiar error del campo cuando el usuario empiece a escribir
+    if (formErrors[name]) {
+      setFormErrors(prev => ({
+        ...prev,
+        [name]: undefined
+      }));
+    }
   };
 
   const calcularEdad = (fechaNacimiento) => {
@@ -225,6 +342,18 @@ const Escritores = () => {
       edad--;
     }
     return edad;
+  };
+
+  const toggleExpanded = (id) => {
+    setExpandedCards(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
   };
 
   return (
@@ -287,81 +416,87 @@ const Escritores = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredEscritores.map((escritor) => (
-                  <div key={escritor.id} className="card hover:shadow-lg transition-all duration-300">
-                    <div className="card-body">
-                      <div className="flex items-center gap-4 mb-4">
+                {filteredEscritores.map((escritor) => {
+                  const isExpanded = expandedCards.has(escritor.id);
+                  return (
+                    <div key={escritor.id} className="card hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={() => toggleExpanded(escritor.id)}>
+                      <div className="card-body text-center">
                         {escritor.fotografiaUrl ? (
                           <img
                             src={escritor.fotografiaUrl}
                             alt={`${escritor.nombre} ${escritor.apellido}`}
-                            className="w-12 h-12 rounded-full object-cover"
+                            className="w-24 h-24 rounded-full object-cover mx-auto mb-4"
                             onError={(e) => {
                               e.target.style.display = 'none';
                               e.target.nextSibling.style.display = 'flex';
                             }}
                           />
                         ) : null}
-                        <div className={`w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-bold text-lg ${escritor.fotografiaUrl ? 'hidden' : ''}`}>
+                        <div className={`w-24 h-24 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 ${escritor.fotografiaUrl ? 'hidden' : ''}`}>
                           {escritor.nombre?.charAt(0)}{escritor.apellido?.charAt(0)}
                         </div>
-                        <div>
-                          <h3 className="text-lg font-semibold">
-                            {escritor.nombre} {escritor.apellido}
-                          </h3>
-                          <p className="text-sm text-muted">{escritor.nacionalidad}</p>
-                          {escritor.idiomaPrincipal && (
-                            <p className="text-xs text-muted">{escritor.idiomaPrincipal}</p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="space-y-2 mb-4">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted">Género:</span>
-                          <span>{escritor.generoLiterario}</span>
-                        </div>
-                        {escritor.premiosRecomendaciones && (
-                          <div className="text-sm">
-                            <span className="text-muted">Premios:</span>
-                            <p className="line-clamp-1 mt-1 text-xs">{escritor.premiosRecomendaciones}</p>
-                          </div>
+                        <h3 className="text-lg font-semibold mb-2">
+                          {escritor.nombre} {escritor.apellido}
+                        </h3>
+                        {isExpanded && (
+                          <>
+                            <p className="text-sm text-muted mb-2">{escritor.nacionalidad}</p>
+                            {escritor.idiomaPrincipal && (
+                              <p className="text-xs text-muted mb-4">{escritor.idiomaPrincipal}</p>
+                            )}
+                            <div className="space-y-2 mb-4">
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted">Género:</span>
+                                <span>{escritor.generoLiterario}</span>
+                              </div>
+                              {escritor.premiosRecomendaciones && (
+                                <div className="text-sm">
+                                  <span className="text-muted">Premios:</span>
+                                  <p className="line-clamp-1 mt-1 text-xs">{escritor.premiosRecomendaciones}</p>
+                                </div>
+                              )}
+                              {escritor.obrasDestacadas && (
+                                <div className="text-sm">
+                                  <span className="text-muted">Obras:</span>
+                                  <p className="line-clamp-2 mt-1">{escritor.obrasDestacadas}</p>
+                                </div>
+                              )}
+                            </div>
+                            {escritor.biografia && (
+                              <p className="text-sm text-muted mb-4 line-clamp-3">
+                                {escritor.biografia}
+                              </p>
+                            )}
+                            {escritor.redesSociales && (
+                              <div className="text-xs text-accent mb-2">
+                                🌐 Redes sociales disponibles
+                              </div>
+                            )}
+                            <div className="flex gap-2">
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handleEdit(escritor); }}
+                                className="btn btn-secondary flex-1"
+                                style={{ fontSize: '0.8rem', padding: '0.5rem' }}
+                                disabled={!canEditAuthor(escritor)}
+                              >
+                                Editar
+                              </button>
+                              {canEditAuthor(escritor) && (
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); handleDelete(escritor.id); }}
+                                  className="btn btn-danger"
+                                  style={{ fontSize: '0.8rem', padding: '0.5rem' }}
+                                >
+                                  🗑️
+                                </button>
+                              )}
+                            </div>
+                          </>
                         )}
-                        {escritor.obrasDestacadas && (
-                          <div className="text-sm">
-                            <span className="text-muted">Obras:</span>
-                            <p className="line-clamp-2 mt-1">{escritor.obrasDestacadas}</p>
-                          </div>
-                        )}
-                      </div>
-                      {escritor.biografia && (
-                        <p className="text-sm text-muted mb-4 line-clamp-3">
-                          {escritor.biografia}
-                        </p>
-                      )}
-                      {escritor.redesSociales && (
-                        <div className="text-xs text-accent mb-2">
-                          🌐 Redes sociales disponibles
-                        </div>
-                      )}
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleEdit(escritor)}
-                          className="btn btn-secondary flex-1"
-                          style={{ fontSize: '0.8rem', padding: '0.5rem' }}
-                        >
-                          Editar
-                        </button>
-                        <button
-                          onClick={() => handleDelete(escritor.id)}
-                          className="btn btn-danger"
-                          style={{ fontSize: '0.8rem', padding: '0.5rem' }}
-                        >
-                          🗑️
-                        </button>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -391,9 +526,12 @@ const Escritores = () => {
                       required
                       value={formData.nombre}
                       onChange={handleInputChange}
-                      className="form-input"
+                      className={`form-input ${formErrors.nombre ? 'border-error' : ''}`}
                       placeholder="Nombre del escritor"
                     />
+                    {formErrors.nombre && (
+                      <div className="text-error text-sm mt-1">{formErrors.nombre}</div>
+                    )}
                   </div>
                   <div className="form-group">
                     <label htmlFor="apellido" className="form-label">Apellido *</label>
@@ -404,9 +542,12 @@ const Escritores = () => {
                       required
                       value={formData.apellido}
                       onChange={handleInputChange}
-                      className="form-input"
+                      className={`form-input ${formErrors.apellido ? 'border-error' : ''}`}
                       placeholder="Apellido del escritor"
                     />
+                    {formErrors.apellido && (
+                      <div className="text-error text-sm mt-1">{formErrors.apellido}</div>
+                    )}
                   </div>
 
                   {/* Ubicación e idioma */}
@@ -418,7 +559,7 @@ const Escritores = () => {
                       required
                       value={formData.nacionalidad}
                       onChange={handleInputChange}
-                      className="form-input"
+                      className={`form-input ${formErrors.nacionalidad ? 'border-error' : ''}`}
                     >
                       <option value="">Seleccionar nacionalidad</option>
                       {nacionalidades.map(pais => (
@@ -434,7 +575,7 @@ const Escritores = () => {
                       required
                       value={formData.idiomaPrincipal}
                       onChange={handleInputChange}
-                      className="form-input"
+                      className={`form-input ${formErrors.idiomaPrincipal ? 'border-error' : ''}`}
                     >
                       <option value="">Seleccionar idioma</option>
                       {formData.nacionalidad && idiomasPorPais[formData.nacionalidad] ?
@@ -457,7 +598,7 @@ const Escritores = () => {
                       required
                       value={formData.generoLiterario}
                       onChange={handleInputChange}
-                      className="form-input"
+                      className={`form-input ${formErrors.generoLiterario ? 'border-error' : ''}`}
                     >
                       <option value="">Seleccionar género</option>
                       {generosLiterarios.map(genero => (
@@ -489,9 +630,12 @@ const Escritores = () => {
                       value={formData.obrasDestacadas}
                       onChange={handleInputChange}
                       rows="3"
-                      className="form-input"
+                      className={`form-input ${formErrors.obrasDestacadas ? 'border-error' : ''}`}
                       placeholder="Lista las obras más importantes separadas por comas..."
                     />
+                    {formErrors.obrasDestacadas && (
+                      <div className="text-error text-sm mt-1">{formErrors.obrasDestacadas}</div>
+                    )}
                   </div>
 
                   <div className="form-group md:col-span-2">
@@ -502,9 +646,12 @@ const Escritores = () => {
                       value={formData.premiosRecomendaciones}
                       onChange={handleInputChange}
                       rows="2"
-                      className="form-input"
+                      className={`form-input ${formErrors.premiosRecomendaciones ? 'border-error' : ''}`}
                       placeholder="Premios literarios, reconocimientos, recomendaciones..."
                     />
+                    {formErrors.premiosRecomendaciones && (
+                      <div className="text-error text-sm mt-1">{formErrors.premiosRecomendaciones}</div>
+                    )}
                   </div>
 
                   <div className="form-group md:col-span-2">
@@ -515,9 +662,12 @@ const Escritores = () => {
                       value={formData.biografia}
                       onChange={handleInputChange}
                       rows="4"
-                      className="form-input"
+                      className={`form-input ${formErrors.biografia ? 'border-error' : ''}`}
                       placeholder="Biografía completa del escritor..."
                     />
+                    {formErrors.biografia && (
+                      <div className="text-error text-sm mt-1">{formErrors.biografia}</div>
+                    )}
                   </div>
 
                   <div className="form-group md:col-span-2">
@@ -528,9 +678,12 @@ const Escritores = () => {
                       value={formData.redesSociales}
                       onChange={handleInputChange}
                       rows="2"
-                      className="form-input"
+                      className={`form-input ${formErrors.redesSociales ? 'border-error' : ''}`}
                       placeholder="Enlaces a redes sociales, sitio web, portafolio..."
                     />
+                    {formErrors.redesSociales && (
+                      <div className="text-error text-sm mt-1">{formErrors.redesSociales}</div>
+                    )}
                   </div>
                 </div>
               </div>

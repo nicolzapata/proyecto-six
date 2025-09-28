@@ -2,12 +2,12 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // Helper para manejar respuestas
 const handleResponse = async (response) => {
-  if (!response.ok) {
-    const error = await response.json();
-    console.error('Error en respuesta:', response.status, error);
-    throw new Error(error.message || 'Error en la petición');
+  const data = await response.json();
+  if (!response.ok || data.error) {
+    console.error('Error en respuesta:', response.status, data);
+    throw new Error(data.message || data.error || 'Error en la petición');
   }
-  return response.json();
+  return data;
 };
 
 // Helper para obtener headers con credenciales
@@ -188,8 +188,11 @@ export const usersAPI = {
 
 export const loansAPI = {
   getAll: async (params = '') => {
+    console.log('DEBUG: loansAPI.getAll called with params:', params);
     const response = await authenticatedFetch(`${API_URL}/loans${params}`);
-    return handleResponse(response);
+    const result = await handleResponse(response);
+    console.log('DEBUG: loansAPI.getAll response:', result);
+    return result;
   },
 
   getById: async (id) => {

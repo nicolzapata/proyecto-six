@@ -1,6 +1,7 @@
 // src/pages/Libros.jsx
 import { useState, useEffect } from "react";
 import { booksAPI } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 import LoadingSpinner from "../components/Common/LoadingSpinner";
 import {
   validateISBN,
@@ -11,13 +12,18 @@ import {
 } from "../utils/validators";
 
 const Libros = () => {
+  const { user } = useAuth();
   const [libros, setLibros] = useState([]);
+  const [authors, setAuthors] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editingBook, setEditingBook] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedBook, setSelectedBook] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterGenre, setFilterGenre] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [formData, setFormData] = useState({
     titulo: "",
     autor: "",
@@ -25,25 +31,59 @@ const Libros = () => {
     genero: "",
     fechaPublicacion: "",
     disponible: true,
-    descripcion: ""
+    descripcion: "",
+    imagen: ""
   });
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const generos = [
-    "Ficción", "No ficción", "Ciencia ficción", "Fantasía", "Misterio", 
+    "Ficción", "No ficción", "Ciencia ficción", "Fantasía", "Misterio",
     "Romance", "Thriller", "Historia", "Biografía", "Ciencia", "Filosofía", "Poesía"
   ];
 
+  // Función para mapear datos del frontend al formato del backend
+  const mapToBackend = (formData, isUpdate = false) => {
+    let authorValue = formData.autor;
+    if (isUpdate) {
+      // Para update, enviar el ID del autor
+      const authorObj = authors.find(a => a.name === formData.autor);
+      authorValue = authorObj ? authorObj._id : formData.autor; // fallback si no encuentra
+    }
+    return {
+      title: formData.titulo,
+      author: authorValue,
+      isbn: formData.isbn,
+      genre: formData.genero,
+      publicationDate: formData.fechaPublicacion || null,
+      availableCopies: formData.disponible ? 1 : 0,
+      description: formData.descripcion,
+      image: formData.imagen
+    };
+  };
+
   useEffect(() => {
     loadLibros();
+    loadAuthors();
   }, []);
+
+  const loadAuthors = async () => {
+    try {
+      const authorsData = await authorsAPI.getAll();
+      const authorsArray = Array.isArray(authorsData) ? authorsData : (authorsData.authors || []);
+      setAuthors(authorsArray);
+    } catch (err) {
+      console.error('Error loading authors:', err);
+    }
+  };
 
   const loadLibros = async () => {
     try {
       setLoading(true);
       setError(null);
+      console.log('Cargando libros...');
       const librosData = await booksAPI.getAll();
+      console.log('Datos recibidos del backend:', librosData);
       // Verificar que librosData sea un array
       const librosArray = Array.isArray(librosData) ? librosData : (librosData.books || []);
       // Mapear los campos del backend al formato del frontend
@@ -56,8 +96,12 @@ const Libros = () => {
         fechaPublicacion: libro.publicationDate || '',
         disponible: libro.availableCopies > 0,
         descripcion: libro.description || '',
-        fechaCreacion: libro.createdAt
+        imagen: libro.image || libro.cover || '', // Agregar campo imagen si existe
+        fechaCreacion: libro.createdAt,
+        createdBy: libro.createdBy || libro.userId // Asumir que el backend incluye createdBy o userId
       }));
+      console.log('Libros mapeados:', mappedLibros);
+      console.log('DEBUG Libros: Imágenes en libros del backend:', librosArray.map(l => ({ id: l._id, image: l.image, cover: l.cover })));
       setLibros(mappedLibros);
     } catch (err) {
       setError('Error al cargar los libros: ' + err.message);
@@ -69,8 +113,8 @@ const Libros = () => {
 
   const filteredLibros = libros.filter(libro => {
     const matchesSearch = libro.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         libro.autor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         libro.isbn.includes(searchTerm);
+                          libro.autor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          libro.isbn.includes(searchTerm);
     const matchesGenre = !filterGenre || libro.genero === filterGenre;
     return matchesSearch && matchesGenre;
   });
@@ -107,6 +151,10 @@ const Libros = () => {
     const fechaValidation = validateFechaPublicacion(formData.fechaPublicacion);
     if (!fechaValidation.isValid) errors.fechaPublicacion = fechaValidation.error;
 
+    // Validar imagen
+    const imagenValidation = validateRequired(formData.imagen, "Imagen");
+    if (!imagenValidation.isValid) errors.imagen = imagenValidation.error;
+
     // Validar descripción
     const descMaxLength = validateMaxLength(formData.descripcion, 1000, "Descripción");
     if (!descMaxLength.isValid) errors.descripcion = descMaxLength.error;
@@ -125,22 +173,37 @@ const Libros = () => {
     setIsSubmitting(true);
 
     try {
+      const isUpdate = !!editingBook;
+      const backendData = mapToBackend(formData, isUpdate);
+      console.log('DEBUG Libros: isUpdate:', isUpdate);
+      console.log('DEBUG Libros: backendData:', backendData);
+      console.log('DEBUG Libros: imagen en formData:', formData.imagen);
       if (editingBook) {
         // Editar libro existente
-        await booksAPI.update(editingBook.id, formData);
+        console.log('DEBUG Libros: updating book id:', editingBook.id);
+        const response = await booksAPI.update(editingBook.id, backendData);
+        console.log('DEBUG Libros: update response:', response);
+        setSuccess('Libro actualizado exitosamente');
       } else {
         // Crear nuevo libro
-        await booksAPI.create(formData);
+        const response = await booksAPI.create(backendData);
+        console.log('DEBUG Libros: create response:', response);
+        setSuccess('Libro creado exitosamente');
       }
 
       await loadLibros();
       closeModal();
     } catch (error) {
-      console.error('Error al guardar libro:', error);
+      console.error('DEBUG Libros: Error:', error);
       setError('Error al guardar el libro: ' + error.message);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleViewDetail = (libro) => {
+    setSelectedBook(libro);
+    setShowDetailModal(true);
   };
 
   const handleEdit = (libro) => {
@@ -155,6 +218,7 @@ const Libros = () => {
         setLoading(true);
         setError(null);
         await booksAPI.delete(id);
+        setSuccess('Libro eliminado exitosamente');
         await loadLibros();
       } catch (err) {
         setError('Error al eliminar el libro: ' + err.message);
@@ -171,7 +235,7 @@ const Libros = () => {
       setError(null);
       const libro = libros.find(l => l.id === id);
       if (libro) {
-        await booksAPI.update(id, { disponible: !libro.disponible });
+        await booksAPI.update(id, { availableCopies: libro.disponible ? 0 : 1 });
         await loadLibros();
       }
     } catch (err) {
@@ -191,7 +255,8 @@ const Libros = () => {
       genero: "",
       fechaPublicacion: "",
       disponible: true,
-      descripcion: ""
+      descripcion: "",
+      imagen: ""
     });
     setFormErrors({});
     setShowModal(true);
@@ -207,9 +272,12 @@ const Libros = () => {
       genero: "",
       fechaPublicacion: "",
       disponible: true,
-      descripcion: ""
+      descripcion: "",
+      imagen: ""
     });
     setFormErrors({});
+    setSuccess(null);
+    setError(null);
   };
 
   const handleInputChange = (e) => {
@@ -226,6 +294,10 @@ const Libros = () => {
         [name]: undefined
       }));
     }
+  };
+
+  const canEditBook = (libro) => {
+    return user?.role === 'admin' || libro.createdBy === user?._id;
   };
 
   const librosDisponibles = libros.filter(libro => libro.disponible).length;
@@ -328,71 +400,27 @@ const Libros = () => {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {filteredLibros.map((libro) => (
-                  <div key={libro.id} className="card hover:shadow-lg transition-all duration-300">
-                    <div className="card-body">
-                      <div className="flex flex-col sm:flex-row justify-between items-start mb-3 gap-2">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-base sm:text-lg font-semibold mb-1 line-clamp-2">
-                            {libro.titulo}
-                          </h3>
-                          <p className="text-muted text-sm mb-2">por {libro.autor}</p>
-                        </div>
-                        <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium self-start ${
-                          libro.disponible
-                            ? 'bg-success-50 text-success-600'
-                            : 'bg-error-50 text-error-600'
-                        }`}>
-                          {libro.disponible ? 'Disponible' : 'Prestado'}
-                        </span>
-                      </div>
-
-                      <div className="space-y-2 mb-4">
-                        <div className="flex flex-col sm:flex-row justify-between text-sm gap-1">
-                          <span className="text-muted">ISBN:</span>
-                          <span className="break-all">{libro.isbn}</span>
-                        </div>
-                        <div className="flex flex-col sm:flex-row justify-between text-sm gap-1">
-                          <span className="text-muted">Género:</span>
-                          <span>{libro.genero}</span>
-                        </div>
-                        <div className="flex flex-col sm:flex-row justify-between text-sm gap-1">
-                          <span className="text-muted">Publicación:</span>
-                          <span>{new Date(libro.fechaPublicacion).toLocaleDateString('es-ES')}</span>
+                  <div key={libro.id} className="card hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={() => handleViewDetail(libro)}>
+                    <div className="card-body text-center">
+                      <div className="mb-4">
+                        {libro.imagen ? (
+                          <img
+                            src={libro.imagen}
+                            alt={libro.titulo}
+                            className="w-full h-48 object-cover rounded-lg mb-4"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                        ) : null}
+                        <div className={`w-full h-48 bg-gradient-to-br from-primary-400 to-primary-600 rounded-lg flex items-center justify-center text-white font-bold text-4xl mb-4 ${libro.imagen ? 'hidden' : ''}`}>
+                          📖
                         </div>
                       </div>
-
-                      {libro.descripcion && (
-                        <p className="text-sm text-muted mb-4 line-clamp-3">
-                          {libro.descripcion}
-                        </p>
-                      )}
-
-                      <div className="flex gap-1 sm:gap-2 flex-wrap">
-                        <button
-                          onClick={() => handleEdit(libro)}
-                          className="btn btn-secondary flex-1 text-xs sm:text-sm"
-                          style={{ padding: '0.4rem 0.6rem' }}
-                          disabled={loading}
-                        >
-                          Editar
-                        </button>
-                        <button
-                          onClick={() => toggleDisponibilidad(libro.id)}
-                          className={`btn flex-1 text-xs sm:text-sm ${libro.disponible ? 'btn-warning' : 'btn-success'}`}
-                          style={{ padding: '0.4rem 0.6rem' }}
-                          disabled={loading}
-                        >
-                          {libro.disponible ? 'Prestar' : 'Devolver'}
-                        </button>
-                        <button
-                          onClick={() => handleDelete(libro.id)}
-                          className="btn btn-danger text-xs sm:text-sm"
-                          style={{ padding: '0.4rem 0.6rem' }}
-                          disabled={loading}
-                        >
-                          🗑️
-                        </button>
-                      </div>
+                      <h3 className="text-lg font-semibold line-clamp-2">
+                        {libro.titulo}
+                      </h3>
                     </div>
                   </div>
                 ))}
@@ -528,6 +556,34 @@ const Libros = () => {
                     placeholder="Breve descripción del libro..."
                   ></textarea>
                 </div>
+
+                <div className="form-group">
+                  <label htmlFor="imagen" className="form-label">
+                    URL de la Imagen *
+                  </label>
+                  <input
+                    type="url"
+                    id="imagen"
+                    name="imagen"
+                    required
+                    value={formData.imagen}
+                    onChange={handleInputChange}
+                    className={`form-input ${formErrors.imagen ? 'border-error' : ''}`}
+                    placeholder="https://ejemplo.com/imagen.jpg"
+                    disabled={isSubmitting}
+                  />
+                  {formErrors.imagen && (
+                    <div className="text-error text-sm mt-1">{formErrors.imagen}</div>
+                  )}
+                </div>
+
+                {success && (
+                  <div className="mt-4">
+                    <div className="alert alert-success">
+                      {success}
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="modal-footer" style={{ justifyContent: 'space-between' }}>
                 <button type="button" onClick={closeModal} className="btn btn-secondary" disabled={isSubmitting}>
@@ -545,6 +601,118 @@ const Libros = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de detalle del libro */}
+      {showDetailModal && selectedBook && (
+        <div className="modal-overlay" onClick={() => setShowDetailModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 className="modal-title">Detalles del Libro</h3>
+              <button onClick={() => setShowDetailModal(false)} className="modal-close">×</button>
+            </div>
+            <div className="modal-body" style={{ padding: '2rem' }}>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Imagen del libro */}
+                <div className="flex justify-center">
+                  {selectedBook.imagen ? (
+                    <img
+                      src={selectedBook.imagen}
+                      alt={`${selectedBook.titulo} - ${selectedBook.autor}`}
+                      className="w-full max-w-sm h-auto object-cover rounded-lg shadow-lg"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+                  <div className={`w-full max-w-sm h-96 bg-gradient-to-br from-primary-400 to-primary-600 rounded-lg flex items-center justify-center text-white font-bold text-4xl ${selectedBook.imagen ? 'hidden' : ''}`}>
+                    📖
+                  </div>
+                </div>
+
+                {/* Información del libro */}
+                <div className="space-y-4">
+                  <div>
+                    <h2 className="text-2xl font-bold mb-2">{selectedBook.titulo}</h2>
+                    <p className="text-lg text-muted">por {selectedBook.autor}</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="font-semibold">ISBN:</span>
+                      <span>{selectedBook.isbn || 'No disponible'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-semibold">Género:</span>
+                      <span>{selectedBook.genero}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-semibold">Fecha de Publicación:</span>
+                      <span>{selectedBook.fechaPublicacion ? new Date(selectedBook.fechaPublicacion).toLocaleDateString('es-ES') : 'No disponible'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-semibold">Estado:</span>
+                      <span className={`px-2 py-1 rounded text-sm font-medium ${
+                        selectedBook.disponible
+                          ? 'bg-success-50 text-success-600'
+                          : 'bg-error-50 text-error-600'
+                      }`}>
+                        {selectedBook.disponible ? 'Disponible' : 'Prestado'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {selectedBook.descripcion && (
+                    <div>
+                      <h4 className="font-semibold mb-2">Descripción:</h4>
+                      <p className="text-muted">{selectedBook.descripcion}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer flex gap-2 flex-wrap">
+              <button onClick={() => setShowDetailModal(false)} className="btn btn-secondary">
+                Cerrar
+              </button>
+              {canEditBook(selectedBook) && (
+                <button
+                  onClick={() => {
+                    setShowDetailModal(false);
+                    handleEdit(selectedBook);
+                  }}
+                  className="btn btn-secondary"
+                  disabled={loading}
+                >
+                  Editar
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  setShowDetailModal(false);
+                  toggleDisponibilidad(selectedBook.id);
+                }}
+                className={`btn ${selectedBook.disponible ? 'btn-warning' : 'btn-success'}`}
+                disabled={loading}
+              >
+                {selectedBook.disponible ? 'Prestar' : 'Devolver'}
+              </button>
+              {canEditBook(selectedBook) && (
+                <button
+                  onClick={() => {
+                    setShowDetailModal(false);
+                    handleDelete(selectedBook.id);
+                  }}
+                  className="btn btn-danger"
+                  disabled={loading}
+                >
+                  🗑️ Eliminar
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}

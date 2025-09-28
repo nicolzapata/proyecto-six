@@ -92,16 +92,12 @@ export const validateFechaPublicacion = (fecha) => {
   }
 
   const fechaObj = new Date(fecha);
-  const hoy = new Date();
 
   if (isNaN(fechaObj.getTime())) {
     return { isValid: false, error: 'Fecha inválida' };
   }
 
-  if (fechaObj > hoy) {
-    return { isValid: false, error: 'La fecha de publicación no puede ser futura' };
-  }
-
+  // Permitir fechas futuras (libros no publicados aún)
   // No permitir fechas anteriores a 1450 (inventó de la imprenta)
   const fechaMinima = new Date('1450-01-01');
   if (fechaObj < fechaMinima) {

@@ -39,11 +39,13 @@ const Prestamos = () => {
     try {
       setLoading(true);
       setError(null);
+      console.log('DEBUG: Prestamos loadData - Starting to fetch data');
       const [prestamosRes, usuariosRes, librosRes] = await Promise.all([
         loansAPI.getAll(),
         usersAPI.getAll(),
         booksAPI.getAll()
       ]);
+      console.log('DEBUG: Prestamos loadData - Raw responses:', { prestamosRes, usuariosRes, librosRes });
 
       // Mapear préstamos
       const prestamosArray = Array.isArray(prestamosRes) ? prestamosRes : (prestamosRes.loans || []);
@@ -78,6 +80,7 @@ const Prestamos = () => {
       setPrestamos(mappedPrestamos);
       setUsuarios(mappedUsuarios);
       setLibros(mappedLibros);
+      console.log('DEBUG: Prestamos loadData - Final data:', { mappedPrestamos, mappedUsuarios, mappedLibros });
     } catch (err) {
       setError('Error al cargar los datos: ' + err.message);
       console.error('Error loading data:', err);
