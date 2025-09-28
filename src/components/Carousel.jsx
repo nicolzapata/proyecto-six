@@ -43,21 +43,6 @@ const Carousel = () => {
     return () => clearInterval(interval);
   }, [images.length]);
 
-  const goToSlide = (index) => {
-    setCurrentIndex(index);
-  };
-
-  const nextSlide = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === images.length - 1 ? 0 : prevIndex + 1
-    );
-  };
-
-  const prevSlide = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? images.length - 1 : prevIndex - 1
-    );
-  };
 
   return (
     <div className="carousel-enhanced relative w-full overflow-hidden rounded-lg shadow-lg bg-gray-200">

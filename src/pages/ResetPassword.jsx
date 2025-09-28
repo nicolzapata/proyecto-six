@@ -32,7 +32,7 @@ const ResetPassword = () => {
     const newErrors = { ...validationErrors };
 
     switch (name) {
-      case 'email':
+      case 'email': {
         const emailValidation = validateEmail(value);
         if (emailValidation.isValid) {
           delete newErrors.email;
@@ -40,7 +40,8 @@ const ResetPassword = () => {
           newErrors.email = emailValidation.error;
         }
         break;
-      case 'code':
+      }
+      case 'code': {
         const codeValidation = validateResetCode(value);
         if (codeValidation.isValid) {
           delete newErrors.code;
@@ -48,7 +49,8 @@ const ResetPassword = () => {
           newErrors.code = codeValidation.error;
         }
         break;
-      case 'newPassword':
+      }
+      case 'newPassword': {
         const passwordValidation = validatePassword(value);
         if (passwordValidation.isValid) {
           delete newErrors.newPassword;
@@ -65,7 +67,8 @@ const ResetPassword = () => {
           }
         }
         break;
-      case 'confirmPassword':
+      }
+      case 'confirmPassword': {
         const matchValidation = validatePasswordMatch(formData.newPassword, value);
         if (matchValidation.isValid) {
           delete newErrors.confirmPassword;
@@ -73,6 +76,7 @@ const ResetPassword = () => {
           newErrors.confirmPassword = matchValidation.error;
         }
         break;
+      }
     }
 
     setValidationErrors(newErrors);

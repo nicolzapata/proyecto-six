@@ -173,7 +173,7 @@ export const validateTelefono = (telefono) => {
   }
 
   // Remover espacios, guiones y paréntesis
-  const cleanPhone = telefono.replace(/[\s\-\(\)]/g, '');
+  const cleanPhone = telefono.replace(/[\s\-()]/g, '');
 
   // Validar que solo contenga números y opcionalmente +
   if (!/^\+?\d{7,15}$/.test(cleanPhone)) {
@@ -189,7 +189,7 @@ export const validateIdentificacion = (identificacion, tipo) => {
   }
 
   // Remover espacios y puntos
-  const cleanId = identificacion.replace(/[\s\.]/g, '');
+  const cleanId = identificacion.replace(/[\s.]/g, '');
 
   switch (tipo) {
     case 'Cédula de Ciudadanía':

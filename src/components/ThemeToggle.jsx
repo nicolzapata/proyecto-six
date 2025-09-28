@@ -4,7 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 import '../styles/components/themeToggle.css';
 
 const ThemeToggle = ({ className = '' }) => {
-  const { theme, toggleTheme, isDark } = useTheme();
+  const { toggleTheme, isDark } = useTheme();
 
   return (
     <button

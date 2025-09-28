@@ -1,6 +1,13 @@
 // ===== src/pages/Profile.jsx =====
 import { useAuth } from "../context/AuthContext";
 import { useState, useEffect } from "react";
+import { usersAPI } from "../services/api";
+import {
+  validateEmail,
+  validateMinLength,
+  validateMaxLength,
+  validateTelefono
+} from "../utils/validators";
 
 export default function Profile() {
   const { user, login } = useAuth();
@@ -8,6 +15,8 @@ export default function Profile() {
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+  const [formErrors, setFormErrors] = useState({});
+  const [hasChanges, setHasChanges] = useState(false);
 
   const [formData, setFormData] = useState({
     username: user?.username || user?.name || '',
@@ -32,11 +41,57 @@ export default function Profile() {
     }
   }, [user]);
 
+  const validateForm = () => {
+    const errors = {};
+
+    // Validar username
+    const usernameMin = validateMinLength(formData.username, 3, "Nombre de usuario");
+    if (!usernameMin.isValid) errors.username = usernameMin.error;
+
+    const usernameMax = validateMaxLength(formData.username, 50, "Nombre de usuario");
+    if (!usernameMax.isValid) errors.username = usernameMax.error;
+
+    // Validar email
+    const emailValidation = validateEmail(formData.email);
+    if (!emailValidation.isValid) errors.email = emailValidation.error;
+
+    // Validar nombre
+    if (formData.nombre) {
+      const nombreMax = validateMaxLength(formData.nombre, 100, "Nombre");
+      if (!nombreMax.isValid) errors.nombre = nombreMax.error;
+    }
+
+    // Validar apellido
+    if (formData.apellido) {
+      const apellidoMax = validateMaxLength(formData.apellido, 100, "Apellido");
+      if (!apellidoMax.isValid) errors.apellido = apellidoMax.error;
+    }
+
+    // Validar teléfono
+    if (formData.telefono) {
+      const telefonoValidation = validateTelefono(formData.telefono);
+      if (!telefonoValidation.isValid) errors.telefono = telefonoValidation.error;
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+
+    setHasChanges(true);
+
+    // Limpiar error del campo
+    if (formErrors[e.target.name]) {
+      setFormErrors(prev => ({
+        ...prev,
+        [e.target.name]: undefined
+      }));
+    }
   };
 
   const handleFileChange = (e) => {
@@ -48,6 +103,7 @@ export default function Profile() {
           ...formData,
           foto: e.target.result
         });
+        setHasChanges(true);
       };
       reader.readAsDataURL(file);
     }
@@ -64,10 +120,16 @@ export default function Profile() {
     });
     setError("");
     setSuccess("");
+    setHasChanges(false);
     setShowEditModal(true);
   };
 
   const closeEditModal = () => {
+    if (hasChanges) {
+      if (!window.confirm("Tienes cambios sin guardar. ¿Estás seguro de que quieres cerrar sin guardar?")) {
+        return;
+      }
+    }
     setShowEditModal(false);
     setError("");
     setSuccess("");
@@ -77,30 +139,22 @@ export default function Profile() {
     e.preventDefault();
     setError("");
     setSuccess("");
+
+    if (!validateForm()) {
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      // Simular delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Obtener usuarios del localStorage
-      const users = JSON.parse(localStorage.getItem("users") || "[]");
-
-      // Encontrar y actualizar el usuario actual
-      const updatedUsers = users.map(u =>
-        u.id === user.id
-          ? { ...u, ...formData }
-          : u
-      );
-
-      // Guardar en localStorage
-      localStorage.setItem("users", JSON.stringify(updatedUsers));
+      const response = await usersAPI.update(user.id, formData);
+      console.log('Perfil actualizado:', response);
 
       // Actualizar el contexto de autenticación
-      const updatedUser = updatedUsers.find(u => u.id === user.id);
-      login(updatedUser);
+      login(response.user || response);
 
       setSuccess("¡Perfil actualizado exitosamente!");
+      setHasChanges(false);
       setTimeout(() => {
         closeEditModal();
       }, 2000);
@@ -133,7 +187,7 @@ export default function Profile() {
                 </div>
               </div>
 
-              {user || true ? (
+              {user ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                   {/* Información de Cuenta */}
                   <div key="account-info">
@@ -214,6 +268,12 @@ export default function Profile() {
                   </div>
                 )}
 
+                {hasChanges && (
+                  <div className="alert alert-warning animate-slide-down mb-6">
+                    ⚠️ Tienes cambios sin guardar. Recuerda guardar antes de cerrar.
+                  </div>
+                )}
+
                 <div className="flex flex-col gap-12">
                   <div className="form-group">
                     <label htmlFor="edit-username" className="form-label">Nombre de Usuario *</label>
@@ -224,10 +284,13 @@ export default function Profile() {
                       required
                       value={formData.username}
                       onChange={handleInputChange}
-                      className="form-input"
+                      className={`form-input ${formErrors.username ? 'border-error' : ''}`}
                       placeholder="Nombre de usuario"
                       disabled={isLoading}
                     />
+                    {formErrors.username && (
+                      <div className="text-error text-sm mt-1">{formErrors.username}</div>
+                    )}
                   </div>
 
                   <div className="form-group">
@@ -239,10 +302,13 @@ export default function Profile() {
                       required
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="form-input"
+                      className={`form-input ${formErrors.email ? 'border-error' : ''}`}
                       placeholder="correo@ejemplo.com"
                       disabled={isLoading}
                     />
+                    {formErrors.email && (
+                      <div className="text-error text-sm mt-1">{formErrors.email}</div>
+                    )}
                   </div>
 
 
@@ -254,10 +320,13 @@ export default function Profile() {
                       name="nombre"
                       value={formData.nombre}
                       onChange={handleInputChange}
-                      className="form-input"
+                      className={`form-input ${formErrors.nombre ? 'border-error' : ''}`}
                       placeholder="Nombre"
                       disabled={isLoading}
                     />
+                    {formErrors.nombre && (
+                      <div className="text-error text-sm mt-1">{formErrors.nombre}</div>
+                    )}
                   </div>
 
                   <div className="form-group">
@@ -268,10 +337,13 @@ export default function Profile() {
                       name="apellido"
                       value={formData.apellido}
                       onChange={handleInputChange}
-                      className="form-input"
+                      className={`form-input ${formErrors.apellido ? 'border-error' : ''}`}
                       placeholder="Apellido"
                       disabled={isLoading}
                     />
+                    {formErrors.apellido && (
+                      <div className="text-error text-sm mt-1">{formErrors.apellido}</div>
+                    )}
                   </div>
 
                   <div className="form-group">
@@ -282,10 +354,13 @@ export default function Profile() {
                       name="telefono"
                       value={formData.telefono}
                       onChange={handleInputChange}
-                      className="form-input"
+                      className={`form-input ${formErrors.telefono ? 'border-error' : ''}`}
                       placeholder="Número de teléfono"
                       disabled={isLoading}
                     />
+                    {formErrors.telefono && (
+                      <div className="text-error text-sm mt-1">{formErrors.telefono}</div>
+                    )}
                   </div>
 
                   <div className="form-group">

@@ -1,6 +1,6 @@
 // src/pages/Libros.jsx
 import { useState, useEffect } from "react";
-import { booksAPI } from "../services/api";
+import { booksAPI, authorsAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import LoadingSpinner from "../components/Common/LoadingSpinner";
 import {
@@ -151,9 +151,6 @@ const Libros = () => {
     const fechaValidation = validateFechaPublicacion(formData.fechaPublicacion);
     if (!fechaValidation.isValid) errors.fechaPublicacion = fechaValidation.error;
 
-    // Validar imagen
-    const imagenValidation = validateRequired(formData.imagen, "Imagen");
-    if (!imagenValidation.isValid) errors.imagen = imagenValidation.error;
 
     // Validar descripción
     const descMaxLength = validateMaxLength(formData.descripcion, 1000, "Descripción");
@@ -467,16 +464,21 @@ const Libros = () => {
                     <label htmlFor="autor" className="form-label">
                       Autor *
                     </label>
-                    <input
-                      type="text"
+                    <select
                       id="autor"
                       name="autor"
                       required
                       value={formData.autor}
                       onChange={handleInputChange}
                       className="form-input"
-                      placeholder="Nombre del autor"
-                    />
+                    >
+                      <option value="">Seleccionar autor</option>
+                      {authors.map(author => (
+                        <option key={author._id} value={author.name}>
+                          {author.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   <div className="form-group">
@@ -559,22 +561,18 @@ const Libros = () => {
 
                 <div className="form-group">
                   <label htmlFor="imagen" className="form-label">
-                    URL de la Imagen *
+                    URL de la Imagen
                   </label>
                   <input
                     type="url"
                     id="imagen"
                     name="imagen"
-                    required
                     value={formData.imagen}
                     onChange={handleInputChange}
-                    className={`form-input ${formErrors.imagen ? 'border-error' : ''}`}
+                    className="form-input"
                     placeholder="https://ejemplo.com/imagen.jpg"
                     disabled={isSubmitting}
                   />
-                  {formErrors.imagen && (
-                    <div className="text-error text-sm mt-1">{formErrors.imagen}</div>
-                  )}
                 </div>
 
                 {success && (
