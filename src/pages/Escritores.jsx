@@ -120,7 +120,7 @@ const Escritores = () => {
         nacionalidad: autor.nationality,
         generoLiterario: autor.genre || 'Novela', // Campo por defecto si no existe
         biografia: autor.biography || '',
-        fotografiaUrl: autor.photo || '',
+        fotografiaUrl: autor.photo || 'https://via.placeholder.com/150x200?text=Autor',
         obrasDestacadas: autor.works || '',
         premiosRecomendaciones: autor.awards || '',
         idiomaPrincipal: autor.language || 'Español',
@@ -421,20 +421,14 @@ const Escritores = () => {
                   return (
                     <div key={escritor.id} className="card hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={() => toggleExpanded(escritor.id)}>
                       <div className="card-body text-center">
-                        {escritor.fotografiaUrl ? (
-                          <img
-                            src={escritor.fotografiaUrl}
-                            alt={`${escritor.nombre} ${escritor.apellido}`}
-                            className="w-24 h-24 rounded-full object-cover mx-auto mb-4"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              e.target.nextSibling.style.display = 'flex';
-                            }}
-                          />
-                        ) : null}
-                        <div className={`w-24 h-24 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 ${escritor.fotografiaUrl ? 'hidden' : ''}`}>
-                          {escritor.nombre?.charAt(0)}{escritor.apellido?.charAt(0)}
-                        </div>
+                        <img
+                          src={escritor.fotografiaUrl}
+                          alt={`${escritor.nombre} ${escritor.apellido}`}
+                          className="w-32 h-32 rounded-full object-cover mx-auto mb-4"
+                          onError={(e) => {
+                            e.target.src = 'https://via.placeholder.com/150x200?text=Autor';
+                          }}
+                        />
                         <h3 className="text-lg font-semibold mb-2">
                           {escritor.nombre} {escritor.apellido}
                         </h3>
@@ -610,6 +604,16 @@ const Escritores = () => {
                   {/* Fotografía */}
                   <div className="form-group md:col-span-2">
                     <label htmlFor="fotografiaUrl" className="form-label">Fotografía (URL)</label>
+                    <div className="mb-4 flex justify-center">
+                      <img
+                        src={formData.fotografiaUrl || 'https://via.placeholder.com/150x200?text=Autor'}
+                        alt="Preview"
+                        className="w-32 h-40 object-cover rounded-lg shadow-md"
+                        onError={(e) => {
+                          e.target.src = 'https://via.placeholder.com/150x200?text=Autor';
+                        }}
+                      />
+                    </div>
                     <input
                       type="url"
                       id="fotografiaUrl"
