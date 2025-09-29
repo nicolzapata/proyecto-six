@@ -105,6 +105,10 @@ const Users = () => {
   };
 
   const handleDeleteUser = (user) => {
+    if (user.id === loggedUser.id) {
+      setError('No puedes desactivar tu propia cuenta.');
+      return;
+    }
     setUserToDelete(user);
     setShowDeleteModal(true);
   };
