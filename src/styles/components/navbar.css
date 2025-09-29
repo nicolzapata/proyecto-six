@@ -183,9 +183,9 @@
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  background: var(--bg-glass);
-  border: 1px solid var(--border-glass);
-  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  color: var(--accent-primary);
   cursor: pointer;
   transition: var(--transition-normal);
   backdrop-filter: var(--backdrop-blur);

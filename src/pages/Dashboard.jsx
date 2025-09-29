@@ -125,12 +125,12 @@ const Dashboard = () => {
 
   const StatCard = ({ title, value, subtitle, icon, color, trend, onClick, textAlign = 'center' }) => (
     <div
-      className={`card hover-lift hover-glow cursor-pointer`}
+      className={`card cursor-pointer`}
       onClick={onClick}
     >
       <div className="card-body p-4">
         <div className={`flex items-center ${textAlign === 'left' ? 'justify-start' : textAlign === 'right' ? 'justify-end' : 'justify-between'} mb-4`}>
-          <div className={`p-3 rounded-2xl bg-gradient-to-br ${color} shadow-lg`}>
+          <div className={`flex items-center justify-center p-3 rounded-2xl bg-gradient-to-br ${color} shadow-lg`}>
             <span className="text-xl">{icon}</span>
           </div>
           {trend && (
@@ -194,70 +194,30 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)]">
-      <div className="container py-8 max-w-7xl mx-auto">
+      <div className="container pt-16 pb-8 max-w-7xl mx-auto">
         {/* Header Premium */}
-        <div className="card-premium mb-8">
+        <div className="card-premium mb-32 mt-8">
           <div className="card-body">
-            <div className="flex justify-between items-start">
-              {/* Panel usuario (eliminado gestión de usuario) */}
-              <div>
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="avatar avatar-xl avatar-gradient">
-                    {user?.foto ? (
-                      <img src={user.foto} alt="Foto de perfil" className="w-full h-full object-cover rounded-full" />
-                    ) : (
-                      user?.username?.charAt(0)?.toUpperCase() || user?.name?.charAt(0)?.toUpperCase() || 'U'
-                    )}
-                  </div>
+            <div className="flex justify-center items-center">
+              {/* Panel usuario centrado */}
+              <div className="text-center">
+                <div className="mb-4">
                   <div>
                     <h1 className="text-3xl font-black text-gradient mb-2">
                       ¡Bienvenido de vuelta, {user?.username || user?.name || 'Usuario'}! 👋
-                      <div className="text-4xl font-bold text-purple-600 mt-2">CAMBIO VISIBLE</div>
                     </h1>
                     <p className="text-secondary font-medium">
-                      {user?.role === 'admin' ? '👑 Administrador del Sistema' : '📚 Bibliotecario'}
+                      {user?.role === 'admin' ? 'Administrador del Sistema' : 'Bibliotecario'}
                     </p>
                     <div className="flex items-center justify-center gap-4 mt-2 text-sm text-tertiary">
                        <span>🕒 {currentTime.toLocaleTimeString('es-ES')}</span>
-                       <span>📅 {currentTime.toLocaleDateString('es-ES', {
+                       e<span>📅 {currentTime.toLocaleDateString('es-ES', {
                          weekday: 'long',
                          year: 'numeric',
                          month: 'long',
                          day: 'numeric'
                        })}</span>
                      </div>
-                  </div>
-                </div>
-              </div>
-              {/* Panel de control rápido y resto del dashboard restaurado */}
-              <div className="text-right">
-                <div className="flex gap-2 mb-4">
-                  <button
-                    onClick={() => navigate("/profile")}
-                    className="btn btn-ghost tooltip"
-                    data-tooltip="Ver perfil"
-                  >
-                    👤
-                  </button>
-                  <button
-                    onClick={handleLogout}
-                    className="btn btn-danger tooltip"
-                    data-tooltip="Cerrar sesión"
-                  >
-                    🚪
-                  </button>
-                </div>
-                {/* Estado del sistema */}
-                <div className="bg-glass rounded-xl p-3 text-sm">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-tertiary">Estado del sistema</span>
-                    <div className="flex items-center gap-1">
-                      <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                      <span className="text-emerald-500 font-semibold">Activo</span>
-                    </div>
-                  </div>
-                  <div className="text-xs text-tertiary">
-                    Último backup: hace 2 horas
                   </div>
                 </div>
               </div>
@@ -274,7 +234,7 @@ const Dashboard = () => {
         )}
 
         {/* Grid de estadísticas principales */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 mt-8">
           <StatCard
             title="Disponibilidad"
             value={`${stats.totalLibros > 0 ? Math.round((stats.librosDisponibles / stats.totalLibros) * 100) : 0}%`}
@@ -283,7 +243,7 @@ const Dashboard = () => {
             color="from-green-400 to-emerald-500"
             trend={5}
             onClick={() => navigate("/libros")}
-            textAlign="right"
+            textAlign="center"
           />
           <StatCard
             title="Libros Prestados"
@@ -293,7 +253,7 @@ const Dashboard = () => {
             color="from-orange-400 to-red-500"
             trend={-2}
             onClick={() => navigate("/prestamos")}
-            textAlign="left"
+            textAlign="center"
           />
           <StatCard
             title="Total de Libros"
@@ -303,7 +263,7 @@ const Dashboard = () => {
             color="from-emerald-400 to-teal-500"
             trend={12}
             onClick={() => navigate("/libros")}
-            textAlign="left"
+            textAlign="center"
           />
           <StatCard
             title="Género Popular"
@@ -333,7 +293,7 @@ const Dashboard = () => {
             color="from-purple-400 to-violet-500"
             trend={3}
             onClick={() => navigate("/prestamos")}
-            textAlign="left"
+            textAlign="center"
           />
           <StatCard
             title="Escritores"
@@ -343,7 +303,7 @@ const Dashboard = () => {
             color="from-purple-400 to-pink-500"
             trend={15}
             onClick={() => navigate("/escritores")}
-            textAlign="right"
+            textAlign="center"
           />
           <StatCard
             title="Usuarios Registrados"

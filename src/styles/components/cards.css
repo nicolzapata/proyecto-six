@@ -37,6 +37,8 @@
   border: 2px solid transparent;
   background-clip: padding-box;
   position: relative;
+  margin-top: 2rem;
+  margin-bottom: 8rem;
 }
 
 .card-premium::before {
@@ -69,4 +71,9 @@
   padding: 1rem 2rem 2rem;
   border-top: 1px solid var(--border-primary);
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent);
+}
+
+/* Override hover effects for cards without lift */
+.card:hover {
+  transform: none;
 }
