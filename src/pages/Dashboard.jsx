@@ -193,7 +193,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-[var(--bg-primary)]">
       <div className="container py-8 max-w-7xl mx-auto">
         {/* Header Premium */}
         <div className="card-premium mb-8">

@@ -96,7 +96,7 @@ const Libros = () => {
         fechaPublicacion: libro.publicationDate || '',
         disponible: libro.availableCopies > 0,
         descripcion: libro.description || '',
-        imagen: libro.image || libro.cover || '', // Agregar campo imagen si existe
+        imagen: libro.image || libro.cover || 'https://via.placeholder.com/150x200?text=Libro', // Agregar campo imagen si existe
         fechaCreacion: libro.createdAt,
         createdBy: libro.createdBy || libro.userId // Asumir que el backend incluye createdBy o userId
       }));
@@ -400,20 +400,14 @@ const Libros = () => {
                   <div key={libro.id} className="card hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={() => handleViewDetail(libro)}>
                     <div className="card-body text-center">
                       <div className="mb-4">
-                        {libro.imagen ? (
-                          <img
-                            src={libro.imagen}
-                            alt={libro.titulo}
-                            className="w-full h-48 object-cover rounded-lg mb-4"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              e.target.nextSibling.style.display = 'flex';
-                            }}
-                          />
-                        ) : null}
-                        <div className={`w-full h-48 bg-gradient-to-br from-primary-400 to-primary-600 rounded-lg flex items-center justify-center text-white font-bold text-4xl mb-4 ${libro.imagen ? 'hidden' : ''}`}>
-                          📖
-                        </div>
+                        <img
+                          src={libro.imagen || 'https://via.placeholder.com/150x200?text=Libro'}
+                          alt={libro.titulo}
+                          className="w-full h-96 object-cover rounded-lg mb-4"
+                          onError={(e) => {
+                            e.target.src = 'https://via.placeholder.com/150x200?text=Libro';
+                          }}
+                        />
                       </div>
                       <h3 className="text-lg font-semibold line-clamp-2">
                         {libro.titulo}
@@ -563,6 +557,16 @@ const Libros = () => {
                   <label htmlFor="imagen" className="form-label">
                     URL de la Imagen
                   </label>
+                  <div className="mb-4 flex justify-center">
+                    <img
+                      src={formData.imagen || 'https://via.placeholder.com/150x200?text=Libro'}
+                      alt="Preview"
+                      className="w-32 h-40 object-cover rounded-lg shadow-md"
+                      onError={(e) => {
+                        e.target.src = 'https://via.placeholder.com/150x200?text=Libro';
+                      }}
+                    />
+                  </div>
                   <input
                     type="url"
                     id="imagen"
@@ -615,20 +619,14 @@ const Libros = () => {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Imagen del libro */}
                 <div className="flex justify-center">
-                  {selectedBook.imagen ? (
-                    <img
-                      src={selectedBook.imagen}
-                      alt={`${selectedBook.titulo} - ${selectedBook.autor}`}
-                      className="w-full max-w-sm h-auto object-cover rounded-lg shadow-lg"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'flex';
-                      }}
-                    />
-                  ) : null}
-                  <div className={`w-full max-w-sm h-96 bg-gradient-to-br from-primary-400 to-primary-600 rounded-lg flex items-center justify-center text-white font-bold text-4xl ${selectedBook.imagen ? 'hidden' : ''}`}>
-                    📖
-                  </div>
+                  <img
+                    src={selectedBook.imagen || 'https://via.placeholder.com/150x200?text=Libro'}
+                    alt={`${selectedBook.titulo} - ${selectedBook.autor}`}
+                    className="w-full max-w-sm h-auto object-cover rounded-lg shadow-lg"
+                    onError={(e) => {
+                      e.target.src = 'https://via.placeholder.com/150x200?text=Libro';
+                    }}
+                  />
                 </div>
 
                 {/* Información del libro */}
