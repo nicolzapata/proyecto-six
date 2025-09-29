@@ -6,7 +6,6 @@ import LoadingSpinner from "../components/Common/LoadingSpinner";
 import MessageAlert from "../components/Common/MessageAlert";
 import ThemeToggle from "../components/ThemeToggle";
 import { validateEmail } from "../utils/validators";
-import { emailExists } from "../utils/userHelpers";
 import EmailJSConfig from "../components/EmailJSConfig";
 import "../styles/components/login-register.css";
 import "../styles/pages/collage.css";
@@ -57,12 +56,6 @@ const ForgotPassword = () => {
       return;
     }
 
-    if (!emailExists(email)) {
-      setEmailError(
-        "No existe una cuenta asociada a este correo electrónico. ¿Necesitas registrarte?"
-      );
-      return;
-    }
 
     try {
       await requestPasswordReset(email);

@@ -14,23 +14,31 @@ export const useTheme = () => {
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(() => {
     // Cargar tema desde localStorage o usar sistema por defecto
-    const savedTheme = localStorage.getItem('biblioteca-theme');
-    if (savedTheme) {
-      return savedTheme;
+    try {
+      const savedTheme = localStorage.getItem('biblioteca-theme');
+      if (savedTheme) {
+        return savedTheme;
+      }
+    } catch (error) {
+      console.warn('No se pudo acceder a localStorage para cargar el tema:', error);
     }
-    
+
     // Detectar preferencia del sistema
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       return 'dark';
     }
-    
+
     return 'light';
   });
 
   useEffect(() => {
     // Aplicar tema al documento
     document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('biblioteca-theme', theme);
+    try {
+      localStorage.setItem('biblioteca-theme', theme);
+    } catch (error) {
+      console.warn('No se pudo guardar el tema en localStorage:', error);
+    }
   }, [theme]);
 
   useEffect(() => {
@@ -38,8 +46,14 @@ export const ThemeProvider = ({ children }) => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = (e) => {
       // Solo cambiar si no hay tema guardado explícitamente
-      const savedTheme = localStorage.getItem('biblioteca-theme');
-      if (!savedTheme) {
+      try {
+        const savedTheme = localStorage.getItem('biblioteca-theme');
+        if (!savedTheme) {
+          setTheme(e.matches ? 'dark' : 'light');
+        }
+      } catch (error) {
+        console.warn('No se pudo acceder a localStorage para verificar tema guardado:', error);
+        // Si no se puede acceder, cambiar basado en preferencia del sistema
         setTheme(e.matches ? 'dark' : 'light');
       }
     };

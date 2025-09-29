@@ -1,22 +1,28 @@
 // ===== src/pages/Profile.jsx =====
 import { useAuth } from "../context/AuthContext";
 import { useState, useEffect } from "react";
-import { usersAPI } from "../services/api";
+import { usersAPI, loansAPI } from "../services/api";
 import {
   validateEmail,
   validateMinLength,
   validateMaxLength,
   validateTelefono
 } from "../utils/validators";
+import "../styles/pages/profile.css";
 
 export default function Profile() {
-  const { user, login } = useAuth();
+  const { user, updateUser } = useAuth();
   const [showEditModal, setShowEditModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const [formErrors, setFormErrors] = useState({});
   const [hasChanges, setHasChanges] = useState(false);
+  const [stats, setStats] = useState({
+    libros: 0,
+    prestamos: 0,
+    diasActivo: 0
+  });
 
   const [formData, setFormData] = useState({
     username: user?.username || user?.name || '',
@@ -24,6 +30,7 @@ export default function Profile() {
     nombre: user?.nombre || '',
     apellido: user?.apellido || '',
     telefono: user?.telefono || '',
+    bio: user?.bio || '',
     foto: user?.foto || ''
   });
 
@@ -36,8 +43,12 @@ export default function Profile() {
         nombre: user.nombre || '',
         apellido: user.apellido || '',
         telefono: user.telefono || '',
+        bio: user.bio || '',
         foto: user.foto || ''
       });
+
+      // Cargar estadísticas del usuario
+      loadUserStats();
     }
   }, [user]);
 
@@ -73,8 +84,42 @@ export default function Profile() {
       if (!telefonoValidation.isValid) errors.telefono = telefonoValidation.error;
     }
 
+    // Validar bio
+    if (formData.bio) {
+      const bioMax = validateMaxLength(formData.bio, 200, "Bio");
+      if (!bioMax.isValid) errors.bio = bioMax.error;
+    }
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
+  };
+
+  const loadUserStats = async () => {
+    if (!user?.id) return;
+
+    try {
+      // Obtener préstamos del usuario
+      const userLoans = await loansAPI.getUserLoans(user.id);
+      const prestamosCount = userLoans.length;
+
+      // Calcular libros únicos prestados (usando Set para evitar duplicados)
+      const uniqueBooks = new Set(userLoans.map(loan => loan.bookId));
+      const librosCount = uniqueBooks.size;
+
+      // Calcular días activo
+      const createdDate = new Date(user.createdAt);
+      const today = new Date();
+      const diasActivo = Math.floor((today - createdDate) / (1000 * 60 * 60 * 24));
+
+      setStats({
+        libros: librosCount,
+        prestamos: prestamosCount,
+        diasActivo: diasActivo
+      });
+    } catch (error) {
+      console.error('Error cargando estadísticas:', error);
+      // Mantener valores por defecto en caso de error
+    }
   };
 
   const handleInputChange = (e) => {
@@ -116,6 +161,7 @@ export default function Profile() {
       nombre: user?.nombre || '',
       apellido: user?.apellido || '',
       telefono: user?.telefono || '',
+      bio: user?.bio || '',
       foto: user?.foto || ''
     });
     setError("");
@@ -147,17 +193,19 @@ export default function Profile() {
     setIsLoading(true);
 
     try {
-      const response = await usersAPI.update(user.id, formData);
+      console.log('User ID:', user?.id);
+      const dataToSend = { ...formData };
+      delete dataToSend.foto; // Temporalmente no enviar foto para probar
+      console.log('Datos a enviar:', dataToSend);
+      const response = await usersAPI.update(user.id, dataToSend);
       console.log('Perfil actualizado:', response);
 
       // Actualizar el contexto de autenticación
-      login(response.user || response);
+      updateUser(response.user || response);
 
       setSuccess("¡Perfil actualizado exitosamente!");
       setHasChanges(false);
-      setTimeout(() => {
-        closeEditModal();
-      }, 2000);
+      closeEditModal();
 
     } catch (err) {
       console.error('Error al guardar perfil:', err);
@@ -168,81 +216,109 @@ export default function Profile() {
   };
 
   return (
-    <div className="bg-gradient-page min-h-screen">
-      <div className="container py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="card animate-slide-up">
-            <div className="card-body">
-              <div className="flex items-center text-center gap-6 mb-8">
-                <div className="w-20 h-20 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-bold text-2xl overflow-hidden">
-                  {user?.foto ? (
-                    <img src={user.foto} alt="Foto de perfil" className="w-full h-full object-cover" />
-                  ) : (
-                    user?.username?.charAt(0)?.toUpperCase() || user?.name?.charAt(0)?.toUpperCase() || '👤'
-                  )}
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold mb-2 text-center">👤 Mi Perfil</h1>
-                  <p className="text-muted">Gestiona tu información personal</p>
-                </div>
-              </div>
-
-              {user ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                  {/* Información de Cuenta */}
-                  <div key="account-info">
-                    <h3 className="text-xl font-bold mb-4 text-gray-800 text-center">Información de Cuenta</h3>
-
-                      <div className="gap-6 alert justify-between ">
-                        <div key="username">
-                          <strong className="text-gray-600 text-sm uppercase tracking-wide block mb-1">Nombre de usuario</strong>
-                          <div className="text-lg text-gray-900">{user?.username || user?.name || ''}</div>
-                        </div>
-                        <div key="email">
-                          <strong className="text-gray-600 text-sm uppercase tracking-wide block mb-1">Correo electrónico</strong>
-                          <div className="text-lg text-gray-900">{user?.email || ''}</div>
-                        </div>
-                      </div>
-                  </div>
-
-                  {/* Información del Sistema */}
-                  <div key="system-info">
-                    <h3 className="text-xl font-bold mb-4 text-gray-800 text-center">Información del Sistema</h3>
-                    <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg shadow-lg border p-6">
-                      <div className="grid grid-cols-2 gap-6 alert">
-                        <div key="registration-date">
-                          <strong className="text-gray-600 text-sm uppercase tracking-wide block mb-1">Fecha de registro</strong>
-                          <div className="text-lg text-gray-900">
-                            {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('es-ES', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric'
-                            }) : ''}
-                          </div>
-                        </div>
-                        <div key="role">
-                          <strong className="text-gray-600 text-sm uppercase tracking-wide block mb-1">Rol</strong>
-                          <div className="text-lg text-gray-900">{user?.role || "Usuario estándar"}</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Botón de editar */}
-                  <div className="flex justify-center pt-6">
-                    <button
-                      onClick={openEditModal}
-                      className="btn btn-primary"
-                    >
-                       Editar Perfil
-                    </button>
-                  </div>
-                </div>
+    <div className="min-h-screen">
+      <div className="profile-container">
+        <div className="profile-header">
+          <div className="text-center">
+            <div className="profile-avatar">
+              {user?.foto ? (
+                <img src={user.foto} alt="Foto de perfil" />
               ) : (
-                <p className="text-center text-muted">No hay datos del usuario disponibles</p>
+                <div className="avatar-placeholder">
+                  {user?.username?.charAt(0)?.toUpperCase() || user?.name?.charAt(0)?.toUpperCase() || '👤'}
+                </div>
               )}
             </div>
+            <h1 className="profile-username">{user?.username || user?.name || 'Usuario'}</h1>
+            {user?.bio && <p className="profile-bio">{user.bio}</p>}
+            <p className="text-muted">Gestiona tu información personal</p>
           </div>
+        </div>
+
+        <div className="animate-slide-up">
+            {/* Estadísticas reales del usuario */}
+            <div className="flex justify-center mb-8">
+              <div className="profile-stats">
+                <div className="stat-item">
+                  <span className="stat-number">{stats.libros}</span>
+                  <span className="stat-label">Libros</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-number">{stats.prestamos}</span>
+                  <span className="stat-label">Préstamos</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-number">{stats.diasActivo}</span>
+                  <span className="stat-label">Días activo</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Botón de editar */}
+            <div className="text-center mb-8">
+              <button
+                onClick={openEditModal}
+                className="edit-profile-btn"
+              >
+                Editar Perfil
+              </button>
+            </div>
+
+            {user ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                {/* Información de Cuenta */}
+                <div className="profile-info-section">
+                  <h3>Información de Cuenta</h3>
+                  <div className="info-item">
+                    <span className="info-label">Nombre de usuario</span>
+                    <span className="info-value">{user?.username || user?.name || ''}</span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-label">Correo electrónico</span>
+                    <span className="info-value">{user?.email || ''}</span>
+                  </div>
+                  {user?.nombre && (
+                    <div className="info-item">
+                      <span className="info-label">Nombre</span>
+                      <span className="info-value">{user.nombre}</span>
+                    </div>
+                  )}
+                  {user?.apellido && (
+                    <div className="info-item">
+                      <span className="info-label">Apellido</span>
+                      <span className="info-value">{user.apellido}</span>
+                    </div>
+                  )}
+                  {user?.telefono && (
+                    <div className="info-item">
+                      <span className="info-label">Teléfono</span>
+                      <span className="info-value">{user.telefono}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Información del Sistema */}
+                <div className="profile-info-section">
+                  <h3>Información del Sistema</h3>
+                  <div className="info-item">
+                    <span className="info-label">Fecha de registro</span>
+                    <span className="info-value">
+                      {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('es-ES', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      }) : ''}
+                    </span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-label">Rol</span>
+                    <span className="info-value">{user?.role || "Usuario estándar"}</span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <p className="text-center text-muted">No hay datos del usuario disponibles</p>
+            )}
         </div>
       </div>
 
@@ -360,6 +436,23 @@ export default function Profile() {
                     />
                     {formErrors.telefono && (
                       <div className="text-error text-sm mt-1">{formErrors.telefono}</div>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="edit-bio" className="form-label">Bio</label>
+                    <textarea
+                      id="edit-bio"
+                      name="bio"
+                      value={formData.bio}
+                      onChange={handleInputChange}
+                      className={`form-input ${formErrors.bio ? 'border-error' : ''}`}
+                      placeholder="Cuéntanos un poco sobre ti..."
+                      rows="3"
+                      disabled={isLoading}
+                    />
+                    {formErrors.bio && (
+                      <div className="text-error text-sm mt-1">{formErrors.bio}</div>
                     )}
                   </div>
 

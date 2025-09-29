@@ -112,6 +112,10 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateUser = (newUser) => {
+    setUser(newUser);
+  };
+
   const clearMessages = () => {
     setError('');
     setSuccess('');
@@ -154,6 +158,7 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
+    updateUser,
     loading,
     isAuthLoading,
     error,

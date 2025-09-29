@@ -70,7 +70,11 @@ export const sendPasswordResetEmail = async (email) => {
       used: false
     };
 
-    localStorage.setItem(`reset_${email}`, JSON.stringify(resetData));
+    try {
+      localStorage.setItem(`reset_${email}`, JSON.stringify(resetData));
+    } catch (error) {
+      console.warn('No se pudo guardar el código de reset en localStorage:', error);
+    }
 
     // --- PARÁMETROS ACTUALIZADOS CON TODAS LAS VARIABLES POSIBLES ---
     const templateParams = {
@@ -157,7 +161,11 @@ const sendSimulatedEmail = async (email) => {
     used: false
   };
 
-  localStorage.setItem(`reset_${email}`, JSON.stringify(resetData));
+  try {
+    localStorage.setItem(`reset_${email}`, JSON.stringify(resetData));
+  } catch (error) {
+    console.warn('No se pudo guardar el código de reset simulado en localStorage:', error);
+  }
 
   console.log("📨 MODO SIMULACIÓN - Código:", resetCode);
 
@@ -175,7 +183,13 @@ const sendSimulatedEmail = async (email) => {
  * Verifica código de recuperación
  */
 export const verifyResetCode = (email, code) => {
-  const resetData = localStorage.getItem(`reset_${email}`);
+  let resetData;
+  try {
+    resetData = localStorage.getItem(`reset_${email}`);
+  } catch (error) {
+    console.warn('No se pudo acceder a localStorage para verificar código:', error);
+    return false;
+  }
 
   if (!resetData) return false;
 
@@ -189,7 +203,11 @@ export const verifyResetCode = (email, code) => {
     const fifteenMinutes = 15 * 60 * 1000;
 
     if (now - data.timestamp > fifteenMinutes) {
-      localStorage.removeItem(`reset_${email}`);
+      try {
+        localStorage.removeItem(`reset_${email}`);
+      } catch (error) {
+        console.warn('No se pudo eliminar código expirado de localStorage:', error);
+      }
       return false;
     }
 
@@ -205,13 +223,23 @@ export const verifyResetCode = (email, code) => {
  * Marca código como usado
  */
 export const markResetCodeAsUsed = (email) => {
-  const resetData = localStorage.getItem(`reset_${email}`);
+  let resetData;
+  try {
+    resetData = localStorage.getItem(`reset_${email}`);
+  } catch (error) {
+    console.warn('No se pudo acceder a localStorage para marcar código como usado:', error);
+    return;
+  }
 
   if (resetData) {
     try {
       const data = JSON.parse(resetData);
       data.used = true;
-      localStorage.setItem(`reset_${email}`, JSON.stringify(data));
+      try {
+        localStorage.setItem(`reset_${email}`, JSON.stringify(data));
+      } catch (error) {
+        console.warn('No se pudo guardar código marcado como usado en localStorage:', error);
+      }
     } catch (error) {
       console.error('Error marcando código como usado:', error);
     }
@@ -222,7 +250,11 @@ export const markResetCodeAsUsed = (email) => {
  * Limpia código de recuperación
  */
 export const clearResetCode = (email) => {
-  localStorage.removeItem(`reset_${email}`);
+  try {
+    localStorage.removeItem(`reset_${email}`);
+  } catch (error) {
+    console.warn('No se pudo eliminar código de reset de localStorage:', error);
+  }
 };
 
 /**

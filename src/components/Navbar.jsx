@@ -96,7 +96,11 @@ export default function Navbar() {
               className={`profile-button ${location.pathname === "/profile" ? "active" : ""}`}
               title="Perfil"
             >
-              <span style={{ fontSize: '20px', filter: 'grayscale(1)' }}>👤</span>
+              {user?.foto ? (
+                <img src={user.foto} alt="Foto de perfil" className="w-5 h-5 rounded-full object-cover" />
+              ) : (
+                <span style={{ fontSize: '20px', filter: 'grayscale(1)' }}>👤</span>
+              )}
             </button>
 
           {isMenuOpen && (
