@@ -170,6 +170,14 @@ export const usersAPI = {
     return handleResponse(response);
   },
 
+  updateProfile: async (userData) => {
+    const response = await authenticatedFetch(`${API_URL}/users/profile`, {
+      method: 'PUT',
+      body: JSON.stringify(userData)
+    });
+    return handleResponse(response);
+  },
+
   changeRole: async (id, role) => {
     const response = await authenticatedFetch(`${API_URL}/users/${id}/role`, {
       method: 'PATCH',

@@ -102,16 +102,17 @@ export default function Profile() {
     try {
       // Obtener préstamos del usuario
       const userLoans = await loansAPI.getUserLoans(userId);
-      const prestamosCount = userLoans.length;
+      const userLoansArray = Array.isArray(userLoans) ? userLoans : [];
+      const prestamosCount = userLoansArray.length;
 
       // Calcular libros únicos prestados (usando Set para evitar duplicados)
-      const uniqueBooks = new Set(userLoans.map(loan => loan.bookId));
+      const uniqueBooks = new Set(userLoansArray.map(loan => loan.bookId));
       const librosCount = uniqueBooks.size;
 
       // Calcular días activo
       const createdDate = new Date(user.createdAt);
       const today = new Date();
-      const diasActivo = Math.floor((today - createdDate) / (1000 * 60 * 60 * 24));
+      const diasActivo = isNaN(createdDate.getTime()) ? 0 : Math.floor((today - createdDate) / (1000 * 60 * 60 * 24));
 
       setStats({
         libros: librosCount,
@@ -146,11 +147,37 @@ export default function Profile() {
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        setFormData({
-          ...formData,
-          foto: e.target.result
-        });
-        setHasChanges(true);
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          const maxSize = 200; // Tamaño máximo
+          let { width, height } = img;
+
+          if (width > height) {
+            if (width > maxSize) {
+              height = (height * maxSize) / width;
+              width = maxSize;
+            }
+          } else {
+            if (height > maxSize) {
+              width = (width * maxSize) / height;
+              height = maxSize;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          ctx.drawImage(img, 0, 0, width, height);
+          const resizedDataURL = canvas.toDataURL('image/jpeg', 0.8); // Calidad 80%
+
+          setFormData({
+            ...formData,
+            foto: resizedDataURL
+          });
+          setHasChanges(true);
+        };
+        img.src = e.target.result;
       };
       reader.readAsDataURL(file);
     }
@@ -209,26 +236,36 @@ export default function Profile() {
 
     try {
       console.log('User ID:', userId);
-      const dataToSend = { ...formData };
-      delete dataToSend.foto; // Temporalmente no enviar foto para probar
+      const dataToSend = {
+        username: formData.username,
+        email: formData.email,
+        nombre: formData.nombre,
+        apellido: formData.apellido,
+        telefono: formData.telefono,
+        bio: formData.bio,
+        ...(formData.foto !== user?.foto && { foto: formData.foto })
+      };
       console.log('Datos a enviar:', dataToSend);
-      const response = await usersAPI.update(userId, dataToSend);
-      console.log('Perfil actualizado:', response);
 
-      // Actualizar el contexto de autenticación
-      updateUser(response.user || response);
+      const response = await usersAPI.updateProfile(dataToSend);
+      console.log('Respuesta completa del servidor:', response);
 
-      // Recargar el perfil desde el servidor para asegurar que los cambios se reflejen
-      await loadProfile();
+      // Actualizar el contexto de autenticación con los datos enviados
+      updateUser(formData);
 
       setSuccess("¡Perfil actualizado exitosamente!");
       setHasChanges(false);
-      setShowEditModal(false);
-      setShowConfirmModal(false);
+      
+      // Cerrar modales después de un pequeño delay para que el usuario vea el mensaje de éxito
+      setTimeout(() => {
+        setShowEditModal(false);
+        setShowConfirmModal(false);
+      }, 1000);
 
     } catch (err) {
-      console.error('Error al guardar perfil:', err);
-      setError("Error al guardar los cambios. Inténtalo de nuevo.");
+      console.error('Error completo al guardar perfil:', err);
+      console.error('Detalles del error:', err.response?.data || err.message);
+      setError(err.response?.data?.message || "Error al guardar los cambios. Inténtalo de nuevo.");
     } finally {
       setIsLoading(false);
     }
@@ -303,15 +340,15 @@ export default function Profile() {
                   </div>
                   <div className="info-item">
                     <span className="info-label">Nombre</span>
-                    <span className="info-value">{user?.nombre || 'No especificado'}</span>
+                    <span className="info-value">{user?.nombre ?? 'No especificado'}</span>
                   </div>
                   <div className="info-item">
                     <span className="info-label">Apellido</span>
-                    <span className="info-value">{user?.apellido || 'No especificado'}</span>
+                    <span className="info-value">{user?.apellido ?? 'No especificado'}</span>
                   </div>
                   <div className="info-item">
                     <span className="info-label">Teléfono</span>
-                    <span className="info-value">{user?.telefono || 'No especificado'}</span>
+                    <span className="info-value">{user?.telefono ?? 'No especificado'}</span>
                   </div>
                 </div>
 
