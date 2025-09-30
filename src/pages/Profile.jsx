@@ -247,7 +247,7 @@ export default function Profile() {
       };
       console.log('Datos a enviar:', dataToSend);
 
-      const response = await usersAPI.updateProfile(dataToSend);
+      const response = await usersAPI.update(userId, dataToSend);
       console.log('Respuesta completa del servidor:', response);
 
       // Actualizar el contexto de autenticación con los datos enviados
