@@ -112,8 +112,17 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const updateUser = (newUser) => {
-    setUser(newUser);
+  const updateUser = (updatedFields) => {
+    setUser(prevUser => ({ ...prevUser, ...updatedFields }));
+  };
+
+  const loadProfile = async () => {
+    try {
+      const response = await authAPI.getCurrentUser();
+      setUser(response.user);
+    } catch (error) {
+      console.error('Error cargando perfil:', error);
+    }
   };
 
   const clearMessages = () => {
@@ -159,6 +168,7 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     updateUser,
+    loadProfile,
     loading,
     isAuthLoading,
     error,

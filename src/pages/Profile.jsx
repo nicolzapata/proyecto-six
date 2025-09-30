@@ -1,7 +1,7 @@
 // ===== src/pages/Profile.jsx =====
 import { useAuth } from "../context/AuthContext";
 import { useState, useEffect } from "react";
-import { usersAPI, loansAPI } from "../services/api";
+import { authAPI, usersAPI, loansAPI } from "../services/api";
 import {
   validateEmail,
   validateMinLength,
@@ -11,13 +11,14 @@ import {
 import "../styles/pages/profile.css";
 
 export default function Profile() {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, loadProfile } = useAuth();
   const [showEditModal, setShowEditModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const [formErrors, setFormErrors] = useState({});
   const [hasChanges, setHasChanges] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [stats, setStats] = useState({
     libros: 0,
     prestamos: 0,
@@ -95,11 +96,12 @@ export default function Profile() {
   };
 
   const loadUserStats = async () => {
-    if (!user?.id) return;
+    const userId = user?._id || user?.id;
+    if (!userId) return;
 
     try {
       // Obtener préstamos del usuario
-      const userLoans = await loansAPI.getUserLoans(user.id);
+      const userLoans = await loansAPI.getUserLoans(userId);
       const prestamosCount = userLoans.length;
 
       // Calcular libros únicos prestados (usando Set para evitar duplicados)
@@ -167,45 +169,62 @@ export default function Profile() {
     setError("");
     setSuccess("");
     setHasChanges(false);
+    setShowConfirmModal(false);
     setShowEditModal(true);
   };
 
-  const closeEditModal = () => {
+  const attemptCloseEditModal = () => {
     if (hasChanges) {
-      if (!window.confirm("Tienes cambios sin guardar. ¿Estás seguro de que quieres cerrar sin guardar?")) {
-        return;
-      }
+      setShowConfirmModal(true);
+    } else {
+      setShowEditModal(false);
+      setError("");
+      setSuccess("");
     }
+  };
+
+  const discardChanges = () => {
+    setShowConfirmModal(false);
     setShowEditModal(false);
     setError("");
     setSuccess("");
   };
 
-  const handleSave = async (e) => {
-    e.preventDefault();
+  const saveChanges = async () => {
     setError("");
     setSuccess("");
 
     if (!validateForm()) {
+      setError("Por favor corrige los errores en el formulario antes de guardar.");
+      return;
+    }
+
+    const userId = user?._id || user?.id;
+    if (!userId) {
+      setError("Usuario no identificado. No se pueden guardar los cambios.");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      console.log('User ID:', user?.id);
+      console.log('User ID:', userId);
       const dataToSend = { ...formData };
       delete dataToSend.foto; // Temporalmente no enviar foto para probar
       console.log('Datos a enviar:', dataToSend);
-      const response = await usersAPI.update(user.id, dataToSend);
+      const response = await usersAPI.update(userId, dataToSend);
       console.log('Perfil actualizado:', response);
 
       // Actualizar el contexto de autenticación
       updateUser(response.user || response);
 
+      // Recargar el perfil desde el servidor para asegurar que los cambios se reflejen
+      await loadProfile();
+
       setSuccess("¡Perfil actualizado exitosamente!");
       setHasChanges(false);
-      closeEditModal();
+      setShowEditModal(false);
+      setShowConfirmModal(false);
 
     } catch (err) {
       console.error('Error al guardar perfil:', err);
@@ -213,6 +232,11 @@ export default function Profile() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    await saveChanges();
   };
 
   return (
@@ -230,7 +254,7 @@ export default function Profile() {
               )}
             </div>
             <h1 className="profile-username">{user?.username || user?.name || 'Usuario'}</h1>
-            {user?.bio && <p className="profile-bio">{user.bio}</p>}
+            {user?.bio && user.bio !== '' && <p className="profile-bio">{user.bio}</p>}
             <p className="text-muted">Gestiona tu información personal</p>
           </div>
         </div>
@@ -277,24 +301,18 @@ export default function Profile() {
                     <span className="info-label">Correo electrónico</span>
                     <span className="info-value">{user?.email || ''}</span>
                   </div>
-                  {user?.nombre && (
-                    <div className="info-item">
-                      <span className="info-label">Nombre</span>
-                      <span className="info-value">{user.nombre}</span>
-                    </div>
-                  )}
-                  {user?.apellido && (
-                    <div className="info-item">
-                      <span className="info-label">Apellido</span>
-                      <span className="info-value">{user.apellido}</span>
-                    </div>
-                  )}
-                  {user?.telefono && (
-                    <div className="info-item">
-                      <span className="info-label">Teléfono</span>
-                      <span className="info-value">{user.telefono}</span>
-                    </div>
-                  )}
+                  <div className="info-item">
+                    <span className="info-label">Nombre</span>
+                    <span className="info-value">{user?.nombre || 'No especificado'}</span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-label">Apellido</span>
+                    <span className="info-value">{user?.apellido || 'No especificado'}</span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-label">Teléfono</span>
+                    <span className="info-value">{user?.telefono || 'No especificado'}</span>
+                  </div>
                 </div>
 
                 {/* Información del Sistema */}
@@ -324,11 +342,11 @@ export default function Profile() {
 
       {/* Modal de edición de perfil */}
       {showEditModal && (
-        <div className="modal-overlay" onClick={closeEditModal}>
+        <div className="modal-overlay" onClick={attemptCloseEditModal}>
           <div className="modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h3 className="modal-title">Editar Perfil</h3>
-              <button onClick={closeEditModal} className="modal-close">×</button>
+              <button onClick={attemptCloseEditModal} className="modal-close">×</button>
             </div>
             <form onSubmit={handleSave}>
               <div className="modal-body p-20">
@@ -344,11 +362,6 @@ export default function Profile() {
                   </div>
                 )}
 
-                {hasChanges && (
-                  <div className="alert alert-warning animate-slide-down mb-6">
-                    ⚠️ Tienes cambios sin guardar. Recuerda guardar antes de cerrar.
-                  </div>
-                )}
 
                 <div className="flex flex-col gap-12">
                   <div className="form-group">
@@ -477,7 +490,7 @@ export default function Profile() {
                 </div>
               </div>
               <div className="modal-footer justify-between">
-                <button type="button" onClick={closeEditModal} className="btn btn-secondary" disabled={isLoading}>
+                <button type="button" onClick={attemptCloseEditModal} className="btn btn-secondary" disabled={isLoading}>
                   Cancelar
                 </button>
                 <button type="submit" className="btn btn-primary" disabled={isLoading}>
@@ -492,6 +505,36 @@ export default function Profile() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de confirmación de cambios sin guardar */}
+      {showConfirmModal && (
+        <div className="modal-overlay" onClick={() => setShowConfirmModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 className="modal-title">Cambios sin guardar</h3>
+              <button onClick={() => setShowConfirmModal(false)} className="modal-close">×</button>
+            </div>
+            <div className="modal-body">
+              <p>Tienes cambios sin guardar. ¿Qué deseas hacer?</p>
+            </div>
+            <div className="modal-footer justify-between">
+              <button type="button" onClick={discardChanges} className="btn btn-secondary" disabled={isLoading}>
+                No guardar cambios
+              </button>
+              <button type="button" onClick={saveChanges} className="btn btn-primary" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <div className="loading-spinner"></div>
+                    Guardando...
+                  </>
+                ) : (
+                  "Guardar cambios"
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}
