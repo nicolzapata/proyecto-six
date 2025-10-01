@@ -74,10 +74,12 @@ const Register = () => {
     <div className="bg-gradient-page min-h-screen">
       <div className="container py-8">
         <div className="auth-layout">
+          
           {/* Carrusel de imágenes */}
           <div className="auth-carousel">
             <Carousel />
           </div>
+
 
           {/* Formulario de registro */}
           <div className="auth-form-section">
@@ -254,36 +256,6 @@ const Register = () => {
                     </p>
                   </div>
                 </div>
-            </div>
-
-            {/* Primer banner adicional */}
-            <div className="info-banner-container">
-              <div className="info-banner">
-                <img
-                  src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=120&fit=crop"
-                  alt="Biblioteca infantil"
-                  className="banner-bg"
-                />
-                <div className="banner-content">
-                  <h4>¡Bienvenido a tu biblioteca digital!</h4>
-                  <p>Regístrate y comienza tu viaje literario</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Segundo banner adicional */}
-            <div className="info-banner-container">
-              <div className="info-banner">
-                <img
-                  src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=400&h=120&fit=crop"
-                  alt="Lectura"
-                  className="banner-bg"
-                />
-                <div className="banner-content">
-                  <h4>Acceso ilimitado</h4>
-                  <p>Miles de libros a tu disposición</p>
-                </div>
-              </div>
             </div>
           </div>
         </div>

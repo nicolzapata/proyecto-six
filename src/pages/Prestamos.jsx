@@ -12,23 +12,23 @@ const Prestamos = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
-    usuarioId: "",
-    libroId: "",
-    fechaPrestamo: new Date().toISOString().split('T')[0],
-    fechaDevolucion: "",
-    estado: "activo",
-    observaciones: ""
+    userId: "",
+    bookId: "",
+    loanDate: new Date().toISOString().split('T')[0],
+    dueDate: "",
+    returnDate: "",
+    status: "active",
+    notes: ""
   });
 
   const [usuarios, setUsuarios] = useState([]);
   const [libros, setLibros] = useState([]);
 
-
+  // Estados basados en tu modelo
   const estadosPrestamo = [
-    { value: "activo", label: "Activo", color: "warning" },
-    { value: "devuelto", label: "Devuelto", color: "success" },
-    { value: "vencido", label: "Vencido", color: "error" },
-    { value: "renovado", label: "Renovado", color: "info" }
+    { value: "active", label: "Activo", color: "warning" },
+    { value: "returned", label: "Devuelto", color: "success" },
+    { value: "overdue", label: "Vencido", color: "error" }
   ];
 
   useEffect(() => {
@@ -40,47 +40,75 @@ const Prestamos = () => {
       setLoading(true);
       setError(null);
       console.log('DEBUG: Prestamos loadData - Starting to fetch data');
+      
       const [prestamosRes, usuariosRes, librosRes] = await Promise.all([
         loansAPI.getAll(),
         usersAPI.getAll(),
         booksAPI.getAll()
       ]);
+      
       console.log('DEBUG: Prestamos loadData - Raw responses:', { prestamosRes, usuariosRes, librosRes });
 
-      // Mapear préstamos
-      const prestamosArray = Array.isArray(prestamosRes) ? prestamosRes : (prestamosRes.loans || []);
-      const mappedPrestamos = prestamosArray.map(prestamo => ({
-        id: prestamo._id,
-        usuarioId: prestamo.userId || prestamo.usuarioId,
-        libroId: prestamo.bookId || prestamo.libroId,
-        fechaPrestamo: prestamo.loanDate || prestamo.fechaPrestamo,
-        fechaDevolucion: prestamo.returnDate || prestamo.fechaDevolucion,
-        estado: prestamo.status || prestamo.estado,
-        observaciones: prestamo.notes || prestamo.observaciones
-      }));
+      // Mapear préstamos - el backend devuelve { loans: [...] }
+      const prestamosArray = prestamosRes.loans || [];
+      const mappedPrestamos = prestamosArray.map(prestamo => {
+        // Extraer user ID y datos
+        const userId = typeof prestamo.user === 'object' ? prestamo.user._id : prestamo.user;
+        const userName = typeof prestamo.user === 'object' ? prestamo.user.name : null;
+        const userEmail = typeof prestamo.user === 'object' ? prestamo.user.email : null;
+        
+        // Extraer book ID y datos
+        const bookId = typeof prestamo.book === 'object' ? prestamo.book._id : prestamo.book;
+        const bookTitle = typeof prestamo.book === 'object' ? prestamo.book.title : null;
+        const bookAuthor = typeof prestamo.book === 'object' && prestamo.book.author 
+          ? (typeof prestamo.book.author === 'object' ? prestamo.book.author.name : prestamo.book.author)
+          : null;
+
+        return {
+          id: prestamo._id,
+          userId: userId,
+          bookId: bookId,
+          loanDate: prestamo.loanDate,
+          dueDate: prestamo.dueDate,
+          returnDate: prestamo.returnDate || null,
+          status: prestamo.status,
+          notes: prestamo.notes || '',
+          // Datos populated para mostrar
+          userName: userName,
+          userEmail: userEmail,
+          bookTitle: bookTitle,
+          bookAuthor: bookAuthor
+        };
+      });
 
       // Mapear usuarios
       const usuariosArray = Array.isArray(usuariosRes) ? usuariosRes : (usuariosRes.users || []);
       const mappedUsuarios = usuariosArray.map(user => ({
         id: user._id,
-        username: user.username || user.name?.split(' ')[0]?.toLowerCase() || user.email?.split('@')[0],
-        email: user.email,
-        name: user.name
+        username: user.username || user.name?.split(' ')[0]?.toLowerCase() || user.email?.split('@')[0] || 'Usuario',
+        email: user.email || '',
+        name: user.name || 'Nombre no disponible',
+        foto: user.photo || user.foto || null
       }));
 
       // Mapear libros
       const librosArray = Array.isArray(librosRes) ? librosRes : (librosRes.books || []);
       const mappedLibros = librosArray.map(libro => ({
         id: libro._id,
-        titulo: libro.title,
-        autor: libro.author?.name || libro.author,
-        disponible: libro.availableCopies > 0
+        titulo: libro.title || 'Título no disponible',
+        autor: libro.author?.name || libro.author || 'Autor no disponible',
+        disponible: (libro.availableCopies || 0) > 0
       }));
 
       setPrestamos(mappedPrestamos);
       setUsuarios(mappedUsuarios);
       setLibros(mappedLibros);
-      console.log('DEBUG: Prestamos loadData - Final data:', { mappedPrestamos, mappedUsuarios, mappedLibros });
+      
+      console.log('DEBUG: Prestamos loadData - Final data:', { 
+        prestamos: mappedPrestamos, 
+        usuarios: mappedUsuarios, 
+        libros: mappedLibros 
+      });
     } catch (err) {
       setError('Error al cargar los datos: ' + err.message);
       console.error('Error loading data:', err);
@@ -90,15 +118,29 @@ const Prestamos = () => {
   };
 
   const filteredPrestamos = prestamos.filter(prestamo => {
-    const usuario = usuarios.find(u => u.id === prestamo.usuarioId);
-    const libro = libros.find(l => l.id === prestamo.libroId);
+    // Usar datos populated si están disponibles, sino buscar en arrays
+    const usuario = prestamo.userName 
+      ? { username: prestamo.userName, email: prestamo.userEmail, name: prestamo.userName }
+      : usuarios.find(u => u.id === prestamo.userId);
+      
+    const libro = prestamo.bookTitle
+      ? { titulo: prestamo.bookTitle, autor: prestamo.bookAuthor }
+      : libros.find(l => l.id === prestamo.bookId);
     
-    const matchesSearch = 
-      usuario?.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      libro?.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      libro?.autor.toLowerCase().includes(searchTerm.toLowerCase());
+    if (!searchTerm || searchTerm.trim() === '') {
+      const matchesStatus = !filterStatus || prestamo.status === filterStatus;
+      return matchesStatus;
+    }
     
-    const matchesStatus = !filterStatus || prestamo.estado === filterStatus;
+    const searchLower = searchTerm.toLowerCase();
+    const matchesSearch =
+      (usuario?.username?.toLowerCase()?.includes(searchLower)) ||
+      (usuario?.name?.toLowerCase()?.includes(searchLower)) ||
+      (usuario?.email?.toLowerCase()?.includes(searchLower)) ||
+      (libro?.titulo?.toLowerCase()?.includes(searchLower)) ||
+      (libro?.autor?.toLowerCase()?.includes(searchLower));
+    
+    const matchesStatus = !filterStatus || prestamo.status === filterStatus;
     
     return matchesSearch && matchesStatus;
   });
@@ -108,10 +150,34 @@ const Prestamos = () => {
     try {
       setLoading(true);
       setError(null);
+      
+      // Preparar datos según lo que espera el backend
+      const dataToSend = {
+        userId: formData.userId,
+        bookId: formData.bookId,
+        dueDate: formData.dueDate,
+        status: formData.status
+      };
+
+      // Solo incluir returnDate si tiene valor
+      if (formData.returnDate) {
+        dataToSend.returnDate = formData.returnDate;
+      }
+
+      if (formData.notes) {
+        dataToSend.notes = formData.notes;
+      }
+
       if (editingLoan) {
-        await loansAPI.update(editingLoan.id, formData);
+        // Para actualizar, usar los campos que espera el backend
+        await loansAPI.update(editingLoan.id, {
+          user: formData.userId,
+          book: formData.bookId,
+          dueDate: formData.dueDate,
+          status: formData.status
+        });
       } else {
-        await loansAPI.create(formData);
+        await loansAPI.create(dataToSend);
       }
       await loadData();
       closeModal();
@@ -126,9 +192,13 @@ const Prestamos = () => {
   const handleEdit = (prestamo) => {
     setEditingLoan(prestamo);
     setFormData({
-      ...prestamo,
-      fechaPrestamo: prestamo.fechaPrestamo.split('T')[0],
-      fechaDevolucion: prestamo.fechaDevolucion ? prestamo.fechaDevolucion.split('T')[0] : ""
+      userId: prestamo.userId,
+      bookId: prestamo.bookId,
+      loanDate: prestamo.loanDate ? prestamo.loanDate.split('T')[0] : new Date().toISOString().split('T')[0],
+      dueDate: prestamo.dueDate ? prestamo.dueDate.split('T')[0] : "",
+      returnDate: prestamo.returnDate ? prestamo.returnDate.split('T')[0] : "",
+      status: prestamo.status,
+      notes: prestamo.notes || ""
     });
     setShowModal(true);
   };
@@ -165,13 +235,18 @@ const Prestamos = () => {
 
   const openModal = () => {
     setEditingLoan(null);
+    // Calcular fecha de vencimiento (15 días desde hoy)
+    const today = new Date();
+    const dueDate = new Date(today.getTime() + (15 * 24 * 60 * 60 * 1000));
+    
     setFormData({
-      usuarioId: "",
-      libroId: "",
-      fechaPrestamo: new Date().toISOString().split('T')[0],
-      fechaDevolucion: "",
-      estado: "activo",
-      observaciones: ""
+      userId: "",
+      bookId: "",
+      loanDate: today.toISOString().split('T')[0],
+      dueDate: dueDate.toISOString().split('T')[0],
+      returnDate: "",
+      status: "active",
+      notes: ""
     });
     setShowModal(true);
   };
@@ -189,22 +264,20 @@ const Prestamos = () => {
     }));
   };
 
-  const calcularDiasVencidos = (fechaPrestamo, estado) => {
-    if (estado === "devuelto") return 0;
+  const calcularDiasRestantes = (dueDate, status) => {
+    if (status === "returned") return null;
+    
     const hoy = new Date();
-    const prestamo = new Date(fechaPrestamo);
-    const diasLimite = 15; // 15 días de préstamo
-    const fechaLimite = new Date(prestamo.getTime() + (diasLimite * 24 * 60 * 60 * 1000));
-    const diferencia = Math.ceil((hoy - fechaLimite) / (1000 * 60 * 60 * 24));
-    return Math.max(0, diferencia);
+    hoy.setHours(0, 0, 0, 0);
+    const vencimiento = new Date(dueDate);
+    vencimiento.setHours(0, 0, 0, 0);
+    
+    const diferencia = Math.ceil((vencimiento - hoy) / (1000 * 60 * 60 * 24));
+    return diferencia;
   };
 
-  const prestamosActivos = prestamos.filter(p => p.estado === "activo").length;
-  const prestamosVencidos = prestamos.filter(p => {
-    const diasVencidos = calcularDiasVencidos(p.fechaPrestamo, p.estado);
-    return diasVencidos > 0 && p.estado === "activo";
-  }).length;
-
+  const prestamosActivos = prestamos.filter(p => p.status === "active").length;
+  const prestamosVencidos = prestamos.filter(p => p.status === "overdue").length;
 
   return (
     <div className="bg-gradient-page min-h-screen">
@@ -217,17 +290,17 @@ const Prestamos = () => {
               <h1 className="text-xl sm:text-2xl font-bold mb-2">📋 Gestión de Préstamos</h1>
               <p className="text-muted">Administra los préstamos de libros</p>
             </div>
-            <div className="flex flex-nowrap gap-1 w-full lg:w-auto justify-center">
-              <div className="card p-1 text-center" style={{ width: '201px' }}>
-                <div className="text-sm font-bold text-warning-600">{prestamosActivos}</div>
+            <div className="flex flex-wrap gap-2 w-full lg:w-auto justify-center">
+              <div className="card p-3 text-center flex-1 min-w-[150px]">
+                <div className="text-lg font-bold text-warning-600">{prestamosActivos}</div>
                 <div className="text-xs text-muted">Activos</div>
               </div>
-              <div className="card p-1 text-center" style={{ width: '201px' }}>
-                <div className="text-sm font-bold text-error-600">{prestamosVencidos}</div>
+              <div className="card p-3 text-center flex-1 min-w-[150px]">
+                <div className="text-lg font-bold text-error-600">{prestamosVencidos}</div>
                 <div className="text-xs text-muted">Vencidos</div>
               </div>
-              <div className="card p-1 text-center" style={{ width: '201px' }}>
-                <div className="text-sm font-bold text-accent">{prestamos.length}</div>
+              <div className="card p-3 text-center flex-1 min-w-[150px]">
+                <div className="text-lg font-bold text-accent">{prestamos.length}</div>
                 <div className="text-xs text-muted">Total</div>
               </div>
             </div>
@@ -310,6 +383,7 @@ const Prestamos = () => {
                       <th className="min-w-48">Usuario</th>
                       <th className="min-w-48">Libro</th>
                       <th className="min-w-32">Fecha Préstamo</th>
+                      <th className="min-w-32">Fecha Vencimiento</th>
                       <th className="min-w-32">Días Restantes</th>
                       <th className="min-w-24">Estado</th>
                       <th className="min-w-64">Acciones</th>
@@ -317,10 +391,17 @@ const Prestamos = () => {
                   </thead>
                   <tbody>
                     {filteredPrestamos.map((prestamo) => {
-                      const usuario = usuarios.find(u => u.id === prestamo.usuarioId);
-                      const libro = libros.find(l => l.id === prestamo.libroId);
-                      const diasVencidos = calcularDiasVencidos(prestamo.fechaPrestamo, prestamo.estado);
-                      const estado = estadosPrestamo.find(e => e.value === prestamo.estado);
+                      // Usar datos populated si están disponibles
+                      const usuario = prestamo.userName 
+                        ? { username: prestamo.userName, email: prestamo.userEmail, name: prestamo.userName }
+                        : usuarios.find(u => u.id === prestamo.userId);
+                        
+                      const libro = prestamo.bookTitle
+                        ? { titulo: prestamo.bookTitle, autor: prestamo.bookAuthor }
+                        : libros.find(l => l.id === prestamo.bookId);
+                        
+                      const diasRestantes = calcularDiasRestantes(prestamo.dueDate, prestamo.status);
+                      const estado = estadosPrestamo.find(e => e.value === prestamo.status);
 
                       return (
                         <tr key={prestamo.id}>
@@ -330,11 +411,11 @@ const Prestamos = () => {
                                 {usuario?.foto ? (
                                   <img src={usuario.foto} alt="Foto" className="w-full h-full object-cover rounded-full" />
                                 ) : (
-                                  usuario?.username?.charAt(0)?.toUpperCase()
+                                  (usuario?.username || usuario?.name || 'U')?.charAt(0)?.toUpperCase()
                                 )}
                               </div>
                               <div className="min-w-0">
-                                <div className="font-medium truncate">{usuario?.username || 'Usuario eliminado'}</div>
+                                <div className="font-medium truncate">{usuario?.name || usuario?.username || 'Usuario eliminado'}</div>
                                 <div className="text-xs text-muted truncate">{usuario?.email}</div>
                               </div>
                             </div>
@@ -346,41 +427,48 @@ const Prestamos = () => {
                             </div>
                           </td>
                           <td className="whitespace-nowrap">
-                            {new Date(prestamo.fechaPrestamo).toLocaleDateString('es-ES')}
+                            {new Date(prestamo.loanDate).toLocaleDateString('es-ES')}
+                          </td>
+                          <td className="whitespace-nowrap">
+                            {prestamo.dueDate ? new Date(prestamo.dueDate).toLocaleDateString('es-ES') : '-'}
                           </td>
                           <td>
-                            {prestamo.estado === "devuelto" ? (
-                              <span className="text-success-600">Devuelto</span>
-                            ) : diasVencidos > 0 ? (
+                            {prestamo.status === "returned" ? (
+                              <span className="text-success-600 font-medium">✓ Devuelto</span>
+                            ) : diasRestantes === null ? (
+                              <span className="text-muted">-</span>
+                            ) : diasRestantes < 0 ? (
                               <span className="text-error-600 font-semibold">
-                                {diasVencidos} días vencido
+                                {Math.abs(diasRestantes)} días vencido
+                              </span>
+                            ) : diasRestantes === 0 ? (
+                              <span className="text-warning-600 font-semibold">
+                                ¡Vence hoy!
                               </span>
                             ) : (
-                              <span className="text-muted">
-                                {15 - Math.ceil((new Date() - new Date(prestamo.fechaPrestamo)) / (1000 * 60 * 60 * 24))} días
+                              <span className={diasRestantes <= 3 ? "text-warning-600" : "text-muted"}>
+                                {diasRestantes} días
                               </span>
                             )}
                           </td>
                           <td>
-                            <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium alert-${estado?.color}`}>
-                              {estado?.label}
+                            <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium alert-${estado?.color || 'info'}`}>
+                              {estado?.label || prestamo.status}
                             </span>
                           </td>
                           <td>
                             <div className="flex flex-wrap gap-1 sm:gap-2">
                               <button
                                 onClick={() => handleEdit(prestamo)}
-                                className="btn btn-secondary text-xs"
-                                style={{ padding: '0.4rem 0.6rem' }}
+                                className="btn btn-secondary text-xs px-2 py-1"
                                 disabled={loading}
                               >
                                 Editar
                               </button>
-                              {prestamo.estado === "activo" && (
+                              {prestamo.status === "active" && (
                                 <button
                                   onClick={() => handleReturn(prestamo.id)}
-                                  className="btn btn-success text-xs"
-                                  style={{ padding: '0.4rem 0.6rem' }}
+                                  className="btn btn-success text-xs px-2 py-1"
                                   disabled={loading}
                                 >
                                   Devolver
@@ -388,8 +476,7 @@ const Prestamos = () => {
                               )}
                               <button
                                 onClick={() => handleDelete(prestamo.id)}
-                                className="btn btn-danger text-xs"
-                                style={{ padding: '0.4rem 0.6rem' }}
+                                className="btn btn-danger text-xs px-2 py-1"
                                 disabled={loading}
                               >
                                 Eliminar
@@ -418,78 +505,72 @@ const Prestamos = () => {
               <button onClick={closeModal} className="modal-close">×</button>
             </div>
             <form onSubmit={handleSubmit}>
-              <div className="modal-body" style={{ padding: '2rem' }}>
+              <div className="modal-body p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="form-group">
-                    <label htmlFor="usuarioId" className="form-label">Usuario *</label>
+                    <label htmlFor="userId" className="form-label">Usuario *</label>
                     <select
-                      id="usuarioId"
-                      name="usuarioId"
+                      id="userId"
+                      name="userId"
                       required
-                      value={formData.usuarioId}
+                      value={formData.userId}
                       onChange={handleInputChange}
                       className="form-input"
                     >
                       <option value="">Seleccionar usuario</option>
                       {usuarios.map(usuario => (
                         <option key={usuario.id} value={usuario.id}>
-                          {usuario.username} ({usuario.email})
+                          {usuario.name || usuario.username} ({usuario.email})
                         </option>
                       ))}
                     </select>
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="libroId" className="form-label">Libro *</label>
+                    <label htmlFor="bookId" className="form-label">Libro *</label>
                     <select
-                      id="libroId"
-                      name="libroId"
+                      id="bookId"
+                      name="bookId"
                       required
-                      value={formData.libroId}
+                      value={formData.bookId}
                       onChange={handleInputChange}
                       className="form-input"
                     >
                       <option value="">Seleccionar libro</option>
-                      {libros.filter(libro => libro.disponible).map(libro => (
+                      {libros.filter(libro => {
+                        if (editingLoan && libro.id === editingLoan.bookId) {
+                          return true;
+                        }
+                        return libro.disponible;
+                      }).map(libro => (
                         <option key={libro.id} value={libro.id}>
                           {libro.titulo} - {libro.autor}
+                          {editingLoan && libro.id === editingLoan.bookId && !libro.disponible ? ' (Préstamo actual)' : ''}
                         </option>
                       ))}
                     </select>
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="fechaPrestamo" className="form-label">Fecha de Préstamo *</label>
+                    <label htmlFor="dueDate" className="form-label">Fecha de Vencimiento *</label>
                     <input
                       type="date"
-                      id="fechaPrestamo"
-                      name="fechaPrestamo"
+                      id="dueDate"
+                      name="dueDate"
                       required
-                      value={formData.fechaPrestamo}
+                      value={formData.dueDate}
                       onChange={handleInputChange}
                       className="form-input"
                     />
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="fechaDevolucion" className="form-label">Fecha de Devolución</label>
-                    <input
-                      type="date"
-                      id="fechaDevolucion"
-                      name="fechaDevolucion"
-                      value={formData.fechaDevolucion}
-                      onChange={handleInputChange}
-                      className="form-input"
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="estado" className="form-label">Estado *</label>
+                    <label htmlFor="status" className="form-label">Estado *</label>
                     <select
-                      id="estado"
-                      name="estado"
+                      id="status"
+                      name="status"
                       required
-                      value={formData.estado}
+                      value={formData.status}
                       onChange={handleInputChange}
                       className="form-input"
                     >
@@ -501,12 +582,12 @@ const Prestamos = () => {
                     </select>
                   </div>
 
-                  <div className="form-group">
-                    <label htmlFor="observaciones" className="form-label">Observaciones</label>
+                  <div className="form-group md:col-span-2">
+                    <label htmlFor="notes" className="form-label">Observaciones</label>
                     <textarea
-                      id="observaciones"
-                      name="observaciones"
-                      value={formData.observaciones}
+                      id="notes"
+                      name="notes"
+                      value={formData.notes}
                       onChange={handleInputChange}
                       rows="3"
                       className="form-input"
@@ -515,14 +596,14 @@ const Prestamos = () => {
                   </div>
                 </div>
               </div>
-              <div className="modal-footer" style={{ justifyContent: 'space-between' }}>
-                 <button type="button" onClick={closeModal} className="btn btn-secondary" disabled={loading}>
-                   Cancelar
-                 </button>
-                 <button type="submit" className="btn btn-primary" disabled={loading}>
-                   {editingLoan ? 'Actualizar' : 'Registrar'} Préstamo
-                 </button>
-               </div>
+              <div className="modal-footer justify-between">
+                <button type="button" onClick={closeModal} className="btn btn-secondary" disabled={loading}>
+                  Cancelar
+                </button>
+                <button type="submit" className="btn btn-primary" disabled={loading}>
+                  {editingLoan ? 'Actualizar' : 'Registrar'} Préstamo
+                </button>
+              </div>
             </form>
           </div>
         </div>

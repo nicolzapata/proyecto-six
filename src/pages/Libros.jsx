@@ -204,12 +204,21 @@ const Libros = () => {
   };
 
   const handleEdit = (libro) => {
+    if (!canEditBook(libro)) {
+      alert('No tienes permisos para editar este libro');
+      return;
+    }
     setEditingBook(libro);
     setFormData({ ...libro });
     setShowModal(true);
   };
 
   const handleDelete = async (id) => {
+    const libro = libros.find(l => l.id === id);
+    if (!canEditBook(libro)) {
+      alert('No tienes permisos para eliminar este libro');
+      return;
+    }
     if (window.confirm("¿Estás seguro de que deseas eliminar este libro?")) {
       try {
         setLoading(true);

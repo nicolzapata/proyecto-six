@@ -125,7 +125,8 @@ const Escritores = () => {
         premiosRecomendaciones: autor.awards || '',
         idiomaPrincipal: autor.language || 'Español',
         redesSociales: autor.socialMedia || '',
-        fechaCreacion: autor.createdAt
+        fechaCreacion: autor.createdAt,
+        createdBy: autor.createdBy || autor.userId
       }));
       setEscritores(mappedEscritores);
       console.log('DEBUG Escritores: Escritores cargados exitosamente, cantidad:', mappedEscritores.length);
@@ -467,14 +468,15 @@ const Escritores = () => {
                               </div>
                             )}
                             <div className="flex gap-2">
-                              <button
-                                onClick={(e) => { e.stopPropagation(); handleEdit(escritor); }}
-                                className="btn btn-secondary flex-1"
-                                style={{ fontSize: '0.8rem', padding: '0.5rem' }}
-                                disabled={!canEditAuthor(escritor)}
-                              >
-                                Editar
-                              </button>
+                              {canEditAuthor(escritor) && (
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); handleEdit(escritor); }}
+                                  className="btn btn-secondary flex-1"
+                                  style={{ fontSize: '0.8rem', padding: '0.5rem' }}
+                                >
+                                  Editar
+                                </button>
+                              )}
                               {canEditAuthor(escritor) && (
                                 <button
                                   onClick={(e) => { e.stopPropagation(); handleDelete(escritor.id); }}
