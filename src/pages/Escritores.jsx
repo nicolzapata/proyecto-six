@@ -31,6 +31,7 @@ const Escritores = () => {
     redesSociales: ""
   });
   const [formErrors, setFormErrors] = useState({});
+  const [createdAuthors, setCreatedAuthors] = useState(new Set());
 
   const nacionalidades = [
     "Argentina", "Bolivia", "Brasil", "Chile", "Colombia", "Costa Rica", "Cuba", "Ecuador",
@@ -194,7 +195,7 @@ const Escritores = () => {
   };
 
   const canEditAuthor = (autor) => {
-    return user?.role === 'admin' || autor.createdBy === user?._id;
+    return user?.role === 'admin' || createdAuthors.has(autor.id);
   };
 
   const filteredEscritores = escritores.filter(escritor =>
@@ -227,6 +228,8 @@ const Escritores = () => {
       } else {
         const response = await authorsAPI.create(backendData);
         console.log('DEBUG Escritores: create response:', response);
+        const id = response.data?._id || response.author?._id || response.id || response._id || (typeof response === 'string' ? response : null);
+        if (id) setCreatedAuthors(prev => new Set(prev).add(id));
       }
       await loadEscritores();
       closeModal();

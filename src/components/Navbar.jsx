@@ -51,12 +51,14 @@ export default function Navbar() {
             >
               Panel
             </Link>
-            <Link
-              to="/users"
-              className={`nav-link ${location.pathname === "/users" ? "active" : ""}`}
-            >
-              Usuarios
-            </Link>
+            {user && user.role === 'admin' && (
+              <Link
+                to="/users"
+                className={`nav-link ${location.pathname === "/users" ? "active" : ""}`}
+              >
+                Usuarios
+              </Link>
+            )}
             <Link
               to="/escritores"
               className={`nav-link ${location.pathname === "/escritores" ? "active" : ""}`}

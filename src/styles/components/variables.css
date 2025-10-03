@@ -137,6 +137,9 @@
   --pattern-dots: radial-gradient(circle at 1px 1px, rgba(45, 212, 191, 0.1) 1px, transparent 0);
   --pattern-size: 20px 20px;
 
+  /* Gradiente primario más oscuro para modo oscuro */
+  --gradient-primary: linear-gradient(135deg, var(--teal-600) 0%, var(--emerald-700) 50%, var(--cyan-500) 100%);
+
   /* === SOMBRAS OSCURAS === */
   --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.3);
   --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);

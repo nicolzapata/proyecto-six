@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import LoadingSpinner from "../components/Common/LoadingSpinner";
 
 const Users = () => {
-  const { user: loggedUser } = useAuth();
+  const { user: loggedUser, loadProfile } = useAuth();
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
@@ -124,6 +124,7 @@ const Users = () => {
         // toggleStatus alterna el estado activo/inactivo del usuario
         const result = await usersAPI.toggleStatus(backendUserId);
         console.log('Resultado de toggleStatus:', result);
+        await loadProfile(); // Refrescar el perfil del usuario logueado
         await loadUsers();
         setUserToDelete(null);
         setShowDeleteModal(false);
@@ -244,6 +245,7 @@ const Users = () => {
       };
 
       await usersAPI.update(editingUser.id, userData);
+      await loadProfile(); // Refrescar el perfil del usuario logueado
       await loadUsers();
 
       setEditSuccess("¡Usuario actualizado exitosamente!");
@@ -444,7 +446,7 @@ const Users = () => {
                                 <circle cx="12" cy="12" r="3"></circle>
                               </svg>
                             </button>
-                            {loggedUser && (loggedUser.role === 'admin' || loggedUser.id === user.id) && (
+                            {loggedUser && loggedUser.role === 'admin' && (
                               <button
                                 onClick={() => handleEditUser(user)}
                                 className="btn btn-primary text-xs"

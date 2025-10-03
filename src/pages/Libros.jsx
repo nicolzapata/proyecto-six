@@ -1,5 +1,6 @@
 // src/pages/Libros.jsx
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { booksAPI, authorsAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import LoadingSpinner from "../components/Common/LoadingSpinner";
@@ -13,6 +14,7 @@ import {
 
 const Libros = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [libros, setLibros] = useState([]);
   const [authors, setAuthors] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -36,6 +38,7 @@ const Libros = () => {
   });
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [createdBooks, setCreatedBooks] = useState(new Set());
 
   const generos = [
     "Ficción", "No ficción", "Ciencia ficción", "Fantasía", "Misterio",
@@ -185,6 +188,8 @@ const Libros = () => {
         // Crear nuevo libro
         const response = await booksAPI.create(backendData);
         console.log('DEBUG Libros: create response:', response);
+        const id = response.data?._id || response.book?._id || response.id || response._id || (typeof response === 'string' ? response : null);
+        if (id) setCreatedBooks(prev => new Set(prev).add(id));
         setSuccess('Libro creado exitosamente');
       }
 
@@ -303,7 +308,7 @@ const Libros = () => {
   };
 
   const canEditBook = (libro) => {
-    return user?.role === 'admin' || libro.createdBy === user?._id;
+    return user?.role === 'admin' || createdBooks.has(libro.id);
   };
 
   const librosDisponibles = libros.filter(libro => libro.disponible).length;
@@ -695,16 +700,29 @@ const Libros = () => {
                   Editar
                 </button>
               )}
-              <button
-                onClick={() => {
-                  setShowDetailModal(false);
-                  toggleDisponibilidad(selectedBook.id);
-                }}
-                className={`btn ${selectedBook.disponible ? 'btn-warning' : 'btn-success'}`}
-                disabled={loading}
-              >
-                {selectedBook.disponible ? 'Prestar' : 'Devolver'}
-              </button>
+              {selectedBook.disponible ? (
+                <button
+                  onClick={() => {
+                    setShowDetailModal(false);
+                    navigate('/prestamos', { state: { bookId: selectedBook.id } });
+                  }}
+                  className="btn btn-warning"
+                  disabled={loading}
+                >
+                  Prestar
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    setShowDetailModal(false);
+                    toggleDisponibilidad(selectedBook.id);
+                  }}
+                  className="btn btn-success"
+                  disabled={loading}
+                >
+                  Devolver
+                </button>
+              )}
               {canEditBook(selectedBook) && (
                 <button
                   onClick={() => {
